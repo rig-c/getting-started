@@ -227,7 +227,7 @@ For a person to edit what the tools drafted. The build wrote Spine 4.3 skeleton 
 `skeleton.png`. The editor's import finds the parts as loose images, at the path
 `skeleton.json` names: `out/rig/images/`. In a Spine 4.3 editor, choose `Import Data` from
 the main menu, enter the path to `out/check/build/skeleton.json` and a name, and press
-`Import` ([Esoteric's Import page](https://esotericsoftware.com/spine-import)). If the parts
+`Import` ([Esoteric's Import page](https://esotericsoftware.com/spine-import)). Import the build folder where it was written. If you moved or renamed it, or the parts
 show as `MISSING`, select `Images` in the tree and set its `Path` to `out/rig/images`
 ([Esoteric's walkthrough](https://esotericsoftware.com/blog/Importing-skeleton-data)). Spine
 data imports only into the editor version that wrote it, so 4.3 data wants a 4.3 editor.
