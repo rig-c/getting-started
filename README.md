@@ -24,6 +24,7 @@ date and the timings are in [docs/REFERENCE.md](docs/REFERENCE.md) — if an out
 differs in a detail, look there first.
 
 **Contents:** [Try it first](#try-it-first--no-gpu-about-3-minutes) ·
+[Use what you made](#use-what-you-made) ·
 [Make your own character](#make-your-own-character) ·
 [Troubleshooting](#troubleshooting) · [Where to go next](#where-to-go-next) ·
 [Credits and licences](#credits-and-licences)
@@ -198,6 +199,72 @@ You should see the character raise her right arm and wave, over and over; the me
 to `idle`. Ctrl+C stops the server. That's the whole chain. The page is
 [`scripts/play.html`](scripts/play.html), about sixty lines around `@rig-c/play`;
 [`scripts/serve.ts`](scripts/serve.ts) serves it on your own machine only.
+
+## Use what you made
+
+Three places the rig can go from here. Each reads files the steps above already wrote;
+the sources behind every line are in [docs/REFERENCE.md](docs/REFERENCE.md#use-what-you-made).
+
+### On a web page, with `@rig-c/play`
+
+For your own site, with no Spine runtime. The page from step 10 is already this: it loads
+`skeleton.model.json`, the document a build writes next to the Spine files, and the part
+images beside it. Copy `wave-build/` (that document plus 22 part PNGs, 1.6 MB; it holds
+both `idle` and `wave`) next to a page, and start from the play README's
+[minimal page](https://github.com/rig-c/play#a-minimal-page): about twenty lines that load
+the player from a CDN, fit the rig to a box and play it. Point its `modelUrl` at
+`wave-build/skeleton.model.json`. [`scripts/play.html`](scripts/play.html) is the same with
+an animation menu.
+
+Licence: `@rig-c/play` is MIT. It links nothing from Esoteric Software and poses the rig with
+rig-c's own core, so no Spine licence is involved: the Spine terms turn on integrating a
+Spine Runtime, and this path integrates none.
+
+### In the Spine editor, to refine by hand
+
+For a person to edit what the tools drafted. The build wrote Spine 4.3 skeleton data:
+`out/check/build/skeleton.json` and `skeleton.atlas`, with the one packed page
+`skeleton.png`. The editor's import finds the parts as loose images, at the path
+`skeleton.json` names: `out/rig/images/`. In a Spine 4.3 editor, choose `Import Data` from
+the main menu, enter the path to `out/check/build/skeleton.json` and a name, and press
+`Import` ([Esoteric's Import page](https://esotericsoftware.com/spine-import)). If the parts
+show as `MISSING`, select `Images` in the tree and set its `Path` to `out/rig/images`
+([Esoteric's walkthrough](https://esotericsoftware.com/blog/Importing-skeleton-data)). Spine
+data imports only into the editor version that wrote it, so 4.3 data wants a 4.3 editor.
+
+⚠️ **As of the versions on this page, this import is refused.** We ran it: Spine 4.3.26
+answers `Unable to import skeleton … Error reading attachment: hair_back … Index -2 out of
+bounds for length 16`, on this build and on every weighted mesh in it. The cause is how the
+packages spell the bones inside each mesh vertex; with that order changed, the same file
+imports, exports and comes back green (the measurement and the edit are in
+[docs/REFERENCE.md](docs/REFERENCE.md#use-what-you-made)). Until the packages change it
+([rig-c/core#1407](https://github.com/rig-c/core/issues/1407)), this exit doesn't work on this
+build as written.
+
+Licence: the editor needs its own licence, Esoteric's
+[Spine Editor License Agreement](https://esotericsoftware.com/spine-editor-license); the
+free trial can't save a project or export ([purchase page](https://esotericsoftware.com/spine-purchase)).
+
+### In a game engine, through an official Spine runtime
+
+For a game. `out/check/build/` is a Spine export as a runtime sees it: `skeleton.json`,
+`skeleton.atlas`, `skeleton.png`; `wave-build/` is the same with `wave` added, one page per
+part. Load them the way Esoteric's
+[Loading skeleton data](https://esotericsoftware.com/spine-loading-skeleton-data) page shows,
+the atlas first and then the JSON, in the [official runtime](https://esotericsoftware.com/spine-runtimes)
+for your engine (Unity, Unreal, Godot, Phaser, PixiJS and others). Use a **4.3** runtime:
+Spine data is locked to the generation that wrote it, and Esoteric says a runtime of another
+version will not be able to read it.
+
+Licence: the Spine Runtimes License, as rig-c's [NOTICE](https://github.com/rig-c/core/blob/main/NOTICE.md)
+restates it. Integrating a Spine Runtime into a product is permitted *under Section 2 of
+the Spine Editor License Agreement*, or otherwise *on the condition that each user of the
+product obtains their own Spine Editor license* and the product carries the Runtimes licence
+and copyright notice. The licence itself is at
+[esotericsoftware.com/spine-runtimes-license](https://esotericsoftware.com/spine-runtimes-license).
+rig-c's own engine adapters, which would need no Spine runtime, are planned at
+[rig-c/adapters](https://github.com/rig-c/adapters) (PixiJS, Phaser, Three.js) and are not
+built yet.
 
 ## Make your own character
 

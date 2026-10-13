@@ -24,6 +24,7 @@ with these versions.
 | `rig-c` | 2.48.0 |
 | `@rig-c/pose` | 0.1.1 |
 | `@rig-c/play` | 1.9.1 |
+| Spine editor | Spine 4.3.26 Professional (launcher 4.3.08), driven from the command line only; see *Use what you made* |
 
 The README's `bun add` line pins nothing, so you get the current versions. If an output of
 yours differs in a detail from what the README says you should see, the versions above are
@@ -46,6 +47,11 @@ output of the second run was byte-identical to the first (`skeleton.json`,
 Of the GPU routes, only the joint script was run. Route A's times come from the project's
 own record (below). Route B was not run (owner decision, 2026-10-13: written from the
 official docs, one visible note). Route C was not run.
+
+Of *Use what you made*, the Spine editor import was run, from the command line, on a copy
+of the smoke run's build — and refused; the whole run is under
+[*Use what you made*](#use-what-you-made) below. The web-page exit is step 10 itself. No
+game engine was run.
 
 ## Measured times and sizes
 
@@ -275,6 +281,170 @@ are the requirements.
 The example inputs are task 01 of [rig-c/exam](https://github.com/rig-c/exam) at commit
 `01436ee3f02c189fe1a1e9656fe62068889837f5`.
 
+## Use what you made
+
+The README's three exits, line by line: where each claim comes from, and the one run.
+Esoteric Software's pages were read on 2026-10-13; the rig-c files at the versions in
+*Tested with*, except where a version is named.
+
+### On a web page
+
+- **What the player loads**: `skeleton.model.json`, "written next to the Spine pair and
+  the atlas pages", stating "the skeleton, the animations, and where every region sits on
+  its page — so the `.atlas` and `skeleton.json` beside it are not fetched"; poses are
+  computed by "`rig-c/core`, rigc's own posing core, which is bundled into this package"
+  (stated by the [play README](https://github.com/rig-c/play#install), *Install*).
+- **The minimal page**: the play README's own
+  [*A minimal page*](https://github.com/rig-c/play#a-minimal-page) — a CDN import of
+  `@rig-c/play@1`, `loadModel`, `RigPlayer`, a fit to the container and a frame loop; its
+  tests run that block as written (stated by the play README).
+- **`wave-build/`**: 1.6 MB, `skeleton.model.json`, `skeleton.json`, `skeleton.atlas` and
+  22 part PNGs — one page per part — carrying `idle` and `wave` (measured, run 2;
+  `rig-pose retarget --build` wrote it).
+- **Licence**: MIT (the play `package.json` and README badge). "At 1.0 it stopped being a
+  Spine runtime … links nothing from Esoteric Software; a Spine export is refused by name",
+  and "`@rig-c/play` is a third-party renderer and is not affiliated with or endorsed by
+  Esoteric Software" (stated by the play README). The chain in rig-c's
+  [NOTICE.md](https://github.com/rig-c/core/blob/main/NOTICE.md): "rigc also writes the
+  model document its own core poses, and a product may play that or anything else; what the
+  terms turn on is the integration" (fact 2), and "whether its output is then played by one,
+  by rigc's own core, or by something else is the consumer's choice".
+
+### In the Spine editor
+
+- **The files**: `out/check/build/skeleton.json`, `skeleton.atlas`, `skeleton.png` — the
+  parts README's artifact row, "Spine 4.3 skeleton data and one packed page". The build's
+  `skeleton.images` is `../../rig/images/`, which resolves to `out/rig/images/`, 22 PNGs
+  (read in the smoke run's files).
+- **How the editor finds the parts**: "The editor's JSON import reads `skeleton.images` and
+  finds each attachment's file by name under it; it never reads an atlas" — rig-c's
+  [`tools/editor_roundtrip.ts`](https://github.com/rig-c/core/blob/main/tools/editor_roundtrip.ts),
+  which cites its own measurement (its issue #562). Esoteric's walkthrough for a skeleton
+  that shows `MISSING`: "Select the `Images` node in the `Tree` view and enter the path to
+  the … images folder in `Path`" (stated by
+  [Importing skeleton data](https://esotericsoftware.com/blog/Importing-skeleton-data)).
+- **The menu path**: "To open the import data dialog, choose `Import Data` from the main
+  menu." Fields: the path to "the JSON or binary file to import", a name for the skeleton,
+  `New project`, `Scale` (stated by [Import](https://esotericsoftware.com/spine-import),
+  *Data*). Where the main menu sits on screen is not said in the text we read; the page
+  shows it as a screenshot.
+- **Same version only**: exported data "can be imported back into the Spine editor, but
+  only into the same version that exported the data" (stated by
+  [Versioning](https://esotericsoftware.com/spine-versioning)). rig-c emits 4.3:
+  "rigc emits and reads 4.3" and "the editor, run with the data's own generation, is the
+  migration path" (stated by
+  [GENERATIONS.md](https://github.com/rig-c/core/blob/main/docs/GENERATIONS.md)).
+- **The command line the run used**: `Spine -i <skeleton.json> -o <project.spine>
+  -r <name>` imports, `-i <project.spine> -o <dir> -e json` exports (stated by Esoteric's
+  [command-line interface](https://esotericsoftware.com/spine-command-line-interface);
+  the same calls `editor_roundtrip.ts` makes).
+- **Licence**: the editor is Esoteric's product under its own
+  [Spine Editor License Agreement](https://esotericsoftware.com/spine-editor-license); its
+  [purchase page](https://esotericsoftware.com/spine-purchase) puts saving projects and
+  exporting behind a purchased licence, and rig-c's README says the same of the trial:
+  "the trial cannot save projects or export animation data" (*The editor round trip*).
+  rig-c's own code is MIT and "says nothing about Spine" (rig-c README, *Licensing, stated
+  plainly*).
+
+#### The import, run on this build — refused
+
+Measured 2026-10-13 on the Mac in *Tested with*, with Spine 4.3.26 Professional (launcher
+4.3.08) at `/Applications/Spine.app`, from the command line only; the editor's window was
+never opened. The input was a copy of run 2's `out/` (`skeleton.json` sha256
+`7db7e47e…1a9b4`, identical to the smoke run's). Two instruments: rig-c's
+`tools/editor_roundtrip.ts` from a checkout at rig-c 2.49.0 (which runs the editor's
+import and export, then rigc's `validate`, `diff`, `render` and `check` on what comes
+back), and the editor's own command line directly.
+
+**Result: the editor refuses the import.** Exit code 1, 24.8 s, and these lines of its own
+(stack lines cut):
+
+```
+Project import: skeleton.json into build
+ERROR: Unable to import skeleton.
+[error] Error reading skeleton: build
+Cause: [error] Error reading attachment: hair_back (MOw)
+Cause: [aioob] Index -2 out of bounds for length 16
+```
+
+The same lines came back for `wave-build/skeleton.json` (imported directly with
+`Spine -i … -r wave`), and for the same rig spec rebuilt with rig-c 2.49.0 as a plain
+`build --copy-images`. rigc's gate is green on the file (`validate --profile spine` from the
+checkout, 14 of 14 measured rules pass, `A00_ROUNDTRIP_PARSE` — the parse by spine-core
+4.3.13 — among them), and rig-c's own core played it in step 10 — so this is something the
+editor's importer refuses that the runtime's parser and the gate accept.
+
+What it is, by editing one copy of `skeleton.json` at a time and importing again (each
+import about 25 s; the nine weighted meshes are `bottomwear`, `hairpin`, `hair_back`,
+`hair_front`, `handwear_l`, `handwear_r`, `legwear`, `neck`, `topwear`):
+
+| Edit to the file | Import |
+| --- | --- |
+| none | refused at `hair_back` |
+| `hair_back` removed from the skin | refused at the next mesh, `handwear_l` — every weighted mesh has it |
+| `edges` dropped from every mesh | refused at `hair_back` |
+| `hair_back` replaced by a 4-vertex mesh, one bone per vertex | passes `hair_back`, refused at `handwear_l` |
+| `hair_back` kept, every vertex cut to its heaviest bone | passes `hair_back`, refused at `handwear_l` |
+| `hair_back` kept, made unweighted | passes `hair_back`, refused at `handwear_l` |
+| `hair_back` kept, `hull` set to 4 and `edges` dropped | refused at `hair_back` |
+| `hair_back` kept, each vertex's bones **sorted by bone index** | passes `hair_back`, refused at `handwear_l` |
+| **every mesh, each vertex's bones sorted by bone index** (435 of 557 vertices reordered) | **imported** |
+
+So the editor refuses a weighted vertex whose bones are not listed in ascending bone-index
+order. The guide's rig lists them heaviest first: `rig.json` from `rig-parts` spells
+`hair_back` vertex 11 as `bun` (0.514) then `head` (0.486) where vertex 0 is `head` then
+`bun`, and `rigc build` emits the spec's order. Esoteric's
+[JSON format](https://esotericsoftware.com/spine-json-format) page gives the per-bone
+fields and says nothing about their order; `spine-core` parses either order
+(`A00_ROUNDTRIP_PARSE` above) and `A20_MESH_WEIGHTS_COHERENT` passes on both. The
+`16` in the message is not a count of anything in the file we could find (no array or
+object of 16 in it).
+
+**With that one reordering, the whole round trip is green** (`editor_roundtrip.ts`,
+47.1 s): import exit 0; export exit 0, declaring `skeleton.spine` 4.3.26; `validate
+--profile spine` green on the export; `diff` moved only `animations.curve_kinds`, 300 of
+312 keys — the editor re-spelled the curves — and nothing else; `check` of the export's
+41 idle frames against the build's own: mean MAE 0.0097, worst drift 6.374 px on `mouth`
+at frame 11; the editor rewrote `skeleton.spine` 4.3.13 → 4.3.26 and `skeleton.images` to
+its own relative path. The round trip's logs, the edited copies and the editor's full
+output are in the scratch directory of this run, outside the repository. Nothing in
+`scripts/` applies the reordering: the guide says the exit is refused, and which package
+changes is the packages' decision.
+
+### In a game engine
+
+- **What a runtime loads**: `Atlas("myAtlas.atlas", textureLoader)` "also loads the image
+  files for each atlas page", then `SkeletonJson` with an `AtlasAttachmentLoader` and
+  `readSkeletonData("mySkeleton.json")` (stated by
+  [Loading skeleton data](https://esotericsoftware.com/spine-loading-skeleton-data)).
+  rig-c: "a `skeleton.json` and a `skeleton.atlas` that load in any Spine runtime" (stated by
+  the [rig-c README](https://github.com/rig-c/core#readme)). Not measured: no engine was run
+  for this guide.
+- **The runtimes**: Esoteric's [runtimes page](https://esotericsoftware.com/spine-runtimes)
+  lists its official ones — Unity, Unreal Engine, Godot, iOS, Android, Flutter, Phaser,
+  PixiJS, libGDX, HaxeFlixel, Starling, MonoGame, SDL, SFML, GLFW/OpenGL, Web Canvas, WebGL,
+  Web Player, Web Components, CanvasKit, Three.js — and generic C, C++, C#, Haxe and
+  TypeScript runtimes. Cocos, Defold and GameMaker are listed there as third-party.
+- **The version match**: the editor version "must always match the Spine Runtimes version.
+  If not, the Spine Runtimes will not be able to read the data" (stated by
+  [Versioning](https://esotericsoftware.com/spine-versioning)). rig-c's
+  [GENERATIONS.md](https://github.com/rig-c/core/blob/main/docs/GENERATIONS.md) measured the
+  other direction — older data on the 4.3 runtime opens without an error and loses its
+  constraints or poses as NaN — and its rule is "play on that generation's official
+  runtime".
+- **Licence**: the two routes are quoted in the README exactly as rig-c's
+  [NOTICE.md](https://github.com/rig-c/core/blob/main/NOTICE.md) fact 3 restates them. The
+  licence's own sentences, read on Esoteric's
+  [page](https://esotericsoftware.com/spine-runtimes-license): "Integration of the Spine
+  Runtimes into software or otherwise creating derivative works of the Spine Runtimes is
+  permitted" "under the terms and conditions of Section 2 of the Spine Editor License
+  Agreement", and otherwise "provided that each user of the Products must obtain their own
+  Spine Editor license".
+- **Adapters**: [github.com/rig-c/adapters](https://github.com/rig-c/adapters) exists,
+  described as "Game-engine adapters for rig-c: play a rig-c model inside PixiJS, Phaser,
+  Three.js", MIT, one commit, and its README marks it planned with no work started
+  (read 2026-10-13).
+
 ## Not measured yet, and what measuring it needs
 
 | Claim | What it needs |
@@ -288,3 +458,6 @@ The example inputs are task 01 of [rig-c/exam](https://github.com/rig-c/exam) at
 | *Try it first* on Windows and Linux; the page in Safari and Firefox | runs on those systems and browsers |
 | `git clone https://github.com/rig-c/getting-started` as written | the guide published (the smoke copied the checkout instead) |
 | ComfyUI Desktop on macOS (address, custom nodes folder) | reading its docs further and one install |
+| The Spine editor import of the guide's build, as written | the packages writing each weighted vertex's bones in ascending bone-index order (the one edit that imported), then the round trip again on a fresh build |
+| The editor's import through its window (`Import Data`), the `MISSING` images step | a licensed editor opened by a person; only the command line was run |
+| `out/check/build/` or `wave-build/` loading in a game engine's Spine 4.3 runtime | one engine, one load, one frame compared against `rigc render` |
