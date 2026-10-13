@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rig-c play</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #f4f4f4; font: 14px/1.4 system-ui, sans-serif; color: #222; }
+  #bar { padding: 8px 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #stage { position: relative; height: calc(100% - 48px); overflow: hidden; }
+  #root { position: absolute; transform-origin: 0 0; }
+  #msg { color: #a00; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <label>animation <select id="anim"></select></label>
+  <button id="pause">pause</button>
+  <span id="msg"></span>
+</div>
+<div id="stage"><div id="root"></div></div>
+<script type="module">
+// Plays one rigc build in the page. The build is named in the address:
+//   http://localhost:3000/?model=<path to skeleton.model.json>&anim=<animation>
+// Both paths are relative to the directory serve.ts was started in.
+import { loadModel, RigPlayer } from '/node_modules/@rig-c/play/dist/index.js';
+
+const q = new URLSearchParams(location.search);
+const modelUrl = '/' + (q.get('model') || 'out/check/build/skeleton.model.json').replace(/^\/+/, '');
+const stage = document.getElementById('stage');
+const root = document.getElementById('root');
+const pick = document.getElementById('anim');
+const msg = document.getElementById('msg');
+
+try {
+  const assets = await loadModel({ modelUrl });
+  const player = new RigPlayer(root, assets);
+  for (const a of assets.animations) pick.add(new Option(`${a.name} (${a.duration.toFixed(2)} s)`, a.name));
+  const first = q.get('anim') || assets.animations[0]?.name;
+  if (!first) throw new Error(`${modelUrl} holds no animation`);
+  pick.value = first;
+  player.play(first);
+  pick.onchange = () => player.play(pick.value);
+
+  // Fit the rig to the stage. The root element is the rig's world origin and
+  // the rig grows upward from it (y up), so it is placed at the bottom-left of
+  // the box the setup pose draws, and scaled to fit.
+  const fit = () => {
+    const box = assets.stage ?? player.bounds();
+    if (!box) return;
+    const pad = 16;
+    const s = Math.min((stage.clientWidth - 2 * pad) / box.width, (stage.clientHeight - 2 * pad) / box.height);
+    const left = (stage.clientWidth - box.width * s) / 2 - box.x * s;
+    const top = (stage.clientHeight - box.height * s) / 2 + (box.y + box.height) * s;
+    root.style.left = `${left}px`;
+    root.style.top = `${top}px`;
+    root.style.transform = `scale(${s})`;
+    player.renderer.syncPixelRatio();
+  };
+  fit();
+  addEventListener('resize', fit);
+
+  let paused = false;
+  document.getElementById('pause').onclick = (e) => {
+    paused = !paused;
+    paused ? player.pause() : player.resume();
+    e.target.textContent = paused ? 'play' : 'pause';
+  };
+
+  let last = performance.now();
+  requestAnimationFrame(function tick(now) {
+    player.frame(Math.min(0.1, (now - last) / 1000));
+    last = now;
+    requestAnimationFrame(tick);
+  });
+  window.rigPlayer = player; // for the browser console
+} catch (e) {
+  msg.textContent = String(e && e.message || e);
+  throw e;
+}
+</script>
+</body>
+</html>
