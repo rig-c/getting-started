@@ -232,14 +232,10 @@ show as `MISSING`, select `Images` in the tree and set its `Path` to `out/rig/im
 ([Esoteric's walkthrough](https://esotericsoftware.com/blog/Importing-skeleton-data)). Spine
 data imports only into the editor version that wrote it, so 4.3 data wants a 4.3 editor.
 
-⚠️ **As of the versions on this page, this import is refused.** We ran it: Spine 4.3.26
-answers `Unable to import skeleton … Error reading attachment: hair_back … Index -2 out of
-bounds for length 16`, on this build and on every weighted mesh in it. The cause is how the
-packages spell the bones inside each mesh vertex; with that order changed, the same file
-imports, exports and comes back green (the measurement and the edit are in
-[docs/REFERENCE.md](docs/REFERENCE.md#use-what-you-made)). Until the packages change it
-([rig-c/core#1407](https://github.com/rig-c/core/issues/1407)), this exit doesn't work on this
-build as written.
+This import needs **rig-c 2.51.1 or later**. Earlier versions wrote the bones inside some mesh
+vertices in an order the editor's importer refuses (`Index -2 out of bounds`), though every runtime
+read them; [rig-c/core#1407](https://github.com/rig-c/core/issues/1407) fixed it, measured by an
+editor round trip of this very example.
 
 Licence: the editor needs its own licence, Esoteric's
 [Spine Editor License Agreement](https://esotericsoftware.com/spine-editor-license); the
