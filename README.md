@@ -138,7 +138,7 @@ all the same.
 
 ```sh
 bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json
-bun ../getting-started/scripts/take.ts work/proposal.json config.json bones meshes regions motion
+bun ../getting-started/scripts/take.ts work/proposal.json config.json bones meshes regions motion limbs
 ```
 
 `propose` drafts the bones, the meshes and an idle motion; `take.ts` copies them into the
@@ -168,6 +168,7 @@ names `propose` gave this rig.
 
 ```sh
 bun ../getting-started/scripts/wave.ts keypoints.json wave.pose.json
+bunx rig-pose clean --pose wave.pose.json --out wave.pose.clean.json
 cat > map.json <<'EOF'
 {
   "spec": "rig-pose-map/1",
@@ -179,7 +180,7 @@ cat > map.json <<'EOF'
   "translate": { "bone": "hip", "joint": "mid_hip", "scale": { "pose": ["mid_hip", "neck"], "rig": ["hip", "neck"] } }
 }
 EOF
-bunx rig-pose retarget --rig out/rig --map map.json --pose wave.pose.json --out wave.motion.json --name wave --profile spine-html --build wave-build
+bunx rig-pose retarget --rig out/rig --map map.json --pose wave.pose.clean.json --out wave.motion.json --name wave --profile spine-html --build wave-build
 ```
 
 You should see `73 frame(s), 3 s at 24 fps`, `GATE … green`, and
@@ -202,8 +203,8 @@ to `idle`. Ctrl+C stops the server. That's the whole chain. The page is
 
 ## Use what you made
 
-Three places the rig can go from here. Each reads files the steps above already wrote;
-the sources behind every line are in [docs/REFERENCE.md](docs/REFERENCE.md#use-what-you-made).
+Four places the rig can go from here. Each reads files the steps above already wrote;
+the original three are measured in [docs/REFERENCE.md](docs/REFERENCE.md#use-what-you-made).
 
 ### On a web page, with `@rig-c/play`
 
@@ -219,6 +220,48 @@ an animation menu.
 Licence: `@rig-c/play` is MIT. It links nothing from Esoteric Software and poses the rig with
 rig-c's own core, so no Spine licence is involved: the Spine terms turn on integrating a
 Spine Runtime, and this path integrates none.
+
+### Inside a game engine or renderer you already use
+
+Keep your game in PixiJS, Phaser or Three.js, and load the same `wave-build/` with
+[rig-c's adapters](https://github.com/rig-c/adapters). No Spine runtime. The packages
+are MIT, currently 0.x; their APIs may change.
+
+For PixiJS 8, install this in `my-rig`:
+
+```sh
+npm install @rig-c/pixi pixi.js @rig-c/play
+```
+
+Put this in your app's JavaScript entry point, serve `wave-build/` beside the page,
+and you have the wave from step 10 inside a Pixi canvas:
+
+```js
+import { Application } from 'pixi.js';
+import { loadModel } from '@rig-c/play';
+import { PixiRig } from '@rig-c/pixi';
+
+const app = new Application();
+await app.init({ width: 800, height: 600, backgroundAlpha: 0 });
+document.body.appendChild(app.canvas);
+const assets = await loadModel({ modelUrl: '/wave-build/skeleton.model.json' });
+const rig = new PixiRig(assets, { ticker: app.ticker });
+rig.play('wave');
+const box = rig.bounds();
+const scale = Math.min(760 / box.width, 560 / box.height);
+rig.scale.set(scale);
+rig.position.set(400 - (box.x + box.width / 2) * scale,
+                 300 + (box.y + box.height / 2) * scale);
+app.stage.addChild(rig);
+// On removal: rig.destroy(); assets.dispose(); app.destroy();
+```
+
+The fit places the rig's upward-growing coordinates inside Pixi's canvas. For the other
+hosts, start from the [Phaser 4.2+ example](https://github.com/rig-c/adapters/tree/main/packages/phaser#minimal-usage)
+or the [Three.js example](https://github.com/rig-c/adapters/tree/main/packages/three#minimal-usage).
+Keep the model document and its image pages together. The
+[example check](scripts/check-adapters.ts) installs the published packages and runs this
+exact snippet on the guide's build in a headless browser.
 
 ### In the Spine editor, to refine by hand
 
@@ -258,9 +301,6 @@ the Spine Editor License Agreement*, or otherwise *on the condition that each us
 product obtains their own Spine Editor license* and the product carries the Runtimes licence
 and copyright notice. The licence itself is at
 [esotericsoftware.com/spine-runtimes-license](https://esotericsoftware.com/spine-runtimes-license).
-rig-c's own engine adapters, which would need no Spine runtime, are planned at
-[rig-c/adapters](https://github.com/rig-c/adapters) (PixiJS, Phaser, Three.js) and are not
-built yet.
 
 ## Make your own character
 
