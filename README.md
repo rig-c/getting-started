@@ -565,8 +565,14 @@ them carries that licence. The exam's notice asks for this credit for the painti
 
 > *Painted with Nova Anime XL IL v8.0 by Crody (https://civitai.com/models/376130).*
 
-`rig-c` writes skeleton data in the Spine 4.3 format; using it in a product requires a
-Spine Editor licence, as the parts README's *Licence posture* says. See-through's code and
+`rig-c` writes skeleton data in the Spine 4.3 format, and its own model document beside it.
+Which Spine terms apply turns on what plays that output, as rig-c's
+[NOTICE](https://github.com/rig-c/core/blob/main/NOTICE.md) puts it: *what the terms turn
+on is the integration*, and *"If a product integrates a Spine Runtime to play rigc's
+output, that integration is subject to the terms above — rigc neither creates those terms
+nor removes them."* So the web-page and engine-adapter routes under *Use what you made*
+integrate no Spine Runtime, and the Spine editor and official-runtime routes carry the
+terms their own sections name. See-through's code and
 models are not part of any rig-c package; their terms are collected in the parts
 [NOTICE.md](https://github.com/rig-c/parts/blob/main/NOTICE.md). The model files in Route A
 each carry their own licence, linked from [docs/REFERENCE.md](docs/REFERENCE.md#the-model-files-exactly).
