@@ -131,8 +131,8 @@ The first run downloads two pose models (about 300 MB) and some Python packages.
 should see `18 observed, 0 occluded, 0 missing -> keypoints.json`.
 
 No Python? [docs/KEYPOINTS.md](docs/KEYPOINTS.md) has a hand-placed set for this very
-painting; save it as `keypoints.json`. You get 42 bones instead of 40, and it builds green
-all the same.
+painting; save it as `keypoints.json`. You get the same 42 bones without the `LINT` line
+step 7 prints for the script's left ankle, and it builds green all the same.
 
 ### 7. Draft the bones
 
@@ -144,10 +144,13 @@ bun ../getting-started/scripts/take.ts work/proposal.json config.json bones mesh
 `propose` drafts the bones, the meshes and an idle motion; `take.ts` copies them into the
 config. This is where a person corrects the draft. The example uses it as is.
 
-You should see a note per joint, then a coverage line ending `40 bone(s) — 29 checked and
-clean, 2 checked with a LINT line, 9 not checked`. The two `LINT` lines say the leg chain's
-top sits under the skirt; a `LINT` is something to look at, not a refusal. Open
-`work/render/landmarks.png` to see the bones over the painting.
+You should see a note per joint, then a coverage line ending `42 bone(s) — 29 checked and
+clean, 1 checked with a LINT line, 12 not checked`. The one `LINT` line begins
+`LINT foot_l at [428, 1077], the l_ankle joint and leg_l1's tip, lies on none of leg_l's art
+within 1 px along its joint line`: the script put the left ankle just off the leg, so the
+left leg is drafted without its ankle cut and `shoes` stays one part. A `LINT` is something
+to look at, not a refusal. Open `work/render/landmarks.png` to see the bones over the
+painting.
 
 ### 8. Build the rig
 
@@ -155,8 +158,8 @@ top sits under the skirt; a `LINT` is something to look at, not a refusal. Open
 bunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop
 ```
 
-About a minute. You should see `[check] check: PASS; 10 of 10 bar(s) measured`, then
-`build: PASS`. Open `out/idle.gif`: the character breathes and blinks in a 3.3-second loop.
+About a minute. You should see `[check] check: PASS; 11 of 12 bar(s) measured, 1 skipped
+(STRESS_OFF_CHAIN)`, then `build: PASS`. Open `out/idle.gif`: the character breathes and blinks in a 3.3-second loop.
 If any line says `FAIL`, nothing was written, and that line says what to change.
 
 ### 9. Give it a wave
@@ -184,9 +187,10 @@ bunx rig-pose retarget --rig out/rig --map map.json --pose wave.pose.clean.json 
 ```
 
 You should see `73 frame(s), 3 s at 24 fps`, `GATE … green`, and
+`FOLD   rigc render --folds at 24 fps: no mesh folds`, and
 `wrote wave.motion.json — animations: idle, wave`. A `FOLD` line is a reading, not a
-failure: with the forearm bent up sharply the sleeve pinches at the elbow and the hand is
-drawn squashed for those frames. `wave-build/` holds the rig with the new animation.
+failure: where a mesh does fold, it names the part and the frames to look at.
+`wave-build/` holds the rig with the new animation.
 
 ### 10. Play it in your browser
 

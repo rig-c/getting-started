@@ -10,8 +10,8 @@ quoted from. Three words recur:
 
 ## Tested with
 
-Recorded 2026-10-13. Everything marked *measured* on this page was run on this machine
-with these versions.
+Recorded 2026-10-13; *Try it first* re-run 2026-10-20. Everything marked *measured* on this
+page was run on this machine with these versions.
 
 | | |
 | --- | --- |
@@ -19,11 +19,11 @@ with these versions.
 | macOS | 26.6.1 |
 | Bun | 1.4.2 |
 | uv | 0.12.17, with the Python 3.12.14 it chose |
-| Browser | Chromium 152 (the built-in browser of the Claude desktop app), meshes drawn through WebGL |
-| `@rig-c/parts` | 1.16.0 |
-| `rig-c` | 2.48.0 |
-| `@rig-c/pose` | 0.1.1 |
-| `@rig-c/play` | 1.9.1 |
+| Browser | Chromium 152 (the built-in browser of the Claude desktop app), meshes drawn through WebGL (2026-10-13) |
+| `@rig-c/parts` | 1.41.1 (2026-10-20; 1.16.0 on 2026-10-13) |
+| `rig-c` | 2.61.1 (2026-10-20; 2.48.0 on 2026-10-13) |
+| `@rig-c/pose` | 0.35.0 (2026-10-20; 0.1.1 on 2026-10-13) |
+| `@rig-c/play` | 1.12.0 (2026-10-20; 1.9.1 on 2026-10-13) |
 | Spine editor | Spine 4.3.26 Professional (launcher 4.3.08), driven from the command line only; see *Use what you made* |
 
 The README's `bun add` line pins nothing, so you get the current versions. If an output of
@@ -34,6 +34,13 @@ The third-party READMEs quoted below were read on 2026-10-13: ComfyUI at `f9c618
 See-through at `df019de`, the ComfyUI-See-through wrapper at `98d754b` (its 0.5.0).
 
 ### What was run
+
+On 2026-10-20 *Try it first* was run once more, on the versions above: every `sh` block of
+the README extracted and run verbatim in order from an empty folder, with `HOME`, Bun's
+cache, uv's cache and `~/.cache/rtmlib` all empty, so the first-time downloads are in its
+times. Step 10 was checked by fetching the page and the model from `serve.ts` (both HTTP
+200), not by opening a browser. The README's expected lines come from that run. The earlier
+runs are kept below.
 
 *Try it first* (the CPU-only half) was run end to end twice on the machine above: once
 command by command while drafting, and once as a smoke, every `sh` block of the finished
@@ -59,27 +66,40 @@ game engine was run.
 
 Two runs; where they differ, both are given. The README's step numbers are the left column.
 
-| README step | Commands | Run 1 | Run 2 (smoke) |
-| --- | --- | --- | --- |
-| 1 install | `bun add` the four packages | 2.05 s (empty cache) | 3.1 s incl. mkdir and copy |
-| 2 example inputs | curl the exam tarball at `01436ee`, extract task 01 inputs | 4.0 s | 4.6 s |
-| 3 config | `rig-parts inputs` | 3.2 s | 4.2 s |
-| 4 head box | `layers`, `propose --head-box`, `take.ts`, `inputs` | 1.5 + 2.0 + 3.5 s | 8.0 s |
-| 5 assemble | `assemble --propose-plan`, `take.ts`, `assemble` | 19.3 + 35.2 s | 67.3 s |
-| 6 joints | `uv run … keypoints.py` (models already downloaded) | 3.6 s | 3.9 s |
-| 7 draft bones | `propose --keypoints`, `take.ts` | 6.9 s | 8.8 s |
-| 8 build | `rig-parts build --loop` | 71.6 s | 67.2 s |
-| — look | `rigc inspect`, `rigc render` (under *Where to go next*) | 1.9 + 2.3 s | 2.8 s |
-| 9 wave | `wave.ts`, map heredoc, `rig-pose retarget --build` | 0.09 + 6.0 s | 5.7 s |
-| 10 play | `serve.ts`; page opened in Chromium 152 | played; meshes on WebGL | played; 37 requests, last at 242 ms |
+| README step | Commands | Run 1 (2026-10-13) | Run 2 (smoke, 2026-10-13) | Run 3 (clean, 2026-10-20) |
+| --- | --- | --- | --- | --- |
+| 1 install | `bun add` the four packages | 2.05 s (empty cache) | 3.1 s incl. mkdir and copy | 1.9 s incl. `git clone` |
+| 2 example inputs | curl the exam tarball at `01436ee`, extract task 01 inputs | 4.0 s | 4.6 s | 3.6 s |
+| 3 config | `rig-parts inputs` | 3.2 s | 4.2 s | 1.5 s |
+| 4 head box | `layers`, `propose --head-box`, `take.ts`, `inputs` | 1.5 + 2.0 + 3.5 s | 8.0 s | 2.0 s |
+| 5 assemble | `assemble --propose-plan`, `take.ts`, `assemble` | 19.3 + 35.2 s | 67.3 s | 28.3 s |
+| 6 joints | `uv run … keypoints.py` | 3.6 s (models already downloaded) | 3.9 s (models already downloaded) | 42.5 s (models and packages downloaded) |
+| 7 draft bones | `propose --keypoints`, `take.ts` | 6.9 s | 8.8 s | 6.3 s |
+| 8 build | `rig-parts build --loop` | 71.6 s | 67.2 s | 71.9 s |
+| — look | `rigc inspect`, `rigc render` (under *Where to go next*) | 1.9 + 2.3 s | 2.8 s | not run |
+| 9 wave | `wave.ts`, `clean`, map heredoc, `rig-pose retarget --build` | 0.09 + 6.0 s | 5.7 s | 5.2 s |
+| 10 play | `serve.ts` | played in Chromium 152; meshes on WebGL | played; 37 requests, last at 242 ms | page and model HTTP 200 |
 
-Run 2 total: **176 s**. The download in step 2 is 41 MB.
+Run 2 total: **176 s**. Run 3 total: **166 s** wall clock, first-time downloads included. The
+download in step 2 is 41 MB.
 
 Disk after run 2: `my-rig` 79 MB (`node_modules` 37, `inputs` 19, `work` 4.3, `out` 16,
 `wave-build` 1.6) and Bun's download cache 38 MB — about 120 MB in all. Bun reported
 `7 packages installed`.
 
-Results, both runs: `check: PASS; 10 of 10 bar(s) measured, 0 skipped`; `build: PASS`; the
+Results, run 3 (parts 1.41.1, rig-c 2.61.1): step 7's `propose` reporting
+`coverage: 42 bone(s) — 29 checked and clean, 1 checked with a LINT line, 12 not checked;
+roles 0 target, 41 deforms, 1 control, 0 unclassified`, the one `LINT` for `foot_l` at
+`[428, 1077]` (the script's left ankle, off the leg's art; the nearest art on its joint line
+is 10.784 px away); `check: PASS; 11 of 12 bar(s) measured, 1 skipped (STRESS_OFF_CHAIN)`;
+`build: PASS`; the packed atlas `skeleton.png 476x1403, 27 region(s), 89.7% covered, padding 2,
+page edges free, shape polygon`; retarget `GATE` green, every `LAND` within 0.00120°,
+`FOLD   rigc render --folds at 24 fps: no mesh folds`. With the hand-placed joints of
+[KEYPOINTS.md](KEYPOINTS.md) instead of the script: 42 bones, no `LINT`, the same
+`check` and `build: PASS`. Disk after run 3: `my-rig` 79 MB, Bun's cache 40 MB, the pose
+models in `~/.cache/rtmlib` 328 MB.
+
+Results, runs 1 and 2 (parts 1.16.0, rig-c 2.48.0): `check: PASS; 10 of 10 bar(s) measured, 0 skipped`; `build: PASS`; the
 packed atlas `skeleton.png 507x1472, 22 region(s), 90.7% covered, padding 2, page edges free,
 shape polygon`; `assemble` reporting `recomposite vs source: mean |d|=1.13, within 8: 97.8%,
 error px > 40: 6275, uncovered error px: 2059`; `propose` reporting
