@@ -192,16 +192,49 @@ You should see `73 frame(s), 3 s at 24 fps`, `GATE … green`, and
 failure: where a mesh does fold, it names the part and the frames to look at.
 `wave-build/` holds the rig with the new animation.
 
+### 9b. Say hello
+
+Step 9 turned joint positions into a motion. A motion can also be written as keys on the
+bones and handed to the build, which checks it with the rig.
+[`scripts/hello.ts`](scripts/hello.ts) writes a four-second hello that way, reading the bones
+from the rig step 8 built; the config names the file in `motion.animations_from`, and the
+build runs again.
+
+```sh
+bun ../getting-started/scripts/hello.ts out/rig/rig.json
+echo '{"animations_from": "hello.anim.json"}' > work/hello-from.json
+bun ../getting-started/scripts/take.ts work/hello-from.json config.json motion.animations_from=animations_from
+bunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop
+```
+
+About a minute and a half. You should see `hello.ts: 4 beats (hm?, heh, wave, settle), 4 s at
+24 fps, 16 tracks of 97 keys; sleeve_r0 at most 4.0 deg; hip shift 6.0 px`, then from the
+build `animations beside the idle, from …/hello.anim.json as written: hello`,
+`ANIMATIONS_DO_NOT_FOLD: PASS — 2 animation(s) read by rigc render --folds at 12 fps (idle,
+hello)`, `check: PASS; 11 of 12 bar(s) measured, 1 skipped (STRESS_OFF_CHAIN); 1 warning(s)`,
+and `build: PASS`. The warning is `SEAM_OVER_MOTION`, never a bar: where the forearm turns
+at the elbow, a sliver of it shows past the sleeve's cuff. `out/check/build/` now holds `idle`
+and `hello`.
+
+The wave here is the forearm's, with the upper arm kept within 4 degrees of rest. On this
+painting the upper arm and its puff sleeve are one image under a sleeveless top, so
+swinging it out, as step 9's wave does, opens a gap at the armhole. The comment at the top
+of `hello.ts` says why each limit is where it is.
+
 ### 10. Play it in your browser
 
 ```sh
 bun ../getting-started/scripts/serve.ts
 ```
 
-Open <http://localhost:3000/?model=wave-build/skeleton.model.json&anim=wave>.
+Open <http://localhost:3000/?model=out/check/build/skeleton.model.json&anim=hello&under=idle>.
 
-You should see the character raise her right arm and wave, over and over; the menu switches
-to `idle`. Ctrl+C stops the server. That's the whole chain. The page is
+You should see her notice you — "hm?", her head straightening — then smile with narrowed
+eyes and two little shrugs, wave with her forearm beside her shoulder, and settle her weight
+before it starts again. `&under=idle` keeps the idle playing beneath, so she breathes
+through it. Step 9's wave is at
+<http://localhost:3000/?model=wave-build/skeleton.model.json&anim=wave>; the menu switches
+animations. Ctrl+C stops the server. That's the whole chain. The page is
 [`scripts/play.html`](scripts/play.html), about sixty lines around `@rig-c/play`;
 [`scripts/serve.ts`](scripts/serve.ts) serves it on your own machine only.
 
@@ -238,7 +271,7 @@ npm install @rig-c/pixi pixi.js @rig-c/play
 ```
 
 Put this in your app's JavaScript entry point, serve `wave-build/` beside the page,
-and you have the wave from step 10 inside a Pixi canvas:
+and you have step 9's wave inside a Pixi canvas:
 
 ```js
 import { Application } from 'pixi.js';
