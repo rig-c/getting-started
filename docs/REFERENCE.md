@@ -10,7 +10,7 @@ quoted from. Three words recur:
 
 ## Tested with
 
-Recorded 2026-10-13; *Try it first* re-run twice on 2026-10-20, the second time with step 9b. Everything marked *measured* on this
+Recorded 2026-10-13; *Try it first* re-run twice on 2026-10-20, the second time with step 9b, and once more on 2026-10-21 with step 9c. Everything marked *measured* on this
 page was run on this machine with these versions.
 
 | | |
@@ -20,8 +20,8 @@ page was run on this machine with these versions.
 | Bun | 1.4.2 |
 | uv | 0.12.17, with the Python 3.12.14 it chose |
 | Browser | Chromium 152 (the built-in browser of the Claude desktop app), meshes drawn through WebGL (2026-10-13) |
-| `@rig-c/parts` | 1.48.0 (2026-10-20, with step 9b; 1.41.1 earlier that day; 1.16.0 on 2026-10-13) |
-| `rig-c` | 2.64.1 (2026-10-20, with step 9b; 2.61.1 earlier that day; 2.48.0 on 2026-10-13) |
+| `@rig-c/parts` | 1.49.1 (2026-10-21, with step 9c; step 9c's readings were taken on 1.48.0's build, byte-identical) · 1.48.0 (2026-10-20, with step 9b; 1.41.1 earlier that day; 1.16.0 on 2026-10-13) |
+| `rig-c` | 2.64.1 (2026-10-20 and 2026-10-21, with steps 9b and 9c; 2.61.1 earlier that day; 2.48.0 on 2026-10-13) |
 | `@rig-c/pose` | 0.37.0 (2026-10-20, with step 9b; 0.35.0 earlier that day; 0.1.1 on 2026-10-13) |
 | `@rig-c/play` | 1.12.0 (2026-10-20, both runs; 1.9.1 on 2026-10-13) |
 | Spine editor | Spine 4.3.26 Professional (launcher 4.3.08), driven from the command line only; see *Use what you made* |
@@ -53,6 +53,16 @@ run 4's (`hello.anim.json`, `config.json`, `wave.motion.json`, the build's `skel
 and `skeleton.model.json`). Step 10 was checked by fetching the page and both models from
 `serve.ts` (HTTP 200), and the `&under=idle` address was opened once in headless Chromium:
 `idle` on track 0, `hello` on track 1, both looping, the page's message line empty.
+
+On 2026-10-21, with step 9c added, every `sh` block was extracted and run verbatim in order
+from an empty folder once more (run 6), `git clone` again replaced by a copy of the checkout;
+`bun add` installed parts 1.49.1, published that day, with rig-c 2.64.1, pose 0.37.0 and play
+1.12.0. Every expected line on the README held. Step 9c's outputs (`hello.anim.json`,
+`config.json`, the build's `skeleton.json`, `skeleton.model.json` and `skeleton.png`, and
+`out/idle.gif`) were byte-identical to the scratch run on parts 1.48.0 whose build the
+readings under *Step 9c* were taken on. One line's wording differs between the two: 1.49.1's
+`wrote config.cloth.json:` names each chain and track it removed and inserted, where 1.48.0
+named the sections. Step 10 was checked by fetching the page and both models (HTTP 200).
 
 *Try it first* (the CPU-only half) was run end to end twice on the machine above: once
 command by command while drafting, and once as a smoke, every `sh` block of the finished
@@ -91,12 +101,17 @@ Two runs; where they differ, both are given. The README's step numbers are the l
 | — look | `rigc inspect`, `rigc render` (under *Where to go next*) | 1.9 + 2.3 s | 2.8 s | not run | not run |
 | 9 wave | `wave.ts`, `clean`, map heredoc, `rig-pose retarget --build` | 0.09 + 6.0 s | 5.7 s | 5.2 s | 6.1 s |
 | 9b hello | `hello.ts`, the `animations_from` line, `take.ts`, `rig-parts build --loop` | — | — | — | 80.6 s |
+| 9c cloth | `hello.ts --no-skirt-keys`, the `cloth` heredoc, `take.ts`, `propose --cloth --write-config`, `mv`, the `bun -e` line, `rig-parts build --loop --lead-in 1` | — | — | — | — (run 6: 153.5 s, under load) |
 | 10 play | `serve.ts` | played in Chromium 152; meshes on WebGL | played; 37 requests, last at 242 ms | page and model HTTP 200 | page and both models HTTP 200 |
 
 Run 2 total: **176 s**. Run 3 total: **166 s** wall clock, first-time downloads included. Run
 4 total: **214 s** (133 s for steps 1–10 and 81 s for 9b), with the caches warm. The run 5
 smoke took 580 s, but the machine's load average was 75–87 while it ran (other jobs), so its
 times are not given. The download in step 2 is 41 MB.
+
+Run 6 (clean, 2026-10-21, caches warm, the machine's load average 13–16 from other jobs, so
+an upper bound): **495.5 s** in all — steps 1 to 10 took 1.3, 5.3, 4.3, 8.5, 63.7, 4.3, 8.6,
+101.5, 16.6, 122.7 (9b), 153.5 (9c) and 2.7 s.
 
 Disk after run 2: `my-rig` 79 MB (`node_modules` 37, `inputs` 19, `work` 4.3, `out` 16,
 `wave-build` 1.6) and Bun's download cache 38 MB — about 120 MB in all. Bun reported
@@ -197,6 +212,122 @@ frames for both thighs (0 of 81 under the idle). `sleeve_r0` against `chest`: �
 **Not measured:** the seams with the hello played over the idle on two tracks, as step 10's
 `&under=idle` plays it — `rigc render` reads one animation at a time. The idle adds its
 breath on `chest_ctl` and its sway on the left sleeve beneath the hello's own keys.
+
+### Step 9c, the hair and the skirt
+
+The recipe is the parts package's *Recipe: cloth and hair that answer the world* (stated by
+the parts [AUTHORING][authoring]): the config's `cloth` block holds one recipe per
+See-through tag, `propose --cloth` drafts it, and `--write-config` writes the config back
+"with what the recipe drafts spliced in", replacing `bones` and `constraints` whole and
+keeping every other byte, `motion.animations_from` among them. On this painting the locks
+beside the face are in the `front hair` layer, with the fringe (the plan's `hair_front`
+part, `head:front hair`); the back hair's `bun` is a single bone, and a `back hair` recipe on
+hair that ends above the shoulders is refused (`PROPOSE_CLOTH_DRAFTED`), so the bun keeps its
+idle key.
+
+**What the recipe drafted** (parts 1.48.0, measured): the keyed chains `lock`, `lock1_` and
+`skirt_r`, `skirt_c`, `skirt_l` and their idle tracks are replaced; the fringe's chains keep
+their names and places. The rig goes from 70 bones to 46 (the keyed chains' `_ctl` bones go).
+
+| piece | chains | constraints |
+| --- | --- | --- |
+| side locks | `lockt0_` and `lock1t0_`, 3 links each, from `head` | `<link>_physics` on every link (rotate), `<last link>_translate` on the last: 8 |
+| fringe | `bang_r`, `bang_c`, `bang_l`, 2 links each, as drafted in step 7 | the same: 9 |
+| skirt | `skirt0_`, `skirt1_`, `skirt2_`, 3 links each, and `skirt_swing`, one link under `hip` | `skirt_swing_physics`; `skirt_swing_0`..`_2` (transform: each tree's first link turns with the swing, times 1.2, 1, 1.2); `_physics` on links 1 and 2 and `_translate` on link 2 of each tree: 13 |
+
+27 physics constraints and 3 transform constraints, 30 in all; `wind` 1 to 6 and `gravity`
+2 to 12 from root to tip, multipliers of the world the player sets. The step-10 page sets
+none, so the runtime's default world applies: wind (1, 0), gravity (0, 1) (stated by
+`rigc render --help`, *--environment*).
+
+**Two corrections to the draft, both measured on this painting:**
+
+- **The side locks' `strength`.** At the recipe's default (`edge` 50; one tree is its own
+  edge) the locks trail the hello's head turn: `face|hair_front` reads a ghost of 122 px at
+  hello frame 8 (t 0.333 s), past the bar of 50. With `edge` 100 it reads 47.
+- **The bun's idle amplitude.** With the locks', fringe's and skirt's tracks gone, `bun` is
+  the head's only keyed child, and `CHAIN_LAG` reads `neck > head_ctl > bun_ctl` as one
+  unbranched chain: `CHECK_CHAIN_LAG: bone "bun_ctl" in the chain from "neck" — amplitude
+  0.800 below the link above's 0.900`, `check: FAIL`. The draft's own 0.8 under 0.9 was not
+  read before, because `head` had other keyed children. Raised to 1: `CHAIN_LAG: PASS`.
+
+**The hello's skirt keys.** `hello.ts` keys `skirt_r0`, `skirt_c0` and `skirt_l0` to follow
+the settle's hip shift; under the recipe those bones do not exist and the swing carries the
+skirt, so step 9c writes the hello with `--no-skirt-keys` (13 tracks; the other 13 are the
+same keys, byte for byte). Without physics the keys are needed: step 9b's build with them left
+out reads `thigh_l|bottomwear` gap 48 px on the hello, past the bar of 25.
+
+**The build's lines** (run on 2026-10-21): `CLOTH_SETTLES: WARN — 9 physics chain(s) …: 4 of
+them settle before the loop's length`, the skirt's three trees at 1.917, 2 and 1.833 s and
+`skirt_swing` at 1.25 s of the 3.333 s idle; the hair does not settle, because the idle keys
+the head it hangs from. `loop: … with the rig's 27 physics constraint(s) left out … max |d| 0`,
+and the `loop physics:` line naming all 27. Without `--lead-in`, `idle.gif` jumps at the wrap
+(`f0040.png differs from f0000.png by max |d| 209, 1244 px over 40`); with `--lead-in 1`,
+`max |d| 0, 0 px over 40`. `ANIMATIONS_DO_NOT_FOLD` reads both animations with the physics on
+and off: 0 folding meshes. `TEXTURE_STRETCH` severity 1.117 (ceiling 1.927), worst in
+`bottomwear`.
+
+**Bars, written down before measuring:** on each seam pair, gap ≤ 25 px and ghost ≤ 50 px on
+the worst frame, physics on; 0 frames of pass-through; `ANIMATIONS_DO_NOT_FOLD` PASS;
+`check: PASS` and `build: PASS`; `sleeve_r0` still within 4 degrees of rest.
+
+**Readings**, on the step's build, `rigc render --candidate out/check/build --animation
+<name> --fps 24 --geometry --seam … --pass-through bottomwear:thigh_r,bottomwear:thigh_l
+--angle-range …`. `rigc render` starts the physics at rest at frame 0 and steps it, as the
+player does when an animation starts, so the frames include the skirt hanging into place in
+the first 2 s (gap / ghost, px, worst frame):
+
+| pair | `idle` | `hello` |
+| --- | --- | --- |
+| upperarm_r \| topwear | 0 / 2 | 8 / 8 |
+| forearm_r \| upperarm_r | 0 / 2 | 1 / 25 |
+| upperarm_l \| topwear | 0 / 0 | 0 / 1 |
+| forearm_l \| upperarm_l | 0 / 1 | 0 / 0 |
+| neck \| topwear | 0 / 0 | 0 / 5 |
+| face \| hair_front | 0 / 0 | 7 / 47 |
+| face \| neck | 0 / 0 | 0 / 1 |
+| hair_back \| face | 0 / 1 | 0 / 0 |
+| topwear \| bottomwear | 1 / 7 | 3 / 18 |
+| thigh_r \| bottomwear | 6 / 1 | 6 / 5 |
+| thigh_l \| bottomwear | 1 / 2 | 3 / 8 |
+| shin_r \| thigh_r | 0 / 0 | 0 / 9 |
+| shin_l \| thigh_l | 0 / 0 | 0 / 5 |
+| shoes \| shin_r | 0 / 0 | 0 / 0 |
+| shoes \| shin_l | SKIP | SKIP |
+
+Pass-through: 0 of 81 idle frames and 0 of 97 hello frames, both thighs. `sleeve_r0` against
+`chest`: 4.00 degrees out at most under the hello. Every reading is inside its bar.
+
+**How far physics moves them.** Each link against the one above (`--angle-range`), the span
+over the frames read, degrees, the settle from rest included:
+
+| link | `idle` | `hello` |
+| --- | --- | --- |
+| `lockt0_0` against `head` | 0.74 | 2.79 |
+| `lockt0_1`, `lockt0_2` | 1.23, 1.87 | 3.46, 6.73 |
+| `lock1t0_0` against `head` | 0.45 | 2.14 |
+| `lock1t0_1`, `lock1t0_2` | 1.29, 2.22 | 3.12, 5.69 |
+| `bang_c0` against `head`, `bang_c1` | 0.95, 2.83 | 11.26, 8.63 |
+| `skirt_swing` against `hip` | 0.46 | 2.90 |
+| `skirt0_0`, `skirt1_0`, `skirt2_0` against `hip` | 0.56, 0.46, 0.56 | 3.48, 2.90, 3.48 |
+| `skirt0_2`, `skirt1_2`, `skirt2_2` | 2.61, 2.60, 7.41 | 4.74, 4.61, 8.84 |
+
+The tips, in the frame of the bone the piece hangs from (`--geometry`): under the hello the
+side locks' ends move up to 5.17 and 5.67 rig px from their median, at t 3.667 s (the
+settle), the fringe's up to 9.82 at t 0.333 s (the head turn), and the skirt's middle tree
+6.78 at the end of the settle. Under the idle, once the skirt has hung into place (from
+2 s on), the side locks' ends move 0.23 and 0.40 rig px and the skirt's less than 0.01: a
+breath on the chest barely reaches hair that hangs from the head, and nothing in the idle
+moves the hip. Step 8's keyed idle swung the locks' last links at an amplitude of 3.6 degrees.
+
+**Wind.** `rigc render --environment` with calm (wind (0, 0)) from 0 s and a gust (2, 0)
+from 1.5 s, against calm throughout, on the idle: the side locks' ends 9.25 and 10.07 rig px
+apart at about 2 s, the fringe 3.89 and 3.57, the skirt's hems 10.90, 8.37 and 12.83. The
+step-10 page sets no world of its own; the player's `environment()` is where a page would.
+
+**Not measured:** the hello over the idle on two tracks with physics, as step 10's
+`&under=idle` plays it (`rigc render` reads one animation at a time); the player's physics
+against rigc's render frame by frame.
 
 ### The joint script, `scripts/keypoints.py`
 
@@ -567,3 +698,4 @@ changes is the packages' decision.
 | The editor's import through its window (`Import Data`), the `MISSING` images step | a licensed editor opened by a person; only the command line was run |
 | `out/check/build/` or `wave-build/` loading in a game engine's Spine 4.3 runtime | one engine, one load, one frame compared against `rigc render` |
 | The seams of step 10's hello over the idle (`&under=idle`, two tracks) | a reading of the two tracks mixed, frame by frame, as the player poses them |
+| The player's physics against `rigc render`'s, and the hello over the idle with physics on | frames read from the player in a browser and compared with the render's, both tracks on |
