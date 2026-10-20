@@ -10,7 +10,7 @@ quoted from. Three words recur:
 
 ## Tested with
 
-Recorded 2026-10-13; *Try it first* re-run 2026-10-20. Everything marked *measured* on this
+Recorded 2026-10-13; *Try it first* re-run twice on 2026-10-20, the second time with step 9b. Everything marked *measured* on this
 page was run on this machine with these versions.
 
 | | |
@@ -20,10 +20,10 @@ page was run on this machine with these versions.
 | Bun | 1.4.2 |
 | uv | 0.12.17, with the Python 3.12.14 it chose |
 | Browser | Chromium 152 (the built-in browser of the Claude desktop app), meshes drawn through WebGL (2026-10-13) |
-| `@rig-c/parts` | 1.41.1 (2026-10-20; 1.16.0 on 2026-10-13) |
-| `rig-c` | 2.61.1 (2026-10-20; 2.48.0 on 2026-10-13) |
-| `@rig-c/pose` | 0.35.0 (2026-10-20; 0.1.1 on 2026-10-13) |
-| `@rig-c/play` | 1.12.0 (2026-10-20; 1.9.1 on 2026-10-13) |
+| `@rig-c/parts` | 1.48.0 (2026-10-20, with step 9b; 1.41.1 earlier that day; 1.16.0 on 2026-10-13) |
+| `rig-c` | 2.64.1 (2026-10-20, with step 9b; 2.61.1 earlier that day; 2.48.0 on 2026-10-13) |
+| `@rig-c/pose` | 0.37.0 (2026-10-20, with step 9b; 0.35.0 earlier that day; 0.1.1 on 2026-10-13) |
+| `@rig-c/play` | 1.12.0 (2026-10-20, both runs; 1.9.1 on 2026-10-13) |
 | Spine editor | Spine 4.3.26 Professional (launcher 4.3.08), driven from the command line only; see *Use what you made* |
 
 The README's `bun add` line pins nothing, so you get the current versions. If an output of
@@ -41,6 +41,18 @@ cache, uv's cache and `~/.cache/rtmlib` all empty, so the first-time downloads a
 times. Step 10 was checked by fetching the page and the model from `serve.ts` (both HTTP
 200), not by opening a browser. The README's expected lines come from that run. The earlier
 runs are kept below.
+
+Later on 2026-10-20, with step 9b added, *Try it first* was run twice more on the current
+npm versions (parts 1.48.0, rig-c 2.64.1, pose 0.37.0, play 1.12.0): once with the published
+guide's steps 1–10 and then 9b by hand (run 4), and once as a smoke of the finished page,
+every `sh` block extracted and run verbatim in order from an empty folder (run 5). Bun's,
+uv's and the pose models' caches were warm for both. In run 5, `git clone` was replaced by a
+copy of the checkout, because `scripts/hello.ts` was not yet published. Every expected line
+on the README held in both, step 9's included, and run 5's outputs were byte-identical to
+run 4's (`hello.anim.json`, `config.json`, `wave.motion.json`, the build's `skeleton.json`
+and `skeleton.model.json`). Step 10 was checked by fetching the page and both models from
+`serve.ts` (HTTP 200), and the `&under=idle` address was opened once in headless Chromium:
+`idle` on track 0, `hello` on track 1, both looping, the page's message line empty.
 
 *Try it first* (the CPU-only half) was run end to end twice on the machine above: once
 command by command while drafting, and once as a smoke, every `sh` block of the finished
@@ -66,22 +78,25 @@ game engine was run.
 
 Two runs; where they differ, both are given. The README's step numbers are the left column.
 
-| README step | Commands | Run 1 (2026-10-13) | Run 2 (smoke, 2026-10-13) | Run 3 (clean, 2026-10-20) |
-| --- | --- | --- | --- | --- |
-| 1 install | `bun add` the four packages | 2.05 s (empty cache) | 3.1 s incl. mkdir and copy | 1.9 s incl. `git clone` |
-| 2 example inputs | curl the exam tarball at `01436ee`, extract task 01 inputs | 4.0 s | 4.6 s | 3.6 s |
-| 3 config | `rig-parts inputs` | 3.2 s | 4.2 s | 1.5 s |
-| 4 head box | `layers`, `propose --head-box`, `take.ts`, `inputs` | 1.5 + 2.0 + 3.5 s | 8.0 s | 2.0 s |
-| 5 assemble | `assemble --propose-plan`, `take.ts`, `assemble` | 19.3 + 35.2 s | 67.3 s | 28.3 s |
-| 6 joints | `uv run … keypoints.py` | 3.6 s (models already downloaded) | 3.9 s (models already downloaded) | 42.5 s (models and packages downloaded) |
-| 7 draft bones | `propose --keypoints`, `take.ts` | 6.9 s | 8.8 s | 6.3 s |
-| 8 build | `rig-parts build --loop` | 71.6 s | 67.2 s | 71.9 s |
-| — look | `rigc inspect`, `rigc render` (under *Where to go next*) | 1.9 + 2.3 s | 2.8 s | not run |
-| 9 wave | `wave.ts`, `clean`, map heredoc, `rig-pose retarget --build` | 0.09 + 6.0 s | 5.7 s | 5.2 s |
-| 10 play | `serve.ts` | played in Chromium 152; meshes on WebGL | played; 37 requests, last at 242 ms | page and model HTTP 200 |
+| README step | Commands | Run 1 (2026-10-13) | Run 2 (smoke, 2026-10-13) | Run 3 (clean, 2026-10-20) | Run 4 (warm, 2026-10-20) |
+| --- | --- | --- | --- | --- | --- |
+| 1 install | `bun add` the four packages | 2.05 s (empty cache) | 3.1 s incl. mkdir and copy | 1.9 s incl. `git clone` | 1.6 s |
+| 2 example inputs | curl the exam tarball at `01436ee`, extract task 01 inputs | 4.0 s | 4.6 s | 3.6 s | 3.4 s |
+| 3 config | `rig-parts inputs` | 3.2 s | 4.2 s | 1.5 s | 2.6 s |
+| 4 head box | `layers`, `propose --head-box`, `take.ts`, `inputs` | 1.5 + 2.0 + 3.5 s | 8.0 s | 2.0 s | 4.0 s |
+| 5 assemble | `assemble --propose-plan`, `take.ts`, `assemble` | 19.3 + 35.2 s | 67.3 s | 28.3 s | 40.2 s |
+| 6 joints | `uv run … keypoints.py` | 3.6 s (models already downloaded) | 3.9 s (models already downloaded) | 42.5 s (models and packages downloaded) | 4.4 s (cached) |
+| 7 draft bones | `propose --keypoints`, `take.ts` | 6.9 s | 8.8 s | 6.3 s | 6.2 s |
+| 8 build | `rig-parts build --loop` | 71.6 s | 67.2 s | 71.9 s | 60.6 s |
+| — look | `rigc inspect`, `rigc render` (under *Where to go next*) | 1.9 + 2.3 s | 2.8 s | not run | not run |
+| 9 wave | `wave.ts`, `clean`, map heredoc, `rig-pose retarget --build` | 0.09 + 6.0 s | 5.7 s | 5.2 s | 6.1 s |
+| 9b hello | `hello.ts`, the `animations_from` line, `take.ts`, `rig-parts build --loop` | — | — | — | 80.6 s |
+| 10 play | `serve.ts` | played in Chromium 152; meshes on WebGL | played; 37 requests, last at 242 ms | page and model HTTP 200 | page and both models HTTP 200 |
 
-Run 2 total: **176 s**. Run 3 total: **166 s** wall clock, first-time downloads included. The
-download in step 2 is 41 MB.
+Run 2 total: **176 s**. Run 3 total: **166 s** wall clock, first-time downloads included. Run
+4 total: **214 s** (133 s for steps 1–10 and 81 s for 9b), with the caches warm. The run 5
+smoke took 580 s, but the machine's load average was 75–87 while it ran (other jobs), so its
+times are not given. The download in step 2 is 41 MB.
 
 Disk after run 2: `my-rig` 79 MB (`node_modules` 37, `inputs` 19, `work` 4.3, `out` 16,
 `wave-build` 1.6) and Bun's download cache 38 MB — about 120 MB in all. Bun reported
@@ -99,6 +114,18 @@ page edges free, shape polygon`; retarget `GATE` green, every `LAND` within 0.00
 `check` and `build: PASS`. Disk after run 3: `my-rig` 79 MB, Bun's cache 40 MB, the pose
 models in `~/.cache/rtmlib` 328 MB.
 
+Results, runs 4 and 5 (parts 1.48.0, rig-c 2.64.1, pose 0.37.0): steps 3–9 printed what
+run 3 printed, line for line where the README quotes it; `check` adds `0 warning(s)
+(SEAM_OVER_MOTION, not a bar)` to step 8's line. Step 9b: `hello.ts` printing `4 beats (hm?,
+heh, wave, settle), 4 s at 24 fps, 16 tracks of 97 keys; sleeve_r0 at most 4.0 deg; hip shift
+6.0 px (legs r +2.05/-3.42, l +1.82/-2.90 deg, ankles held)`; the build printing `animations
+beside the idle, … as written: hello`, `ANIMATIONS_DO_NOT_FOLD: PASS — 2 animation(s) …
+(idle, hello): 0 folding mesh(es)`, one `WARN seam "upperarm_r|forearm_r" opens on 6
+frame(s) [26, 29, 31, 33, 35, 39] max 23 px in "hello"`, `check: PASS; 11 of 12 bar(s)
+measured, 1 skipped (STRESS_OFF_CHAIN); 1 warning(s) (SEAM_OVER_MOTION, not a bar)`, `build:
+PASS`; `out/check/build/skeleton.model.json` holding `idle` and `hello`. The hello's own
+readings are under *Step 9b, the hello* below.
+
 Results, runs 1 and 2 (parts 1.16.0, rig-c 2.48.0): `check: PASS; 10 of 10 bar(s) measured, 0 skipped`; `build: PASS`; the
 packed atlas `skeleton.png 507x1472, 22 region(s), 90.7% covered, padding 2, page edges free,
 shape polygon`; `assemble` reporting `recomposite vs source: mean |d|=1.13, within 8: 97.8%,
@@ -112,6 +139,64 @@ The full `rigc --version` line on an install is `@esotericsoftware/spine-core ab
 round trip and the commands that need it are not available here`. It is correct: the
 published package checks every build with rigc's own validator, and the
 [rig-c README](https://github.com/rig-c/core#install) explains the two.
+
+### Step 9b, the hello
+
+`scripts/hello.ts` writes keys, not joint positions: the face is outside the 18 body joints
+rig-pose reads, and the arm's limit is an angle, which a key states exactly. It reads the
+bones from `out/rig/rig.json` — which bones exist, and the legs' lengths and rest angles,
+which a two-bone solve uses so both ankles stay where they were painted while the hip moves.
+The keypoints are not read. The file goes in through the config's `motion.animations_from`,
+"a path, relative to the config file's directory, to a file in rig-c's motion-spec shape"
+(stated by the parts [AUTHORING][authoring], the `motion.animations_from` row), so the build
+gates it with the rig and `check` reads it for folds.
+
+**The limits, and where they come from.** Measured on this painting with `rigc render
+--seam` in a probe before the step was written (parts 1.42.0, rig-c 2.64.1): the upper-arm image is the puff sleeve and
+the arm in one piece under a sleeveless top, and turning it out from rest opened 0 px of
+background at the armhole at 3 degrees and 50 px at 6; step 9's wave turns it about 105
+degrees and opens 3,772 px. The forearm turned anywhere from −160 to +60 degrees at the
+elbow with a gap of 8 px at most and a ghost of 28. The thigh art starts at the skirt's hem, so a hip
+move opens background there: 6 px of hip travel (0.5 % of the figure) with the skirt's first
+links following passed, 12 px did not. The shoes are one image that no leg bone moves, so no
+foot lifts.
+
+**Bars, written down before measuring:** on each seam pair, gap ≤ 25 px and ghost ≤ 50 px
+on the worst frame; 0 frames of pass-through; `ANIMATIONS_DO_NOT_FOLD` PASS; `sleeve_r0`
+within ±4 degrees of rest; hip travel ≤ 6 px with the skirt links following.
+
+**Readings**, on run 4's build, `rigc render --candidate out/check/build --animation <name>
+--fps 24 --seam … --pass-through bottomwear:thigh_r,bottomwear:thigh_l --angle-range
+sleeve_r0:chest,sleeve_r1:sleeve_r0` (gap / ghost, px, worst frame):
+
+| pair | `idle` | `hello` |
+| --- | --- | --- |
+| upperarm_r \| topwear | 0 / 2 | 8 / 8 |
+| forearm_r \| upperarm_r | 0 / 2 | 1 / 25 |
+| upperarm_l \| topwear | 0 / 0 | 0 / 1 |
+| forearm_l \| upperarm_l | 0 / 1 | 0 / 0 |
+| neck \| topwear | 0 / 0 | 0 / 5 |
+| face \| hair_front | 2 / 0 | 0 / 0 |
+| face \| neck | 0 / 0 | 0 / 1 |
+| hair_back \| face | 0 / 1 | 0 / 0 |
+| topwear \| bottomwear | 0 / 3 | 1 / 9 |
+| thigh_r \| bottomwear | 1 / 0 | 0 / 0 |
+| thigh_l \| bottomwear | 0 / 1 | 3 / 1 |
+| shin_r \| thigh_r | 0 / 0 | 0 / 9 |
+| shin_l \| thigh_l | 0 / 0 | 0 / 5 |
+| shoes \| shin_r | 0 / 0 | 0 / 0 |
+| shoes \| shin_l | SKIP | SKIP |
+
+`SKIP` is rigc's: the two drawings share no band at the setup pose. Pass-through: 0 of 97
+frames for both thighs (0 of 81 under the idle). `sleeve_r0` against `chest`: −103.03 to
+−99.03 degrees under the hello, rest −99.03, so 4.00 degrees out at most (the idle moves it
+0.39). `sleeve_r1` against `sleeve_r0`: −151.23 to −11.32 degrees. Hip: world x from 31.00 to
+25.04, 5.96 px on the frames read; both ankles (`leg_r1`'s and `leg_l1`'s tips) moved at most
+0.0007 px (`render --geometry`). Every reading is inside its bar.
+
+**Not measured:** the seams with the hello played over the idle on two tracks, as step 10's
+`&under=idle` plays it — `rigc render` reads one animation at a time. The idle adds its
+breath on `chest_ctl` and its sway on the left sleeve beneath the hello's own keys.
 
 ### The joint script, `scripts/keypoints.py`
 
@@ -481,3 +566,4 @@ changes is the packages' decision.
 | The Spine editor import of the guide's build, as written | the packages writing each weighted vertex's bones in ascending bone-index order (the one edit that imported), then the round trip again on a fresh build |
 | The editor's import through its window (`Import Data`), the `MISSING` images step | a licensed editor opened by a person; only the command line was run |
 | `out/check/build/` or `wave-build/` loading in a game engine's Spine 4.3 runtime | one engine, one load, one frame compared against `rigc render` |
+| The seams of step 10's hello over the idle (`&under=idle`, two tracks) | a reading of the two tracks mixed, frame by frame, as the player poses them |

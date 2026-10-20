@@ -30,7 +30,7 @@ function run(command: string[], cwd: string) {
 function blocks(source: string, language: string): string[] {
   return [...source.matchAll(new RegExp('```' + language + '\\n([\\s\\S]*?)```', 'g'))].map(m => m[1].trim());
 }
-function step(number: number) {
+function step(number: number | string) {
   const match = readme.match(new RegExp('### ' + number + '\\. [^\\n]+\\n([\\s\\S]*?)(?=\\n### |\\n## )'));
   assert(match, `GUIDE_STEP: missing step ${number}`);
   return match[1];
@@ -59,12 +59,19 @@ function anchorExists(source: string, anchor: string) {
     return (n ? `${base}-${n}` : base) === decodeURIComponent(anchor);
   });
 }
+// Step 10's two addresses: the hello from step 9b over the idle, and step 9's wave.
+const tutorialModels: Record<string, { anim: string; under: string | null }> = {
+  'out/check/build/skeleton.model.json': { anim: 'hello', under: 'idle' },
+  'wave-build/skeleton.model.json': { anim: 'wave', under: null },
+};
 function tutorialUrl(link: string) {
   const url = new URL(link);
   assert(tutorialOrigin, 'TUTORIAL_SERVER: owned step-10 server is not running');
   assert(url.protocol === 'http:' && url.hostname === 'localhost' && url.port === '3000' && url.pathname === '/', `TUTORIAL_URL: unexpected tutorial endpoint ${link}`);
-  assert.equal(url.searchParams.get('model'), 'wave-build/skeleton.model.json', 'TUTORIAL_MODEL: expected the step-10 build');
-  assert.equal(url.searchParams.get('anim'), 'wave', 'TUTORIAL_ANIMATION: expected wave');
+  const expected = tutorialModels[url.searchParams.get('model') ?? ''];
+  assert(expected, `TUTORIAL_MODEL: expected one of ${Object.keys(tutorialModels).join(', ')}`);
+  assert.equal(url.searchParams.get('anim'), expected.anim, `TUTORIAL_ANIMATION: expected ${expected.anim}`);
+  assert.equal(url.searchParams.get('under'), expected.under, `TUTORIAL_UNDER: expected ${expected.under}`);
   return tutorialOrigin + url.pathname + url.search;
 }
 const branchCache = new Map<string, Promise<string>>();
@@ -184,6 +191,11 @@ try {
   reports.cleanControl = { exitCode: uncleaned.exitCode, rule: 'POSE_NOT_CLEANED' };
   console.log('[bar:guide-clean] cleaned sequence retarget exit 0; exact original raw-sequence command refused POSE_NOT_CLEANED PASS');
   reports.modelSha256 = createHash('sha256').update(readFileSync(join(consumer, 'wave-build/skeleton.model.json'))).digest('hex');
+  // Step 9b: the hello, named in the config and gated by the build.
+  run(['bash', '-eu', '-o', 'pipefail', '-c', blocks(step('9b'), 'sh')[0]], consumer);
+  const built = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as { animations: { name: string }[] };
+  assert.deepEqual(built.animations.map(a => a.name), ['idle', 'hello'], 'GUIDE_HELLO: the build must hold idle and hello');
+  console.log('[bar:guide-hello] step 9b build exit 0; out/check/build holds idle, hello PASS');
   // Verification tools are separate from each empty consumer installation.
   const tools = join(temp, 'tools'); mkdirSync(tools); writeFileSync(join(tools, 'package.json'), '{"private":true,"type":"module"}');
   run(['npm', 'install', '--no-audit', '--no-fund', 'playwright@1.58.2'], tools);
@@ -245,16 +257,21 @@ window.exampleCheck = async () => {
   const browser = await chromium.launch({ args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] }).catch((error: Error) => { server.stop(true); throw error; });
   try {
     const tutorialLinks = urls(readme).filter(link => link.startsWith('http://localhost:'));
-    assert.equal(tutorialLinks.length, 1, 'TUTORIAL_LINK: expected one step-10 endpoint');
-    const tutorialPage = await browser.newPage();
-    const tutorialErrors: string[] = [];
-    tutorialPage.on('pageerror', (error: Error) => tutorialErrors.push(String(error)));
-    await tutorialPage.goto(tutorialUrl(tutorialLinks[0]));
-    await tutorialPage.waitForFunction('window.rigPlayer && document.querySelector("#anim").value === "wave"', null, { timeout: 60000 });
-    assert(await tutorialPage.evaluate('window.rigPlayer.posedFrame().order.length > 0'), 'TUTORIAL_FRAME: model has no drawn slots');
-    assert.deepEqual(tutorialErrors, [], 'TUTORIAL_BROWSER: step-10 page failed');
-    await tutorialPage.close();
-    console.log('[bar:tutorial] owned documented server loaded requested wave-build model and wave animation PASS');
+    assert.deepEqual(tutorialLinks.map(link => new URL(link).searchParams.get('model')).sort(), Object.keys(tutorialModels).sort(), 'TUTORIAL_LINK: expected the two step-10 endpoints');
+    for (const link of tutorialLinks) {
+      const expected = tutorialModels[new URL(link).searchParams.get('model') ?? ''];
+      const tutorialPage = await browser.newPage();
+      const tutorialErrors: string[] = [];
+      tutorialPage.on('pageerror', (error: Error) => tutorialErrors.push(String(error)));
+      await tutorialPage.goto(tutorialUrl(link));
+      await tutorialPage.waitForFunction(`window.rigPlayer && document.querySelector("#anim").value === ${JSON.stringify(expected.anim)}`, null, { timeout: 60000 });
+      assert(await tutorialPage.evaluate('window.rigPlayer.posedFrame().order.length > 0'), 'TUTORIAL_FRAME: model has no drawn slots');
+      const tracks = await tutorialPage.evaluate('[window.rigPlayer.entry(0)?.animation ?? null, window.rigPlayer.entry(1)?.animation ?? null]');
+      assert.deepEqual(tracks, expected.under ? [expected.under, expected.anim] : [expected.anim, null], 'TUTORIAL_TRACKS: unexpected tracks');
+      assert.deepEqual(tutorialErrors, [], 'TUTORIAL_BROWSER: step-10 page failed');
+      await tutorialPage.close();
+      console.log(`[bar:tutorial] owned documented server loaded ${new URL(link).search} with tracks ${JSON.stringify(tracks)} PASS`);
+    }
     const page = await browser.newPage(); const errors: string[] = [];
     page.on('pageerror', (error: Error) => errors.push(String(error)));
     page.on('requestfailed', (request: { url(): string; failure(): { errorText: string } | null }) => errors.push(`${request.url()}: ${request.failure()?.errorText}`));

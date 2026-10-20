@@ -23,6 +23,8 @@
 // Plays one rigc build in the page. The build is named in the address:
 //   http://localhost:3000/?model=<path to skeleton.model.json>&anim=<animation>
 // Both paths are relative to the directory serve.ts was started in.
+// &under=<animation> plays that one on track 0 and <animation> over it on
+// track 1, so a gesture keeps the idle's breathing where it keys other bones.
 import { loadModel, RigPlayer } from '/node_modules/@rig-c/play/dist/index.js';
 
 const q = new URLSearchParams(location.search);
@@ -39,8 +41,11 @@ try {
   const first = q.get('anim') || assets.animations[0]?.name;
   if (!first) throw new Error(`${modelUrl} holds no animation`);
   pick.value = first;
-  player.play(first);
-  pick.onchange = () => player.play(pick.value);
+  const under = q.get('under');
+  const top = under && under !== first ? 1 : 0;
+  if (top) player.play(under);
+  player.play(first, { track: top });
+  pick.onchange = () => player.play(pick.value, { track: top });
 
   // Fit the rig to the stage. The root element is the rig's world origin and
   // the rig grows upward from it (y up), so it is placed at the bottom-left of
