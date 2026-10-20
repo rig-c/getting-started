@@ -312,8 +312,9 @@ eyes and two little shrugs, wave with her forearm beside her shoulder, and re-pl
 weight, one foot sliding in toward the other and back, before it starts again. The locks beside her
 face trail her head, and the skirt swings after her hip when she settles. `&under=idle` keeps the idle playing beneath, so she breathes
 through it. The page also blows a light breeze, wind 0.75 + 0.25 × sin(2π × 0.2 t) to the right, one
-slow gust every five seconds, through `@rig-c/play`'s `player.environment()`, and the locks and the
-skirt answer it, a pixel or two. Untick **breeze**, or add `&wind=0`, for the runtime's own steady
+slow gust every five seconds, through `@rig-c/play`'s `player.environment()`. The locks and the
+skirt answer it only faintly — about a pixel at this size, so you will notice it more than see it swing:
+any stronger wind opens the seam between the face and the front hair on the hello (see REFERENCE). Untick **breeze**, or add `&wind=0`, for the runtime's own steady
 wind, [1, 0], and the body alone. The breeze belongs to the page, not to the rig: the build is the same
 either way. Step 9's wave is at
 <http://localhost:3000/?model=wave-build/skeleton.model.json&anim=wave>; the menu switches
