@@ -55,7 +55,7 @@ This is a hand-placed set for the example painting (1664 x 2432). Save it as
         "r_ankle":    { "state": "observed", "at": [455, 2110] },
         "l_hip":      { "state": "occluded", "at": [970, 1030] },
         "l_knee":     { "state": "observed", "at": [940, 1655] },
-        "l_ankle":    { "state": "observed", "at": [850, 2110] },
+        "l_ankle":    { "state": "observed", "at": [848, 2140] },
         "r_eye":      { "state": "observed", "at": [825, 275] },
         "l_eye":      { "state": "observed", "at": [944, 294] },
         "r_ear":      { "state": "missing" },
@@ -64,10 +64,12 @@ This is a hand-placed set for the example painting (1664 x 2432). Save it as
 }
 ```
 
-With this set, the example rig comes out with 42 bones — a chain per leg — where the
-script's joints give 40 and one chain down the middle of both legs. Both build green, and
-the README's wave runs on both. [REFERENCE.md](REFERENCE.md#the-leg-chain-moves-with-the-joints)
-says why.
+With this set, the example rig comes out with 44 bones: a chain per leg, and the shoes cut
+into one part per foot under each shin, the same as the script's joints give once the
+README's step 7 has moved their left ankle. The feet are cut only when each ankle lies on
+its leg's art and on the shoes; `l_ankle` sits at `[848, 2140]` for that, and the README's
+step 7 line puts it there whichever set you use. Earlier versions of the parts package gave
+other counts; [REFERENCE.md](REFERENCE.md#the-leg-chain-moves-with-the-joints) keeps them.
 
 ## What the script writes
 

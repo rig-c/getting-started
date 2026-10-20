@@ -156,6 +156,15 @@ try {
   writeFileSync(join(consumer, 'keypoints.json'), keypoints);
   const beforeDraft = readFileSync(join(consumer, 'config.json'), 'utf8');
   for (const n of [7, 8]) run(['bash', '-eu', '-o', 'pipefail', '-c', blocks(step(n), 'sh')[0]], consumer);
+  // Step 7's ankle correction lets the producer cut the shoes into one part per foot.
+  type Built = { animations: { name: string; duration?: number }[]; bones: { name: string }[]; slots: { name: string }[]; constraints: { kind: string; name: string }[] };
+  const feetBuild = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as Built;
+  const slotNames = feetBuild.slots.map(slot => slot.name);
+  for (const name of ['foot_r', 'foot_l']) assert(slotNames.includes(name), `GUIDE_FEET: step 8's build has no ${name} slot (step 7's l_ankle correction)`);
+  assert(!slotNames.includes('shoes'), 'GUIDE_FEET: step 8\'s build still draws the shoes as one part');
+  assert.equal(feetBuild.bones.length, 72, `GUIDE_FEET: expected 72 bones in step 8's build, found ${feetBuild.bones.length}`);
+  reports.feet = { slots: ['foot_r', 'foot_l'], bones: feetBuild.bones.length };
+  console.log('[bar:guide-feet] step 8 build: foot_r and foot_l slots, no shoes slot, 72 bones PASS');
   // Revert the real field-copy repair in a private README copy. Its command,
   // over the same proposal and installed packages, must reproduce the refusal.
   const take = blocks(step(7), 'sh')[0].split('\n').find(line => line.includes('/scripts/take.ts '));
@@ -193,13 +202,17 @@ try {
   reports.modelSha256 = createHash('sha256').update(readFileSync(join(consumer, 'wave-build/skeleton.model.json'))).digest('hex');
   // Step 9b: the hello, named in the config and gated by the build.
   run(['bash', '-eu', '-o', 'pipefail', '-c', blocks(step('9b'), 'sh')[0]], consumer);
-  const built = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as { animations: { name: string }[] };
+  const built = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as Built;
   assert.deepEqual(built.animations.map(a => a.name), ['idle', 'hello'], 'GUIDE_HELLO: the build must hold idle and hello');
-  console.log('[bar:guide-hello] step 9b build exit 0; out/check/build holds idle, hello PASS');
+  const helloLength = (b: Built) => b.animations.find(a => a.name === 'hello')?.duration;
+  assert.equal(helloLength(built), 4.75, `GUIDE_HELLO: expected a 4.75 s hello, found ${helloLength(built)}`);
+  console.log('[bar:guide-hello] step 9b build exit 0; out/check/build holds idle, hello (4.75 s) PASS');
   // Step 9c: the cloth recipe puts the side locks, the fringe and the skirt on physics.
   run(['bash', '-eu', '-o', 'pipefail', '-c', blocks(step('9c'), 'sh')[0]], consumer);
-  const physical = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as { animations: { name: string }[]; constraints: { kind: string; name: string }[] };
+  const physical = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as Built;
   assert.deepEqual(physical.animations.map(a => a.name), ['idle', 'hello'], 'GUIDE_CLOTH: the build must still hold idle and hello');
+  assert.equal(helloLength(physical), 4.75, `GUIDE_CLOTH: expected a 4.75 s hello, found ${helloLength(physical)}`);
+  for (const name of ['foot_r', 'foot_l']) assert(physical.slots.some(slot => slot.name === name), `GUIDE_CLOTH: the cloth build lost the ${name} slot`);
   const ofKind = (kind: string) => physical.constraints.filter(c => c.kind === kind).map(c => c.name);
   assert.equal(ofKind('physics').length, 27, `GUIDE_CLOTH: expected 27 physics constraints, found ${ofKind('physics').length}`);
   assert.equal(ofKind('transform').length, 3, `GUIDE_CLOTH: expected 3 transform constraints, found ${ofKind('transform').length}`);

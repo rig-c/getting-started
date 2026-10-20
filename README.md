@@ -131,26 +131,33 @@ The first run downloads two pose models (about 300 MB) and some Python packages.
 should see `18 observed, 0 occluded, 0 missing -> keypoints.json`.
 
 No Python? [docs/KEYPOINTS.md](docs/KEYPOINTS.md) has a hand-placed set for this very
-painting; save it as `keypoints.json`. You get the same 42 bones without the `LINT` line
-step 7 prints for the script's left ankle, and it builds green all the same.
+painting; save it as `keypoints.json`. Its left ankle is already where step 7's first line
+puts it, and you get the same 44 bones.
 
 ### 7. Draft the bones
 
 ```sh
+bun -e 'const f = "keypoints.json", k = await Bun.file(f).json(); k.people[0].joints.l_ankle.at = [848, 2140]; await Bun.write(f, JSON.stringify(k, null, 1) + "\n")'
 bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json
 bun ../getting-started/scripts/take.ts work/proposal.json config.json bones meshes regions motion limbs
 ```
 
 `propose` drafts the bones, the meshes and an idle motion; `take.ts` copies them into the
-config. This is where a person corrects the draft. The example uses it as is.
+config. This is where a person corrects the draft, and the first line is the example's one
+correction. The script puts the left ankle at `[855.7, 2154.1]`, 12 px off the leg's art,
+and without the line `propose` says so: `LINT foot_l at [428, 1077], the l_ankle joint and
+leg_l1's tip, lies on none of leg_l's art within 1 px along its joint line`, and the left
+leg is drafted without its ankle cut, so the shoes stay one part that no leg bone moves.
+Moved onto the shin at `[848, 2140]` (painting px), both ankles lie on the leg art and on
+the shoes, and `propose` cuts the shoes between the feet, one part per foot under each
+shin. A `LINT` is something to look at, not a refusal; this one is worth fixing because
+step 9b's hello moves a foot.
 
-You should see a note per joint, then a coverage line ending `42 bone(s) — 29 checked and
-clean, 1 checked with a LINT line, 12 not checked`. The one `LINT` line begins
-`LINT foot_l at [428, 1077], the l_ankle joint and leg_l1's tip, lies on none of leg_l's art
-within 1 px along its joint line`: the script put the left ankle just off the leg, so the
-left leg is drafted without its ankle cut and `shoes` stays one part. A `LINT` is something
-to look at, not a refusal. Open `work/render/landmarks.png` to see the bones over the
-painting.
+You should see a note per joint, among them `and foot_r, shoes's share below the ankle, on
+bone foot_r at the r_ankle joint under leg_r1` and the same for `foot_l`, then
+`0 LINT line(s) over 6 mesh(es) and the hip` and a coverage line ending `44 bone(s) — 29
+checked and clean, 0 checked with a LINT line, 15 not checked`. Open
+`work/render/landmarks.png` to see the bones over the painting.
 
 ### 8. Build the rig
 
@@ -158,8 +165,10 @@ painting.
 bunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop
 ```
 
-About a minute. You should see `[check] check: PASS; 11 of 12 bar(s) measured, 1 skipped
-(STRESS_OFF_CHAIN)`, then `build: PASS`. Open `out/idle.gif`: the character breathes and blinks in a 3.3-second loop.
+About a minute. You should see `limb cut: "shoes" opaque 13735 = "foot_r" 8071 + "foot_l"
+5664`, the shoes cut in two, then `[check] check: PASS; 11 of 13 bar(s) measured, 2 skipped
+(FEET_STAY_LEVEL, STRESS_OFF_CHAIN)`, then `build: PASS`. `FEET_STAY_LEVEL` is skipped
+because the idle turns no leg; step 9b's hello does. Open `out/idle.gif`: the character breathes and blinks in a 3.3-second loop.
 If any line says `FAIL`, nothing was written, and that line says what to change.
 
 ### 9. Give it a wave
@@ -196,7 +205,7 @@ failure: where a mesh does fold, it names the part and the frames to look at.
 
 Step 9 turned joint positions into a motion. A motion can also be written as keys on the
 bones and handed to the build, which checks it with the rig.
-[`scripts/hello.ts`](scripts/hello.ts) writes a four-second hello that way, reading the bones
+[`scripts/hello.ts`](scripts/hello.ts) writes a hello of under five seconds that way, reading the bones
 from the rig step 8 built; the config names the file in `motion.animations_from`, and the
 build runs again.
 
@@ -207,19 +216,24 @@ bun ../getting-started/scripts/take.ts work/hello-from.json config.json motion.a
 bunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop
 ```
 
-About a minute and a half. You should see `hello.ts: 4 beats (hm?, heh, wave, settle), 4 s at
-24 fps, 16 tracks of 97 keys; sleeve_r0 at most 4.0 deg; hip shift 6.0 px`, then from the
-build `animations beside the idle, from …/hello.anim.json as written: hello`,
+About a minute and a half. You should see `hello.ts: 4 beats (hm?, heh, wave, settle), 4.75 s
+at 24 fps, 16 tracks of 115 keys; sleeve_r0 at most 4.0 deg; settle: right ankle 33.2 px in
+(40 % of the way to parallel, 15.96 -> 12.87 deg), hip 6.0 px`, then from the build
+`animations beside the idle, from …/hello.anim.json as written: hello`,
 `ANIMATIONS_DO_NOT_FOLD: PASS — 2 animation(s) read by rigc render --folds at 12 fps (idle,
-hello)`, `check: PASS; 11 of 12 bar(s) measured, 1 skipped (STRESS_OFF_CHAIN); 1 warning(s)`,
-and `build: PASS`. The warning is `SEAM_OVER_MOTION`, never a bar: where the forearm turns
+hello)`, `FEET_STAY_LEVEL: PASS`, `check: PASS; 12 of 13 bar(s) measured, 1 skipped
+(STRESS_OFF_CHAIN); 1 warning(s)`, and `build: PASS`. The warning is `SEAM_OVER_MOTION`, never a bar: where the forearm turns
 at the elbow, a sliver of it shows past the sleeve's cuff. `out/check/build/` now holds `idle`
 and `hello`.
 
 The wave here is the forearm's, with the upper arm kept within 4 degrees of rest. On this
 painting the upper arm and its puff sleeve are one image under a sleeveless top, so
-swinging it out, as step 9's wave does, opens a gap at the armhole. The comment at the top
-of `hello.ts` says why each limit is where it is.
+swinging it out, as step 9's wave does, opens a gap at the armhole. Then she re-plants her
+weight as the arm comes down: her splayed right leg (the picture's left) slides its foot
+40 % of the way in toward parallel with the other, the knee bending the way it is painted, her hip
+follows 6 px, and both go back by the end of the loop. The feet are the two parts step 7's
+correction made; each keeps its shoe level while the leg turns, and the hello never keys
+them. The comment at the top of `hello.ts` says why each limit is where it is.
 
 ### 9c. Let the hair and the skirt answer
 
@@ -227,7 +241,7 @@ So far the hair and the skirt move only where a key moves them. The parts packag
 recipe that hands them to physics instead: a `cloth` block in the config names a recipe per
 See-through layer tag, `propose --cloth` drafts chains with a physics constraint on each
 link, and the build carries them. Then what moves under them, her breath, her head and the
-hello's weight shift, moves them, and no key does.
+hello's hip, moves them, and no key does.
 
 ```sh
 bun ../getting-started/scripts/hello.ts out/rig/rig.json --no-skirt-keys
@@ -249,9 +263,11 @@ bunx rig-parts build --config config.json --source inputs/painting.png --full in
 ```
 
 About two and a half minutes. The first line writes the hello again without its three skirt
-keys (`hello.ts` then prints `13 tracks of 97 keys` and `skirt left to physics`): step 9b's
-settle turns the skirt's top links by hand to follow her hip, and from here physics does
-that. `bottomwear` is the skirt's layer; `front hair` is the hair around the face, the
+keys (`hello.ts` then prints `14 tracks of 115 keys` and `skirt0_0 follows the thigh, the rest
+left to physics`): step 9b's settle turns the skirt's top links by hand to follow her hip and
+her right thigh, and from here physics does the hip's part. The thigh's stays a key, on
+`skirt0_0`, the recipe's first link over the right thigh, which carries no physics of its
+own. `bottomwear` is the skirt's layer; `front hair` is the hair around the face, the
 fringe and the two locks that hang beside her cheeks, all one layer.
 `propose` prints what the recipe drafted: `3 tree(s) on one shared swing, skirt_swing` for the
 skirt, one tree of three links on each side lock (`lockt0_` and `lock1t0_`), and the fringe's
@@ -274,12 +290,12 @@ swing at least as far as the one above. The draft gives the bun 0.8 degrees unde
 
 From the build you should see `loop physics: 27 physics constraint(s) left out of the loop's
 frames, reported, not judged`, four `WARN chain` lines from `CLOTH_SETTLES` for the skirt,
-`check: PASS; 11 of 12 bar(s) measured, 1 skipped (STRESS_OFF_CHAIN); 5 warning(s)
+`check: PASS; 12 of 13 bar(s) measured, 1 skipped (STRESS_OFF_CHAIN); 5 warning(s)
 (SEAM_OVER_MOTION, CLOTH_SETTLES, not a bar)`, a `lead-in:` line ending `max |d| 0, 0 px over
 40 — the jump at the wrap`, and `build: PASS`. Physics starts at rest when an animation
 starts, and the skirt hangs into place within 2 seconds. Then it rests, because the idle
 never moves her hip; `CLOTH_SETTLES` says so, and it is a warning, not a failure. The hello's
-weight shift moves the skirt again. `--lead-in 1` plays the idle once before
+settle moves the skirt again. `--lead-in 1` plays the idle once before
 `out/idle.gif` is cut from it, so the loop starts after the skirt has settled.
 
 ### 10. Play it in your browser
@@ -291,9 +307,9 @@ bun ../getting-started/scripts/serve.ts
 Open <http://localhost:3000/?model=out/check/build/skeleton.model.json&anim=hello&under=idle>.
 
 You should see her notice you — "hm?", her head straightening — then smile with narrowed
-eyes and two little shrugs, wave with her forearm beside her shoulder, and settle her weight
-before it starts again. The locks beside her face trail her head, and the skirt swings after
-her hip when she settles. `&under=idle` keeps the idle playing beneath, so she breathes
+eyes and two little shrugs, wave with her forearm beside her shoulder, and re-plant her
+weight, one foot sliding in toward the other and back, before it starts again. The locks beside her
+face trail her head, and the skirt swings after her hip when she settles. `&under=idle` keeps the idle playing beneath, so she breathes
 through it. Step 9's wave is at
 <http://localhost:3000/?model=wave-build/skeleton.model.json&anim=wave>; the menu switches
 animations. Ctrl+C stops the server. That's the whole chain. The page is
@@ -309,7 +325,7 @@ the original three are measured in [docs/REFERENCE.md](docs/REFERENCE.md#use-wha
 
 For your own site, with no Spine runtime. The page from step 10 is already this: it loads
 `skeleton.model.json`, the document a build writes next to the Spine files, and the part
-images beside it. Copy `wave-build/` (that document plus 22 part PNGs, 1.6 MB; it holds
+images beside it. Copy `wave-build/` (that document plus 28 part PNGs, 1.3 MB; it holds
 both `idle` and `wave`) next to a page, and start from the play README's
 [minimal page](https://github.com/rig-c/play#a-minimal-page): about twenty lines that load
 the player from a CDN, fit the rig to a box and play it. Point its `modelUrl` at
