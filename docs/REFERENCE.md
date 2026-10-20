@@ -261,7 +261,8 @@ with step 7's ankle correction, from 72 to 48 (the two feet are bones of their o
 27 physics constraints and 3 transform constraints, 30 in all; `wind` 1 to 6 and `gravity`
 2 to 12 from root to tip, multipliers of the world the player sets. The step-10 page sets
 none, so the runtime's default world applies: wind (1, 0), gravity (0, 1) (stated by
-`rigc render --help`, *--environment*).
+`rigc render --help`, *--environment*). The readings in this section are in that world; step 10's page
+breeze came later ([Step 10, the breeze](#step-10-the-breeze)).
 
 **Two corrections to the draft, both measured on this painting:**
 
@@ -346,8 +347,9 @@ moves the hip. Step 8's keyed idle swung the locks' last links at an amplitude o
 
 **Wind.** `rigc render --environment` with calm (wind (0, 0)) from 0 s and a gust (2, 0)
 from 1.5 s, against calm throughout, on the idle: the side locks' ends 9.25 and 10.07 rig px
-apart at about 2 s, the fringe 3.89 and 3.57, the skirt's hems 10.90, 8.37 and 12.83. The
-step-10 page sets no world of its own; the player's `environment()` is where a page would.
+apart at about 2 s, the fringe 3.89 and 3.57, the skirt's hems 10.90, 8.37 and 12.83. Step
+10's page now sets one through the player's `environment()`: [Step 10, the
+breeze](#step-10-the-breeze).
 
 **Not measured:** the hello over the idle on two tracks with physics, as step 10's
 `&under=idle` plays it (`rigc render` reads one animation at a time); the player's physics
@@ -482,6 +484,111 @@ trees answer the hip, and less than before (1.60 against 2.90), because the hip 
   shin.
 
 **Not measured:** the hello over the idle on two tracks, as step 10 plays it.
+
+### Step 10, the breeze
+
+Added 2026-10-21 (rig-c/getting-started#15). The page supplies a world; the rig, the config,
+the recipe and the motion are unchanged.
+
+**The call.** `@rig-c/play` 1.12.0 (the version on npm on 2026-10-21), `RigPlayer.environment`:
+"The world the rig's physics answers (#121): `wind` and `gravity`, as spine-core's
+skeleton-level `windX/windY` and `gravityX/gravityY` — x to the right and **y down** … The
+runtime's start values are `{ wind: [1, 0], gravity: [0, 1] }` … `null` returns both to the
+start values, and the call applies from the next step on, at any time … It is the player's, not
+a track's: every track and layer answers the same world" (its `dist/player.d.ts`). So one call
+reaches both tracks of `&under=idle`. [`scripts/play.html`](../scripts/play.html) calls
+`player.environment({ wind: [0.75 + 0.25 × sin(2π × 0.2 t), 0] })` before every `frame`, `t`
+the seconds played (held while paused); gravity is left at the runtime's. The **breeze** box,
+or `&wind=0`, calls `player.environment(null)`: the runtime's own world, wind (1, 0), the one
+every earlier reading in this document was taken in. The page also passes `setsUrl: null` to
+`loadModel`, since the build has no `sets.json`: the default probe logged a 404 in the console.
+
+**Why 0.75 ± 0.25.** The first value tried, 1 ± 1 (0 to 2), moved the idle's lock tips 4.3 and
+4.7 page px, but failed the hello in three ways, each at a different phase of the gust: a strong
+wind during the head turn pushes the locks onto the cheek (`face|hair_front` ghost 70 at wind 2),
+a strong wind during the settle lifts the skirt off the shirt (`topwear|bottomwear` ghost 57), and
+a weak one during the settle lets the hem leave the thighs (`thigh_l|bottomwear` gap 46). The
+same gap shows in still air: wind (0, 0) throughout reads `thigh_r|bottomwear` 33 / 1 and
+`thigh_l|bottomwear` 46 / 2 on the hello, against 10 / 2 and 7 / 6 in the runtime's (1, 0). The
+rig's skirt was tuned, without anyone choosing it, in that runtime wind. Lowering the gust with
+the base at 1 (± 0.75, ± 0.5, ± 0.25) still failed at some phase: at ± 0.25, `face|hair_front`
+ghost 52 when the gust peaks (1.25) at the head turn. The wind has to stay between about 0.5 and
+1, so the breeze runs 0.5 to 1. A vertical gust instead, wind (1, ± 1), moved the lock tips 0.3
+page px: they hang along it.
+
+**Bars, written down before measuring** (rig-c/getting-started#15): with the breeze on, on the
+step's build, `idle` and `hello`: every seam pair within gap ≤ 25 / ghost ≤ 50, the 15 pairs of
+the stance table, `shin_r|foot_r` among them; 0 frames of pass-through; no folds; `face|hair_front` ≤ 50.
+In the browser, the side locks' tips move ≥ 3 px over 5 s of the idle with the breeze on, and
+< 1 px with `&wind=0`; no console errors, on `anim=idle` and `anim=hello&under=idle`.
+
+**How the schedule stands in for the sine.** `rigc render --environment` takes steps that hold
+until the next. One step a frame at 24 fps, the wind of frame k (time k/24) set at
+t = (k − 0.5)/24, so each lands on its own frame (a step at k/24 rounded up lands on the next
+frame, and rigc refuses two on one frame). `rigc render` starts the physics at rest at frame 0,
+where the page's gust is already running, so each animation was read at four phases of the gust,
+the sine starting at 0°, 90°, 180° and 270°. Flags as in the stance section, `--fps 24 --max 640
+--geometry --folds --seam … --pass-through bottomwear:thigh_r,bottomwear:thigh_l`.
+
+**Readings at 0.75 ± 0.25** (gap / ghost, px, the worst frame of the four phases; the runtime's
+(1, 0) beside it, from the stance section's 9c columns):
+
+| pair | `idle` | `hello` | `hello`, wind (1, 0) |
+| --- | --- | --- | --- |
+| upperarm_r \| topwear | 0 / 2 | 8 / 8 | 8 / 8 |
+| forearm_r \| upperarm_r | 0 / 2 | 1 / 26 | 1 / 26 |
+| upperarm_l \| topwear | 0 / 0 | 0 / 1 | 0 / 1 |
+| forearm_l \| upperarm_l | 0 / 1 | 0 / 0 | 0 / 0 |
+| neck \| topwear | 0 / 0 | 0 / 5 | 0 / 5 |
+| face \| hair_front | 0 / 0 | 7 / 47 | 7 / 47 |
+| face \| neck | 0 / 0 | 0 / 1 | 0 / 1 |
+| hair_back \| face | 0 / 1 | 0 / 0 | 0 / 0 |
+| topwear \| bottomwear | 1 / 7 | 3 / 44 | 3 / 44 |
+| thigh_r \| bottomwear | 5 / 1 | 20 / 3 | 10 / 2 |
+| thigh_l \| bottomwear | 1 / 2 | 24 / 6 | 7 / 6 |
+| shin_r \| thigh_r | 0 / 0 | 1 / 38 | 1 / 38 |
+| shin_l \| thigh_l | 0 / 0 | 0 / 5 | 0 / 5 |
+| shin_r \| foot_r | 0 / 0 | 0 / 0 | 0 / 0 |
+| shin_l \| foot_l | SKIP | SKIP | SKIP |
+
+`face|hair_front` 47 at the 90° phase (the gust's peak, wind 1, at the head turn); 39 to 41 at
+the others. The tightest is the hem: `thigh_l|bottomwear` gap 24 at 0°, where the gust's low
+(wind 0.5) meets the settle. Pass-through: 0 of 81 idle and 0 of 115 hello frames, both thighs,
+every phase. Folds: none. Every rigc bar holds.
+
+**In the browser**, `scripts/serve.ts` and headless Chromium (`--use-angle=metal`), 1280 × 720,
+where the page fits the rig at scale 0.526. The lock tips (`lockt0_2`, `lock1t0_2`, from
+`player.bone()` and the bone's length) are read in the head's frame, since the idle's own head
+nod moves them on the canvas 2.4 and 4.3 page px with the breeze off. Over 5 s after 3 s of
+settling, the largest distance between two of the frame's positions (page px, rig px in
+brackets):
+
+| page | wind x | `lockt0_2` | `lock1t0_2` | skirt tips `skirt0_2`, `skirt1_2`, `skirt2_2` | console errors |
+| --- | --- | --- | --- | --- | --- |
+| `anim=idle` | 0.5 to 1 | 1.24 (2.35) | 1.33 (2.53) | 1.36, 0.95, 1.59 | 0 |
+| `anim=idle&wind=0` | 1 | 0.25 (0.47) | 0.27 (0.52) | 0, 0, 0 | 0 |
+| `anim=hello&under=idle` | 0.5 to 1 | 3.30 | 3.48 | 12.90, 3.42, 4.06 | 0 |
+| `anim=hello&under=idle&wind=0` | 1 | 2.91 | 3.04 | 13.44, 3.57, 4.26 | 0 |
+
+With `&wind=0` the idle's locks move under 1 px: that bar holds. **The breeze's bar of ≥ 3 px
+does not**: 1.24 and 1.33. At 1 ± 1 the same reading is 4.33 and 4.67, and 0.75 ± 0.25 is what
+the hello's seams allow. The bars were not changed. Under the hello the head's turn and the
+settle move the locks and the skirt far more than any wind the seams allow, breeze or not.
+
+**What it looks like.** Side by side at 2×, the off page's skirt hem is still and the breeze's
+hem and lock ends drift a pixel or two over each five-second gust: visible when looked for,
+nowhere near stormy. At 1 ± 1 the drift is plain.
+
+**`check-adapters.ts`** opens the step-10 page on the idle with and without `&wind=0` on
+Playwright's fake clock, one 1/24 s step a frame, so a slow CI GPU does not change the reading,
+and reads the lock tips through `player.bone()` over one whole gust after 3 s. It asserts the
+wind the page set (x from 0.5 to 1 and y 0 with the breeze; the runtime's (1, 0) without), no
+console errors, and that each tip moves at least twice as far in the breeze as without it. The
+3 px bar is not asserted, since this breeze does not meet it. In a clean run of the script
+(exit 0, 467 s, software GL with the CI's flags) it read 1.25 / 1.37 px against 0.25 / 0.35 px.
+
+**Not measured:** the hello over the idle on two tracks under `rigc render` (it reads one
+animation at a time); the page's breeze is read there only through the player.
 
 ### The joint script, `scripts/keypoints.py`
 

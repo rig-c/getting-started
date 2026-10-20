@@ -296,6 +296,50 @@ window.exampleCheck = async () => {
       await tutorialPage.close();
       console.log(`[bar:tutorial] owned documented server loaded ${new URL(link).search} with tracks ${JSON.stringify(tracks)} PASS`);
     }
+    // Step 10's breeze: the page's world, read through the player. The page runs on Playwright's
+    // fake clock, one 1/24 s step a frame, so a slow CI GPU changes nothing. After 3 s, over 5 s
+    // (one whole gust at 0.2 Hz): with the breeze on, the wind runs 0.75 +/- 0.25 to the right,
+    // y 0; with &wind=0 it stands at the runtime's [1, 0]. The side locks' tips, in the head's
+    // frame (the idle's own head nod moves them on the canvas), must move at least twice as far
+    // in the breeze as without it. The guide's 3 px reading is not asserted: this breeze, held
+    // inside the hello's seam bars, moves them about 1.3 page px (docs/REFERENCE.md, step 10).
+    const breezeReadings: Record<string, unknown> = {};
+    for (const calm of [false, true]) {
+      const breezePage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+      const breezeErrors: string[] = [];
+      breezePage.on('pageerror', (error: Error) => breezeErrors.push(String(error)));
+      breezePage.on('console', (message: { type(): string; text(): string }) => { if (message.type() === 'error') breezeErrors.push(message.text()); });
+      await breezePage.clock.install();
+      await breezePage.goto(`${tutorialOrigin}/?model=out/check/build/skeleton.model.json&anim=idle${calm ? '&wind=0' : ''}`);
+      for (let i = 0; i < 1200 && !(await breezePage.evaluate('!!window.rigPlayer')); i++) await breezePage.clock.runFor(50);
+      assert(await breezePage.evaluate('!!window.rigPlayer'), 'TUTORIAL_BREEZE: the step-10 page did not load');
+      assert.equal(await breezePage.evaluate('document.getElementById("breeze").checked'), !calm, 'TUTORIAL_BREEZE: the breeze box must follow &wind=');
+      const lengths = await breezePage.evaluate(`fetch('/out/check/build/skeleton.json').then(r => r.json()).then(s => Object.fromEntries(s.bones.map(b => [b.name, b.length || 0])))`);
+      const sample = `((len) => {
+        const p = window.rigPlayer, h = p.bone('head'), det = h.a * h.d - h.b * h.c;
+        const scale = parseFloat(document.getElementById('root').style.transform.match(/scale\\(([^)]+)\\)/)[1]);
+        const tip = (k) => { const b = p.bone(k), dx = b.x + b.a * len[k] - h.x, dy = b.y + b.c * len[k] - h.y; return [scale * (h.d * dx - h.b * dy) / det, scale * (-h.c * dx + h.a * dy) / det]; };
+        return { wind: p.environment().wind, lockt0_2: tip('lockt0_2'), lock1t0_2: tip('lock1t0_2') };
+      })(${JSON.stringify(lengths)})`;
+      for (let i = 0; i < 3 * 24; i++) await breezePage.clock.runFor(1000 / 24);
+      const samples: { wind: number[]; lockt0_2: number[]; lock1t0_2: number[] }[] = [];
+      for (let i = 0; i < 5 * 24; i++) { await breezePage.clock.runFor(1000 / 24); samples.push(await breezePage.evaluate(sample)); }
+      const span = (points: number[][]) => Math.max(...points.flatMap(a => points.map(b => Math.hypot(a[0] - b[0], a[1] - b[1]))));
+      const xs = samples.map(v => v.wind[0]);
+      const reading = { wind: [Math.min(...xs), Math.max(...xs)], windY: [...new Set(samples.map(v => v.wind[1]))],
+        px: { lockt0_2: +span(samples.map(v => v.lockt0_2)).toFixed(3), lock1t0_2: +span(samples.map(v => v.lock1t0_2)).toFixed(3) } };
+      breezeReadings[calm ? 'calm' : 'breeze'] = reading;
+      assert.deepEqual(reading.windY, [0], 'TUTORIAL_BREEZE: the wind has no y');
+      if (calm) assert.deepEqual(reading.wind, [1, 1], 'TUTORIAL_BREEZE: &wind=0 must stand in the runtime\'s world, wind [1, 0]');
+      else assert(reading.wind[0] >= 0.5 && reading.wind[0] < 0.51 && reading.wind[1] <= 1 && reading.wind[1] > 0.99, `TUTORIAL_BREEZE: wind x ${reading.wind} is not one whole gust of 0.75 +/- 0.25`);
+      assert.deepEqual(breezeErrors, [], 'TUTORIAL_BREEZE: step-10 page logged errors');
+      await breezePage.close();
+    }
+    const moved = breezeReadings as Record<'breeze' | 'calm', { px: Record<string, number> }>;
+    for (const bone of ['lockt0_2', 'lock1t0_2'])
+      assert(moved.breeze.px[bone] >= 2 * moved.calm.px[bone], `TUTORIAL_BREEZE: ${bone} tip moved ${moved.breeze.px[bone]} px in the breeze, not twice its ${moved.calm.px[bone]} px without it`);
+    reports.breeze = breezeReadings;
+    console.log(`[bar:tutorial-breeze] ${JSON.stringify(breezeReadings)} PASS`);
     const page = await browser.newPage(); const errors: string[] = [];
     page.on('pageerror', (error: Error) => errors.push(String(error)));
     page.on('requestfailed', (request: { url(): string; failure(): { errorText: string } | null }) => errors.push(`${request.url()}: ${request.failure()?.errorText}`));
