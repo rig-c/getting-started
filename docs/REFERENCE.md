@@ -496,8 +496,10 @@ trees answer the hip, and less than before (1.60 against 2.90), because the hip 
   both times with every package and model already cached — so that 40 s is environment
   set-up and first imports, not downloads.
 - **Agreement with hand-placed joints**: on the example painting, within 4–52 painting
-  pixels of the set in [KEYPOINTS.md](KEYPOINTS.md) (neck 52, l_hip 49, l_ankle 44,
-  r_shoulder 40; elbows, wrists, knees 4–21).
+  pixels of the set first placed in [KEYPOINTS.md](KEYPOINTS.md) (neck 52, l_hip 49, l_ankle 44,
+  r_shoulder 40; elbows, wrists, knees 4–21). The set there now was moved to within a pixel
+  of the script's joints, so that the no-Python route gives the same hello
+  ([KEYPOINTS.md](KEYPOINTS.md#the-file)).
 - **The estimator's joints built green unedited**: `propose --keypoints` (2 LINT lines, both
   the leg chain's top under the skirt) → `take.ts` → `build` PASS 10/10.
 - **The hand-placed set** through the same steps: 42 bones, a chain per leg on the one

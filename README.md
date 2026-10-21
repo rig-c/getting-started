@@ -132,7 +132,8 @@ should see `18 observed, 0 occluded, 0 missing -> keypoints.json`.
 
 No Python? [docs/KEYPOINTS.md](docs/KEYPOINTS.md) has a hand-placed set for this very
 painting; save it as `keypoints.json`. Its left ankle is already where step 7's first line
-puts it, and you get the same 44 bones.
+puts it, and you get the same 44 bones. It was tuned to the script's joints, so the steps
+print what they quote, except that step 9b's hello reads `33.6 px in` and `16.05 -> 12.92 deg`.
 
 ### 7. Draft the bones
 
@@ -591,7 +592,7 @@ guesses the torso from the clothes and draws no legs.
 **On the CPU**: [`scripts/keypoints.py`](scripts/keypoints.py) finds the 18 joints with a
 pose model (RTMPose), as in [step 6](#6-find-the-joints): about 300 MB of models the first
 time, then a few seconds per painting. On the example painting its joints were within 4–52
-pixels of a hand-placed set, and the rig built green on them unchanged.
+pixels of a first hand-placed set, and the rig built green on them unchanged.
 
 **By hand**: read the 18 positions off the painting in an image editor and write them into
 a small JSON file. The format, a diagram of where each joint goes, and a complete example

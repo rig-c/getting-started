@@ -42,22 +42,22 @@ This is a hand-placed set for the example painting (1664 x 2432). Save it as
   "source": "placed by hand",
   "people": [
     { "id": "a", "joints": {
-        "nose":       { "state": "observed", "at": [894, 344] },
-        "neck":       { "state": "observed", "at": [880, 490] },
-        "r_shoulder": { "state": "occluded", "at": [690, 560] },
-        "r_elbow":    { "state": "observed", "at": [664, 847] },
-        "r_wrist":    { "state": "observed", "at": [573, 1120] },
-        "l_shoulder": { "state": "occluded", "at": [1060, 550] },
-        "l_elbow":    { "state": "observed", "at": [1100, 831] },
-        "l_wrist":    { "state": "observed", "at": [1223, 1097] },
-        "r_hip":      { "state": "occluded", "at": [780, 1030] },
-        "r_knee":     { "state": "observed", "at": [650, 1650] },
-        "r_ankle":    { "state": "observed", "at": [455, 2110] },
-        "l_hip":      { "state": "occluded", "at": [970, 1030] },
-        "l_knee":     { "state": "observed", "at": [940, 1655] },
+        "nose":       { "state": "observed", "at": [891, 332] },
+        "neck":       { "state": "observed", "at": [877, 541] },
+        "r_shoulder": { "state": "occluded", "at": [720, 532] },
+        "r_elbow":    { "state": "observed", "at": [672, 835] },
+        "r_wrist":    { "state": "observed", "at": [560, 1136] },
+        "l_shoulder": { "state": "occluded", "at": [1034, 550] },
+        "l_elbow":    { "state": "observed", "at": [1098, 835] },
+        "l_wrist":    { "state": "observed", "at": [1228, 1107] },
+        "r_hip":      { "state": "occluded", "at": [779, 994] },
+        "r_knee":     { "state": "observed", "at": [637, 1657] },
+        "r_ankle":    { "state": "observed", "at": [447, 2148] },
+        "l_hip":      { "state": "occluded", "at": [1010, 1000] },
+        "l_knee":     { "state": "observed", "at": [944, 1669] },
         "l_ankle":    { "state": "observed", "at": [848, 2140] },
-        "r_eye":      { "state": "observed", "at": [825, 275] },
-        "l_eye":      { "state": "observed", "at": [944, 294] },
+        "r_eye":      { "state": "observed", "at": [832, 272] },
+        "l_eye":      { "state": "observed", "at": [950, 284] },
         "r_ear":      { "state": "missing" },
         "l_ear":      { "state": "missing" } } }
   ]
@@ -70,6 +70,14 @@ README's step 7 has moved their left ankle. The feet are cut only when each ankl
 its leg's art and on the shoes; `l_ankle` sits at `[848, 2140]` for that, and the README's
 step 7 line puts it there whichever set you use. Earlier versions of the parts package gave
 other counts; [REFERENCE.md](REFERENCE.md#the-leg-chain-moves-with-the-joints) keeps them.
+
+The set was tuned to land where the script's joints do: each joint here is within a pixel
+of what `scripts/keypoints.py` writes for this painting, and the ears, which it places,
+are left `missing`. The hips, the knees and the right ankle are the ones that matter. An
+earlier set had them 14–50 px off, and the right leg's stance came out 0.7 degrees wider:
+the README's step 9b hello then slid the right foot 41.1 px instead of 33.2 and opened a
+seam at the right knee. With this set step 9b prints `right ankle 33.6 px in (40 % of the
+way to parallel, 16.05 -> 12.92 deg)`, and every other line the README quotes as written.
 
 ## What the script writes
 
