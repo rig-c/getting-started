@@ -1,7 +1,7 @@
 // Make a four-second "hello" as one rig-c motion spec, for the config's
 // motion.animations_from.
 //
-//   bun hello.ts <rig.json> [--seconds 4] [--fps 24] [--out hello.anim.json]
+//   bun hello.ts <rig.json> [--seconds 4] [--fps 24] [--out hello.anim.json] [--no-skirt-keys]
 //
 // <rig.json> is the rig a build wrote, out/rig/rig.json: the bones the hello
 // keys are read from it, and the legs' lengths and rest angles for the weight
@@ -26,11 +26,17 @@
 //    skirt's hem, so a larger hip move opens a gap there; the skirt's first
 //    links follow the hip, and both ankles stay where they were painted (the
 //    shoes are one image that no leg bone moves).
+// --no-skirt-keys leaves the skirt out: once step 9c's cloth recipe hangs it on
+// physics, the hip shift moves it and no key does. Without physics the keys
+// are needed: with them left out, the hem opens 48 px over the left thigh.
 import { readFileSync, writeFileSync } from 'node:fs';
 
 type Bone = { name: string; parent?: string; x?: number; y?: number; rotation?: number; length?: number };
 
 const args = process.argv.slice(2);
+const ni = args.indexOf('--no-skirt-keys');
+const skirtKeys = ni < 0;
+if (!skirtKeys) args.splice(ni, 1);
 const opt = (name: string, dflt: number): number => {
   const i = args.indexOf(name);
   if (i < 0) return dflt;
@@ -48,15 +54,15 @@ const oi = args.indexOf('--out');
 const outPath = oi >= 0 ? args.splice(oi, 2)[1] : 'hello.anim.json';
 const [rigPath] = args;
 if (!rigPath || !outPath) {
-  console.error('usage: bun hello.ts <rig.json> [--seconds 4] [--fps 24] [--out hello.anim.json]');
+  console.error('usage: bun hello.ts <rig.json> [--seconds 4] [--fps 24] [--out hello.anim.json] [--no-skirt-keys]');
   process.exit(2);
 }
 
 const rig = JSON.parse(readFileSync(rigPath, 'utf8'));
 const bones: Record<string, Bone> = {};
 for (const b of rig.bones ?? []) bones[b.name] = b;
-const need = ['hip', 'chest', 'head', 'mouth', 'sleeve_r0', 'sleeve_r1', 'leg_r0', 'leg_r1', 'leg_l0', 'leg_l1',
-  'skirt_r0', 'skirt_c0', 'skirt_l0'];
+const skirt = skirtKeys ? ['skirt_r0', 'skirt_c0', 'skirt_l0'] : [];
+const need = ['hip', 'chest', 'head', 'mouth', 'sleeve_r0', 'sleeve_r1', 'leg_r0', 'leg_r1', 'leg_l0', 'leg_l1', ...skirt];
 const lacking = need.filter((n) => !bones[n]);
 if (lacking.length > 0) {
   console.error(`hello.ts: ${rigPath} has no bone ${lacking.join(', ')}; the hello keys all of ${need.join(', ')}`);
@@ -149,9 +155,7 @@ const curves: [string, string, Curve, boolean?][] = [
   ['leg_r1', 'rotate', (t) => legIK('leg_r', SHIFT * settle(t))[1]],
   ['leg_l0', 'rotate', (t) => legIK('leg_l', SHIFT * settle(t))[0]],
   ['leg_l1', 'rotate', (t) => legIK('leg_l', SHIFT * settle(t))[1]],
-  ['skirt_r0', 'rotate', (t) => SKIRT * settle(t)],
-  ['skirt_c0', 'rotate', (t) => SKIRT * settle(t)],
-  ['skirt_l0', 'rotate', (t) => SKIRT * settle(t)],
+  ...skirt.map((b): [string, string, Curve] => [b, 'rotate', (t) => SKIRT * settle(t)]),
 ];
 
 const n = Math.round(seconds * fps);
@@ -188,6 +192,6 @@ const [l0, l1] = legIK('leg_l', SHIFT);
 const f2 = (x: number) => (x >= 0 ? '+' : '') + x.toFixed(2);
 console.log(
   `hello.ts: 4 beats (hm?, heh, wave, settle), ${seconds} s at ${fps} fps, ${tracks.length} tracks of ${n + 1} keys; ` +
-  `sleeve_r0 at most ${maxUpper.toFixed(1)} deg; hip shift ${maxShift.toFixed(1)} px ` +
+  `sleeve_r0 at most ${maxUpper.toFixed(1)} deg; hip shift ${maxShift.toFixed(1)} px${skirtKeys ? '' : ', skirt left to physics'} ` +
   `(legs r ${f2(r0)}/${f2(r1)}, l ${f2(l0)}/${f2(l1)} deg, ankles held) -> ${outPath}`,
 );

@@ -59,7 +59,7 @@ function anchorExists(source: string, anchor: string) {
     return (n ? `${base}-${n}` : base) === decodeURIComponent(anchor);
   });
 }
-// Step 10's two addresses: the hello from step 9b over the idle, and step 9's wave.
+// Step 10's two addresses: the hello from step 9b (on step 9c's physics build) over the idle, and step 9's wave.
 const tutorialModels: Record<string, { anim: string; under: string | null }> = {
   'out/check/build/skeleton.model.json': { anim: 'hello', under: 'idle' },
   'wave-build/skeleton.model.json': { anim: 'wave', under: null },
@@ -196,6 +196,17 @@ try {
   const built = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as { animations: { name: string }[] };
   assert.deepEqual(built.animations.map(a => a.name), ['idle', 'hello'], 'GUIDE_HELLO: the build must hold idle and hello');
   console.log('[bar:guide-hello] step 9b build exit 0; out/check/build holds idle, hello PASS');
+  // Step 9c: the cloth recipe puts the side locks, the fringe and the skirt on physics.
+  run(['bash', '-eu', '-o', 'pipefail', '-c', blocks(step('9c'), 'sh')[0]], consumer);
+  const physical = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as { animations: { name: string }[]; constraints: { kind: string; name: string }[] };
+  assert.deepEqual(physical.animations.map(a => a.name), ['idle', 'hello'], 'GUIDE_CLOTH: the build must still hold idle and hello');
+  const ofKind = (kind: string) => physical.constraints.filter(c => c.kind === kind).map(c => c.name);
+  assert.equal(ofKind('physics').length, 27, `GUIDE_CLOTH: expected 27 physics constraints, found ${ofKind('physics').length}`);
+  assert.equal(ofKind('transform').length, 3, `GUIDE_CLOTH: expected 3 transform constraints, found ${ofKind('transform').length}`);
+  for (const name of ['lockt0_0_physics', 'lock1t0_0_physics', 'bang_c1_physics', 'skirt_swing_physics', 'skirt1_2_physics'])
+    assert(ofKind('physics').includes(name), `GUIDE_CLOTH: missing physics constraint ${name}`);
+  reports.cloth = { physics: ofKind('physics').length, transform: ofKind('transform').length };
+  console.log('[bar:guide-cloth] step 9c build exit 0; 27 physics and 3 transform constraints, idle and hello PASS');
   // Verification tools are separate from each empty consumer installation.
   const tools = join(temp, 'tools'); mkdirSync(tools); writeFileSync(join(tools, 'package.json'), '{"private":true,"type":"module"}');
   run(['npm', 'install', '--no-audit', '--no-fund', 'playwright@1.58.2'], tools);

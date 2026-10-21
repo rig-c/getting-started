@@ -221,6 +221,67 @@ painting the upper arm and its puff sleeve are one image under a sleeveless top,
 swinging it out, as step 9's wave does, opens a gap at the armhole. The comment at the top
 of `hello.ts` says why each limit is where it is.
 
+### 9c. Let the hair and the skirt answer
+
+So far the hair and the skirt move only where a key moves them. The parts package has a
+recipe that hands them to physics instead: a `cloth` block in the config names a recipe per
+See-through layer tag, `propose --cloth` drafts chains with a physics constraint on each
+link, and the build carries them. Then what moves under them, her breath, her head and the
+hello's weight shift, moves them, and no key does.
+
+```sh
+bun ../getting-started/scripts/hello.ts out/rig/rig.json --no-skirt-keys
+cat > work/cloth.json <<'EOF'
+{
+  "cloth": {
+    "bottomwear": { "chains": 3, "links": 3, "wind": [1, 6], "gravity": [2, 12], "translate": 0.2,
+                    "swing": { "scales": [1.2, 1, 1.2] } },
+    "front hair": { "chains": 1, "links": 3, "wind": [1, 6], "gravity": [2, 12], "translate": 0.2,
+                    "strength": { "trunk": 100, "branch": 100, "edge": 100 } }
+  }
+}
+EOF
+bun ../getting-started/scripts/take.ts work/cloth.json config.json cloth
+bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json --cloth config.json --write-config config.cloth.json
+mv config.cloth.json config.json
+bun -e 'const f = "config.json", c = await Bun.file(f).json(); c.motion.tracks.find((t) => t.bone === "bun").amp = 1; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
+bunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop --lead-in 1
+```
+
+About two and a half minutes. The first line writes the hello again without its three skirt
+keys (`hello.ts` then prints `13 tracks of 97 keys` and `skirt left to physics`): step 9b's
+settle turns the skirt's top links by hand to follow her hip, and from here physics does
+that. `bottomwear` is the skirt's layer; `front hair` is the hair around the face, the
+fringe and the two locks that hang beside her cheeks, all one layer.
+`propose` prints what the recipe drafted: `3 tree(s) on one shared swing, skirt_swing` for the
+skirt, one tree of three links on each side lock (`lockt0_` and `lock1t0_`), and the fringe's
+three short chains on physics too. Then a line beginning `wrote config.cloth.json:
+config.json's text with` names what it replaced — the old hair and skirt chains removed and
+the new ones inserted, `meshes.hair_front`, `meshes.bottomwear`, their idle tracks removed,
+`constraints` — and ends `every other byte as read`: everything else in your config,
+`motion.animations_from` included, is as it was, and `mv` makes the result your config. It holds 30 constraints: 27
+physics constraints, one on every link, and 3 that turn each skirt tree's first link with
+the swing hung from the hip.
+
+Two lines are corrections to the draft. The `strength` line makes the side locks as stiff as
+the fringe's middle: at the recipe's default the locks trail her head's turn in the hello
+far enough to pull off her cheek by more than this guide allows (the figures are in
+[docs/REFERENCE.md](docs/REFERENCE.md#step-9c-the-hair-and-the-skirt)). The `bun -e` line raises one number. The
+recipe took the keys off the hair around the face, which leaves the back hair's bun the
+head's only keyed child, so `check` reads neck, head and bun as one chain, and wants each to
+swing at least as far as the one above. The draft gives the bun 0.8 degrees under the head's
+0.9; without the line the build stops at `CHECK_CHAIN_LAG`.
+
+From the build you should see `loop physics: 27 physics constraint(s) left out of the loop's
+frames, reported, not judged`, four `WARN chain` lines from `CLOTH_SETTLES` for the skirt,
+`check: PASS; 11 of 12 bar(s) measured, 1 skipped (STRESS_OFF_CHAIN); 5 warning(s)
+(SEAM_OVER_MOTION, CLOTH_SETTLES, not a bar)`, a `lead-in:` line ending `max |d| 0, 0 px over
+40 — the jump at the wrap`, and `build: PASS`. Physics starts at rest when an animation
+starts, and the skirt hangs into place within 2 seconds. Then it rests, because the idle
+never moves her hip; `CLOTH_SETTLES` says so, and it is a warning, not a failure. The hello's
+weight shift moves the skirt again. `--lead-in 1` plays the idle once before
+`out/idle.gif` is cut from it, so the loop starts after the skirt has settled.
+
 ### 10. Play it in your browser
 
 ```sh
@@ -231,7 +292,8 @@ Open <http://localhost:3000/?model=out/check/build/skeleton.model.json&anim=hell
 
 You should see her notice you — "hm?", her head straightening — then smile with narrowed
 eyes and two little shrugs, wave with her forearm beside her shoulder, and settle her weight
-before it starts again. `&under=idle` keeps the idle playing beneath, so she breathes
+before it starts again. The locks beside her face trail her head, and the skirt swings after
+her hip when she settles. `&under=idle` keeps the idle playing beneath, so she breathes
 through it. Step 9's wave is at
 <http://localhost:3000/?model=wave-build/skeleton.model.json&anim=wave>; the menu switches
 animations. Ctrl+C stops the server. That's the whole chain. The page is
