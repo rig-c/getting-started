@@ -10,7 +10,7 @@ quoted from. Three words recur:
 
 ## Tested with
 
-Recorded 2026-10-13; *Try it first* re-run twice on 2026-10-20, the second time with step 9b, and once more on 2026-10-21 with step 9c. Everything marked *measured* on this
+Recorded 2026-10-13; *Try it first* re-run twice on 2026-10-20, the second time with step 9b, and twice on 2026-10-21, with step 9c and then with the stance settle. Everything marked *measured* on this
 page was run on this machine with these versions.
 
 | | |
@@ -64,6 +64,19 @@ readings under *Step 9c* were taken on. One line's wording differs between the t
 `wrote config.cloth.json:` names each chain and track it removed and inserted, where 1.48.0
 named the sections. Step 10 was checked by fetching the page and both models (HTTP 200).
 
+Later on 2026-10-21, with step 7's ankle correction and the stance settle, every `sh` block
+was run verbatim in order from an empty folder once more (run 7), `git clone` again replaced
+by a copy of the checkout; `bun add` installed parts 1.49.1, rig-c 2.64.1, pose 0.37.0 and
+play 1.12.0. Every expected line on the README held, the ones changed by this step included
+(`44 bone(s)`, `limb cut: "shoes" …`, step 8's `11 of 13`, the two `hello.ts` lines, steps
+9b's and 9c's `12 of 13`). Its outputs were byte-identical to the scratch run the readings
+under [*The settle: a stance change*](#the-settle-a-stance-change) were taken on
+(`keypoints.json`, `config.json`, `wave.motion.json`, `wave-build/`'s `skeleton.json` and
+`skeleton.model.json`, step 9b's and step 9c's `skeleton.model.json`, step 9c's
+`skeleton.json`, `skeleton.atlas`, `skeleton.png` and `out/idle.gif`), except
+`hello.anim.json`'s `note`, whose wording was changed between the two runs; its tracks are
+the same. Step 10 was checked by fetching the page and both models (HTTP 200).
+
 *Try it first* (the CPU-only half) was run end to end twice on the machine above: once
 command by command while drafting, and once as a smoke, every `sh` block of the finished
 page extracted and run verbatim in order from an empty folder with an empty Bun cache. The
@@ -113,6 +126,10 @@ Run 6 (clean, 2026-10-21, caches warm, the machine's load average 13–16 from o
 an upper bound): **495.5 s** in all — steps 1 to 10 took 1.3, 5.3, 4.3, 8.5, 63.7, 4.3, 8.6,
 101.5, 16.6, 122.7 (9b), 153.5 (9c) and 2.7 s.
 
+Run 7 (clean, 2026-10-21, caches warm, other jobs running, so an upper bound): **416.6 s**
+in all — steps 1 to 10 took 1.0, 3.8, 3.7, 6.8, 42.1, 2.1, 5.5, 75.5, 6.4, 119.5 (9b), 146.1
+(9c) and 2.4 s.
+
 Disk after run 2: `my-rig` 79 MB (`node_modules` 37, `inputs` 19, `work` 4.3, `out` 16,
 `wave-build` 1.6) and Bun's download cache 38 MB — about 120 MB in all. Bun reported
 `7 packages installed`.
@@ -156,6 +173,11 @@ published package checks every build with rigc's own validator, and the
 [rig-c README](https://github.com/rig-c/core#install) explains the two.
 
 ### Step 9b, the hello
+
+The settle this section measures (hip 6 px, 0.7 s, the ankles held) was replaced on
+2026-10-21 by a stance change, after step 7 began cutting the shoes into one part per foot;
+its readings are under [*The settle: a stance change*](#the-settle-a-stance-change). The rest
+of this section is as measured then.
 
 `scripts/hello.ts` writes keys, not joint positions: the face is outside the 18 body joints
 rig-pose reads, and the arm's limit is an angle, which a key states exactly. It reads the
@@ -227,7 +249,8 @@ idle key.
 
 **What the recipe drafted** (parts 1.48.0, measured): the keyed chains `lock`, `lock1_` and
 `skirt_r`, `skirt_c`, `skirt_l` and their idle tracks are replaced; the fringe's chains keep
-their names and places. The rig goes from 70 bones to 46 (the keyed chains' `_ctl` bones go).
+their names and places. The rig goes from 70 bones to 46 (the keyed chains' `_ctl` bones go);
+with step 7's ankle correction, from 72 to 48 (the two feet are bones of their own).
 
 | piece | chains | constraints |
 | --- | --- | --- |
@@ -254,7 +277,8 @@ none, so the runtime's default world applies: wind (1, 0), gravity (0, 1) (state
 **The hello's skirt keys.** `hello.ts` keys `skirt_r0`, `skirt_c0` and `skirt_l0` to follow
 the settle's hip shift; under the recipe those bones do not exist and the swing carries the
 skirt, so step 9c writes the hello with `--no-skirt-keys` (13 tracks; the other 13 are the
-same keys, byte for byte). Without physics the keys are needed: step 9b's build with them left
+same keys, byte for byte; since the stance change, 14 tracks, the 14th keying `skirt0_0`, see
+below). Without physics the keys are needed: step 9b's build with them left
 out reads `thigh_l|bottomwear` gap 48 px on the hello, past the bar of 25.
 
 **The build's lines** (run on 2026-10-21): `CLOTH_SETTLES: WARN — 9 physics chain(s) …: 4 of
@@ -329,6 +353,136 @@ step-10 page sets no world of its own; the player's `environment()` is where a p
 `&under=idle` plays it (`rigc render` reads one animation at a time); the player's physics
 against rigc's render frame by frame.
 
+### The settle: a stance change
+
+Added 2026-10-21. The owner asked for the settle to bring the feet toward a parallel stance
+and back, which would also drive the skirt. A read-only probe on this build (parts 1.48.0)
+designed it; the readings below are the guide's own, on parts 1.49.1 and rig-c 2.64.1.
+
+**The feet, through the producer.** The parts package's limbs rule drafts `foot_r` and
+`foot_l` under the shins "when every leg's ankle lies on one footwear part — `foot_<s>` on a
+bone of its own at the ankle under the shin, `inherit` `"noRotationOrReflection"`, so the
+shoe keeps its setup angle while the leg turns" (stated by the parts [AUTHORING][authoring],
+*Limbs: cut at their joints*). The script's `l_ankle`, at painting px `[855.7, 2154.1]`, lies
+11.761 px from the leg's art along its joint line, so `propose` prints `LINT foot_l …
+(ASSEMBLE_LIMB_JOINT_ON_ART)` and leaves `shoes` whole. The hand-placed set's `[850, 2110]`
+lies on the leg but 22 px from the shoes, so it leaves them whole too, with a note and no
+`LINT`. At `[848, 2140]` both sets give `propose` 44 bones and 0 `LINT` lines, and `build`
+prints `limb cut: "shoes" opaque 13735 = "foot_r" 8071 + "foot_l" 5664` (measured). Step 7's
+first line moves the ankle there in whichever `keypoints.json` the reader has, and
+[KEYPOINTS.md](KEYPOINTS.md)'s set now holds it too. The build's rig has 72 bones (70
+before) and 28 parts; step 8's `check` adds `FEET_STAY_LEVEL`, skipped on the idle, which
+turns no leg. The ankle caps are reported missing (`limb cap: … "ankle" … 593 px missing`,
+`… 620 px missing`), and `RECOMPOSITE_HOLES` reads the same 402 px hole at the left ankle as
+before the split (`error_px 6275`): neither shows while the foot stays level and the shin
+draws over it.
+
+**The painted stance** (rig px, from the rig's leg bones): the right leg (the picture's left)
+runs 15.96 degrees from straight down, hip to ankle; the left 8.09 degrees, the same way. The
+right shoe is painted turned out 44.4 degrees more than the left (the probe's reading of the
+shoes' long axes).
+
+**The keys** (`scripts/hello.ts`, from the rig's leg lengths and rest angles):
+
+| | value |
+| --- | --- |
+| right ankle | 33.2 px in along the floor: 40 % of the 83.0 px to where hip-to-ankle is parallel to the left leg (15.96 → 12.87 degrees) |
+| right leg | two-bone IK, the knee bending the way it is painted: `leg_r0` +9.61, `leg_r1` −13.63 degrees at the hold |
+| hip | x −6 px, y 0 |
+| left leg | ankle held, IK under the hip's move: `leg_l0` +1.70, `leg_l1` −2.65 degrees |
+| feet | not keyed: each keeps its shoe level by its inherit and goes with its ankle |
+| skirt, step 9b | `skirt_r0` equal to `leg_r0`; `skirt_c0`, `skirt_l0` 1.66 degrees after the hip, as before |
+| skirt, step 9c | `skirt0_0` equal to `leg_r0`: the first link of the tree over the right thigh, which takes the swing's turn through a transform constraint and has no physics of its own, so a key adds to it; the rest of the skirt answers the hip by physics |
+| timing | out over 3.15–3.75 s as the arm comes down, held to 4.15 s, back over 4.15–4.75 s, smoothstep; the hello is 4.75 s (115 keys at 24 fps), every track at rest at both ends |
+
+**Bars, written down before measuring** (from rig-c/getting-started#13): hem
+`thigh_?|bottomwear` gap ≤ 25 px; knee `shin_?|thigh_?` ghost ≤ 50 px, and `shin_?|foot_?`
+within the same; 0 frames of pass-through; the ankles (`leg_?1`'s tips) and the soles (each
+foot's lowest vertex) within 2 px of rest (`--geometry`); no folds; `sleeve_r0` within 4
+degrees; every seam pair within gap ≤ 25 and ghost ≤ 50 on `idle` and `hello`, physics on;
+`FEET_STAY_LEVEL` PASS; `check: PASS`; `build: PASS`.
+
+**50 % failed one, and the beat came down to 40 %.** The probe proposed 50 % (41.5 px,
+`leg_r0` +11.11, `leg_r1` −15.28 degrees). On step 9c's build, physics on, it read
+`topwear|bottomwear` ghost **54** px (frames 86–101, the hold), over the bar of 50: the
+skirt's top, turned with `skirt0_0`, pulls off the shirt. Every other pair passed (hem
+`thigh_r` 20 / 3, knee 1 / 40), and step 9b's plain build passed everything (`topwear` 1 /
+45). At 40 % every bar holds on both builds. The bars were not changed.
+
+**Readings at 40 %**, `rigc render --candidate out/check/build --animation <name> --fps 24
+--geometry --folds --seam … --pass-through bottomwear:thigh_r,bottomwear:thigh_l
+--angle-range …`, physics on where the rig has it (gap / ghost, px, worst frame; `rigc
+render` starts physics at rest, so the frames include the skirt hanging into place):
+
+| pair | 9b `idle` | 9b `hello` | 9c `idle` | 9c `hello` |
+| --- | --- | --- | --- | --- |
+| upperarm_r \| topwear | 0 / 2 | 8 / 8 | 0 / 2 | 8 / 8 |
+| forearm_r \| upperarm_r | 0 / 2 | 1 / 26 | 0 / 2 | 1 / 26 |
+| upperarm_l \| topwear | 0 / 0 | 0 / 1 | 0 / 0 | 0 / 1 |
+| forearm_l \| upperarm_l | 0 / 1 | 0 / 0 | 0 / 1 | 0 / 0 |
+| neck \| topwear | 0 / 0 | 0 / 5 | 0 / 0 | 0 / 5 |
+| face \| hair_front | 2 / 0 | 0 / 0 | 0 / 0 | 7 / 47 |
+| face \| neck | 0 / 0 | 0 / 1 | 0 / 0 | 0 / 1 |
+| hair_back \| face | 0 / 1 | 0 / 0 | 0 / 1 | 0 / 0 |
+| topwear \| bottomwear | 0 / 3 | 1 / 38 | 1 / 7 | 3 / 44 |
+| thigh_r \| bottomwear | 1 / 0 | 11 / 0 | 6 / 1 | 10 / 2 |
+| thigh_l \| bottomwear | 0 / 1 | 11 / 3 | 1 / 2 | 7 / 6 |
+| shin_r \| thigh_r | 0 / 0 | 1 / 38 | 0 / 0 | 1 / 38 |
+| shin_l \| thigh_l | 0 / 0 | 0 / 5 | 0 / 0 | 0 / 5 |
+| shin_r \| foot_r | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+| shin_l \| foot_l | SKIP | SKIP | SKIP | SKIP |
+
+The two `shoes` pairs of the earlier tables are gone with the part; the two foot pairs take
+their place, and `shin_l|foot_l` is rigc's `SKIP` as `shoes|shin_l` was. Pass-through: 0 of
+81 idle and 0 of 115 hello frames, both thighs, both builds. Folds: none. Feet: the ankles'
+y and the soles' lowest y move 0.001 px at most on every frame (the right ankle 142, the
+left 146, the soles 26 and 22, world y up); the right ankle's x runs −192.00 to −158.80,
+33.2 px. `sleeve_r0` against `chest`: 4.00 degrees out at most. The build: `FEET_STAY_LEVEL:
+PASS — 2 animation(s) …: each foot's drawing within ±10 degrees of its setup pose while a bone
+above it is turned`, `ANIMATIONS_DO_NOT_FOLD: PASS`, `check: PASS; 12 of 13 bar(s) measured,
+1 skipped (STRESS_OFF_CHAIN)`, `build: PASS`, on both 9b and 9c. Every reading is inside its
+bar; the worst is `face|hair_front` ghost 47 (the head turn at 0.333 s, as before) and
+`topwear|bottomwear` 44.
+
+**Angles under the hello** (`--angle-range`, span over the frames read, degrees):
+
+| bone against | 9b | 9c | before, the hip-only settle (9c) |
+| --- | --- | --- | --- |
+| `leg_r0` against `hip` | 9.61 | 9.61 | — |
+| `leg_r1` against `leg_r0` | 13.63 | 13.63 | — |
+| `leg_l0`, `leg_l1` | 1.70, 2.65 | 1.70, 2.65 | — |
+| `foot_r`, `foot_l` against `hip` | 0, 0 | 0, 0 | — |
+| `skirt_r0` / `skirt0_0` against `hip` (keyed) | 9.61 | 10.28 | 3.48 |
+| `skirt_swing` against `hip` | — | 1.60 | 2.90 |
+| `skirt1_0`, `skirt2_0` against `hip` | 1.66, 1.66 (keyed) | 1.60, 1.92 | 2.90, 3.48 |
+| `skirt0_2` against `skirt0_1` | — | 10.44 | 4.74 |
+| `skirt2_2` against `skirt2_1` | — | 8.33 | 8.84 |
+
+The feet's bones do not turn, so the right shoe stays drawn at its painted angle, turned out:
+the legs come together, the feet do not become parallel. The skirt answers in two ways: the
+tree over the right thigh follows the thigh by its key, and its tip link swings 10.44 degrees
+against the link above (4.74 under the hip-only settle); the shared swing and the other
+trees answer the hip, and less than before (1.60 against 2.90), because the hip now takes
+0.6 s to move where it took 0.35 s.
+
+**Needs a part** (from the probe, not changed by this step):
+
+- **A turned-in right shoe.** The toe-out is painted. Turning the foot's image in the
+  picture's plane reads as a shoe tipped on its side, pushes the sole 13–22 px through the
+  floor, and past 10 degrees fails `FEET_STAY_LEVEL`. A true parallel stance needs a second
+  painting of the right shoe, switched in by an attachment key.
+- **Thigh art under the hem**, to go further than about 50–75 % of the way: the thigh turns
+  about the hip 180 px above the hem and its art starts at the hem, so a turn opens a sliver
+  that only the skirt's link covers, and past about 75 % the skirt mesh itself splits.
+- **A lower hip or a painting with the legs closer**, for straight parallel legs: with the
+  hip where it is the right leg must shorten 18 px, which only the knee gives, and from 75 %
+  the knees nearly touch.
+- **Ankle caps**, the 593 and 620 px the `limb cap:` lines size, and the 402 px hole at the
+  left ankle: unseen while the feet stay level, seen as soon as a foot turns against its
+  shin.
+
+**Not measured:** the hello over the idle on two tracks, as step 10 plays it.
+
 ### The joint script, `scripts/keypoints.py`
 
 - **Downloads, first run**: two model zips, 94,223,081 and 212,739,469 bytes (sizes from the
@@ -342,8 +496,10 @@ against rigc's render frame by frame.
   both times with every package and model already cached — so that 40 s is environment
   set-up and first imports, not downloads.
 - **Agreement with hand-placed joints**: on the example painting, within 4–52 painting
-  pixels of the set in [KEYPOINTS.md](KEYPOINTS.md) (neck 52, l_hip 49, l_ankle 44,
-  r_shoulder 40; elbows, wrists, knees 4–21).
+  pixels of the set first placed in [KEYPOINTS.md](KEYPOINTS.md) (neck 52, l_hip 49, l_ankle 44,
+  r_shoulder 40; elbows, wrists, knees 4–21). The set there now was moved to within a pixel
+  of the script's joints, so that the no-Python route gives the same hello
+  ([KEYPOINTS.md](KEYPOINTS.md#the-file)).
 - **The estimator's joints built green unedited**: `propose --keypoints` (2 LINT lines, both
   the leg chain's top under the skirt) → `take.ts` → `build` PASS 10/10.
 - **The hand-placed set** through the same steps: 42 bones, a chain per leg on the one
@@ -358,7 +514,9 @@ a different, smaller pose model; it was not tried and would need its own downloa
 
 On the example painting both legs are one See-through layer. From the script's joints the
 proposer gave one leg chain down the middle of both legs (40 bones); from the hand-placed
-set it gave a chain per leg on that same layer (42 bones). Which one you get depends on
+set it gave a chain per leg on that same layer (42 bones). On parts 1.49.1 both sets give a
+chain per leg, and with step 7's ankle correction both give 44 bones, the feet cut from the
+shoes. Which one you get depends on
 where the knees and ankles fall on the leg art, and a note on the leg part says which and
 why. Both build green. The README's map leaves the legs out for this reason — the wave does
 not move them, and a map written for one bone list misses on the other. To give each leg its
