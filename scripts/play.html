@@ -16,6 +16,7 @@
 <div id="bar">
   <label>animation <select id="anim"></select></label>
   <button id="pause">pause</button>
+  <label><input type="checkbox" id="breeze" checked> breeze</label>
   <span id="msg"></span>
 </div>
 <div id="stage"><div id="root"></div></div>
@@ -25,6 +26,7 @@
 // Both paths are relative to the directory serve.ts was started in.
 // &under=<animation> plays that one on track 0 and <animation> over it on
 // track 1, so a gesture keeps the idle's breathing where it keys other bones.
+// &wind=0 starts with the breeze off; the "breeze" box turns it on and off.
 import { loadModel, RigPlayer } from '/node_modules/@rig-c/play/dist/index.js';
 
 const q = new URLSearchParams(location.search);
@@ -35,7 +37,7 @@ const pick = document.getElementById('anim');
 const msg = document.getElementById('msg');
 
 try {
-  const assets = await loadModel({ modelUrl });
+  const assets = await loadModel({ modelUrl, setsUrl: null }); // no attachment sets: skip the sets.json probe
   const player = new RigPlayer(root, assets);
   for (const a of assets.animations) pick.add(new Option(`${a.name} (${a.duration.toFixed(2)} s)`, a.name));
   const first = q.get('anim') || assets.animations[0]?.name;
@@ -65,6 +67,20 @@ try {
   fit();
   addEventListener('resize', fit);
 
+  // The page's world, not the rig's: a light breeze the rig's physics answers.
+  // Wind x = BASE + GUST * sin(2 pi HZ t), y 0, in the runtime's units (x right);
+  // gravity stays the runtime's. It stays between 0.5 and 1: above 1 the locks
+  // trail the hello's head turn onto her cheek, below 0.5 the skirt leaves the
+  // thigh in the settle (docs/REFERENCE.md, step 10). Off is the runtime's own
+  // world, wind [1, 0] (environment(null)): the one the rig was built and checked in.
+  const BASE = 0.75, GUST = 0.25, HZ = 0.2;
+  const breeze = document.getElementById('breeze');
+  breeze.checked = q.get('wind') !== '0';
+  let clock = 0; // seconds played, so the gust holds while paused
+  const blow = () => player.environment(breeze.checked ? { wind: [BASE + GUST * Math.sin(2 * Math.PI * HZ * clock), 0] } : null);
+  breeze.onchange = blow;
+  blow();
+
   let paused = false;
   document.getElementById('pause').onclick = (e) => {
     paused = !paused;
@@ -74,7 +90,9 @@ try {
 
   let last = performance.now();
   requestAnimationFrame(function tick(now) {
-    player.frame(Math.min(0.1, (now - last) / 1000));
+    const dt = Math.min(0.1, (now - last) / 1000);
+    if (!paused) { clock += dt; blow(); }
+    player.frame(dt);
     last = now;
     requestAnimationFrame(tick);
   });
