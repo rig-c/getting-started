@@ -209,13 +209,9 @@ failure: where a mesh does fold, it names the part and the frames to look at.
 motion to the parts checker too: retarget checks the compile and folds, while the parts
 checker also reads the body-root seams. It should end `check: PASS`.
 
-The elbow stays where it was painted: this wave turns the forearm, leaving the upper arm
-under the armhole. Its largest tested shortest turn is `--peak-degrees 180`, the default:
-after `clean` and `retarget`, the forearm spans **179.34 degrees** against the upper arm
-at 24 fps (176.48 degrees at 12 fps). Both shoulders read **0 GAP cells** on all 73 and 37 frames
-respectively, under the unchanged one-cell floor. The tested range and tool versions are
-in [the reference](docs/REFERENCE.md#step-9-the-forearm-wave). This is the shoulder reading;
-the separate elbow opening is tracked in [#18](https://github.com/rig-c/getting-started/issues/18).
+The upper arm stays under the armhole so the shoulder never opens as the forearm waves
+(`--peak-degrees 180` by default; [the measurements](docs/REFERENCE.md#step-9-the-forearm-wave)).
+The separate elbow opening is tracked in [#18](https://github.com/rig-c/getting-started/issues/18).
 
 ### 9b. Say hello
 
@@ -249,8 +245,7 @@ weight as the arm comes down: her splayed right leg (the picture's left) slides 
 10 % of the way in toward parallel with the other, the knee bending the way it is painted, her hip
 follows 1.5 px, and both go back by the end of the loop. The feet are the two parts step 7's
 correction made; each keeps its shoe level while the leg turns, and the hello never keys
-them. At 24 fps the thigh roots read 1 GAP cell on the right, equal to its one-cell floor,
-and 0 on the left, with no frame above the floor. The comment at the top of `hello.ts`
+them. The skirt keeps the tops of both thighs covered as she settles. The comment at the top of `hello.ts`
 and [the reference](docs/REFERENCE.md#step-9b-the-body-root-reach) say why the settle is smaller;
 [#18](https://github.com/rig-c/getting-started/issues/18) remains the separate elbow reading.
 
@@ -299,8 +294,7 @@ physics constraints, one on every link, and 3 that turn each skirt tree's first 
 the swing hung from the hip.
 
 The `swing.scales` line gives each skirt tree a quarter of the earlier shared swing.
-The old gains opened the right thigh even on the idle; with these gains the cloth hello
-reads at most 4 GAP cells, equal to its floor of 4, and no frame over the floor at 12 fps
+The skirt keeps the tops of her thighs covered as she breathes and settles
 ([the figures](docs/REFERENCE.md#step-9b-the-body-root-reach)). The physics and its forces remain.
 
 Two lines are corrections to the draft. The `strength` line makes the side locks as stiff as
