@@ -1,4 +1,4 @@
-// Run from any directory: bun scripts/check-adapters.ts [--profile-file path | --profile-ref ref]
+// Run from any directory: bun scripts/check-adapters.ts [--profile-file path | --profile-ref ref] [--parts-source path]
 // All package installs and generated builds live in a fresh temporary directory.
 // CI adds --install-system-deps for its disposable runner; ordinary runs only download Chromium.
 import assert from 'node:assert/strict';
@@ -12,6 +12,8 @@ const readme = readFileSync(join(root, 'README.md'), 'utf8');
 const arg = (key: string) => { const at = process.argv.indexOf(key); return at < 0 ? undefined : process.argv[at + 1]; };
 const profileRef = arg('--profile-ref') ?? 'main';
 const profilePath = arg('--profile-file');
+const partsSource = arg('--parts-source');
+if (partsSource) assert.equal(JSON.parse(readFileSync(join(resolve(partsSource), 'package.json'), 'utf8')).name, '@rig-c/parts', 'PARTS_SOURCE: expected a parts package');
 const profileUrl = `https://raw.githubusercontent.com/rig-c/.github/${encodeURIComponent(profileRef)}/profile/README.md`;
 const profile = profilePath ? readFileSync(resolve(profilePath), 'utf8') : await get(profileUrl);
 const temp = mkdtempSync(join(tmpdir(), 'rig-c-onboarding-'));
@@ -26,6 +28,24 @@ function run(command: string[], cwd: string) {
   console.log(`[command] ${command.join(' ')}`);
   const p = Bun.spawnSync(command, { cwd, stdout: 'inherit', stderr: 'inherit', env: { ...process.env, npm_config_jobs: '4', BUN_CONFIG_MAX_HTTP_REQUESTS: '4' } });
   assert.equal(p.exitCode, 0, `COMMAND: ${command.join(' ')} exited ${p.exitCode}`);
+}
+function rootGate(path: string, phase: string) {
+  const check = JSON.parse(readFileSync(join(consumer, path), 'utf8'));
+  assert.equal(check.PASS, true, `GUIDE_ROOTS: ${phase} check failed`);
+  const seam = check.SEAM_OVER_MOTION;
+  if (!seam?.roots) {
+    assert(!partsSource, `GUIDE_ROOTS: ${phase} source package did not measure roots`);
+    console.log(`[bar:guide-roots] ${phase}: SKIP body-root gate absent in this published package`);
+    return;
+  }
+  assert.equal(seam.roots.status, 'PASS', `GUIDE_ROOTS: ${phase} roots must be measured PASS`);
+  assert.equal(seam.roots.failed, 0, `GUIDE_ROOTS: ${phase} root failure`);
+  assert.deepEqual([...seam.roots.pairs].sort(), ['bottomwear|thigh_l', 'bottomwear|thigh_r', 'topwear|upperarm_l', 'topwear|upperarm_r'], `GUIDE_ROOTS: ${phase} must read both shoulders and thighs`);
+  const rows = seam.rows.filter((r: { pair: string }) => seam.roots.pairs.includes(r.pair));
+  assert.equal(rows.length, 4 * seam.animations.length, `GUIDE_ROOTS: ${phase} must read every root in every animation`);
+  assert(rows.every((r: { status: string; banded: number; opens: unknown[] }) => r.status === 'read' && r.banded > 0 && r.opens.length === 0), `GUIDE_ROOTS: ${phase} unavailable or open root row`);
+  reports[`roots-${phase}`] = { status: seam.roots.status, pairs: seam.roots.pairs, rows: rows.length };
+  console.log(`[bar:guide-roots] ${phase}: four measured body-root pairs PASS`);
 }
 function blocks(source: string, language: string): string[] {
   return [...source.matchAll(new RegExp('```' + language + '\\n([\\s\\S]*?)```', 'g'))].map(m => m[1].trim());
@@ -74,19 +94,6 @@ function tutorialUrl(link: string) {
   assert.equal(url.searchParams.get('under'), expected.under, `TUTORIAL_UNDER: expected ${expected.under}`);
   return tutorialOrigin + url.pathname + url.search;
 }
-const branchCache = new Map<string, Promise<string>>();
-function defaultBranch(repo: string): Promise<string> {
-  let pending = branchCache.get(repo);
-  if (!pending) {
-    pending = (async () => {
-      const metadata = JSON.parse(await get(`https://api.github.com/repos/${repo}`)) as { default_branch?: unknown };
-      assert(typeof metadata.default_branch === 'string' && metadata.default_branch.length > 0, `LINK_BRANCH: ${repo} metadata has no default_branch`);
-      return metadata.default_branch;
-    })();
-    branchCache.set(repo, pending);
-  }
-  return pending;
-}
 async function checkLink(link: string, source: string, repo: string, directory: string, local: boolean) {
   if (link.startsWith('#')) { assert(anchorExists(source, link.slice(1)), `LINK_ANCHOR: ${repo} ${link}`); return; }
   if (!/^https?:/.test(link)) {
@@ -102,7 +109,9 @@ async function checkLink(link: string, source: string, repo: string, directory: 
   if (anchor && url.hostname === 'github.com') {
     const parts = url.pathname.split('/').filter(Boolean);
     if (parts.length === 2 || parts[2] === 'tree' || parts[2] === 'blob') {
-      const branch = parts.length === 2 ? await defaultBranch(`${parts[0]}/${parts[1]}`) : parts[3];
+      // Read the default-branch README directly; metadata API quotas do not
+      // decide whether a public heading exists. Explicit blob/tree refs stay explicit.
+      const branch = parts.length === 2 ? 'HEAD' : parts[3];
       const file = parts.length === 2 ? 'README.md' : parts.slice(4).join('/') + (parts[2] === 'tree' ? '/README.md' : '');
       const md = await get(`https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/${branch}/${file}`);
       assert(anchor === 'readme' || anchorExists(md, anchor), `LINK_ANCHOR: ${link}`);
@@ -150,6 +159,8 @@ try {
   // Follow the guide's documented no-Python route, through the build step 10 plays.
   const install = blocks(step(1), 'sh')[0].split('\n').find(line => line.startsWith('bun add '));
   assert(install, 'GUIDE_INSTALL: missing bun add'); run(install.split(' '), consumer);
+  // An isolated source package lets the next parts gate be read before its release.
+  if (partsSource) run(['bun', 'add', resolve(partsSource)], consumer);
   for (const n of [2, 3, 4, 5]) run(['bash', '-eu', '-o', 'pipefail', '-c', blocks(step(n), 'sh')[0]], consumer);
   const keypoints = blocks(readFileSync(join(root, 'docs/KEYPOINTS.md'), 'utf8'), 'json')[0];
   assert(keypoints, 'KEYPOINTS: hand-placed guide example absent'); JSON.parse(keypoints);
@@ -164,6 +175,7 @@ try {
   assert(!slotNames.includes('shoes'), 'GUIDE_FEET: step 8\'s build still draws the shoes as one part');
   assert.equal(feetBuild.bones.length, 72, `GUIDE_FEET: expected 72 bones in step 8's build, found ${feetBuild.bones.length}`);
   reports.feet = { slots: ['foot_r', 'foot_l'], bones: feetBuild.bones.length };
+  rootGate('out/check/check.json', 'idle');
   console.log('[bar:guide-feet] step 8 build: foot_r and foot_l slots, no shoes slot, 72 bones PASS');
   // Revert the real field-copy repair in a private README copy. Its command,
   // over the same proposal and installed packages, must reproduce the refusal.
@@ -200,8 +212,11 @@ try {
   reports.cleanControl = { exitCode: uncleaned.exitCode, rule: 'POSE_NOT_CLEANED' };
   console.log('[bar:guide-clean] cleaned sequence retarget exit 0; exact original raw-sequence command refused POSE_NOT_CLEANED PASS');
   reports.modelSha256 = createHash('sha256').update(readFileSync(join(consumer, 'wave-build/skeleton.model.json'))).digest('hex');
+  // Step 9's literal commands check the parts roots as well as the core gate.
+  rootGate('wave-check/check.json', 'wave');
   // Step 9b: the hello, named in the config and gated by the build.
   run(['bash', '-eu', '-o', 'pipefail', '-c', blocks(step('9b'), 'sh')[0]], consumer);
+  rootGate('out/check/check.json', 'hello');
   const built = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as Built;
   assert.deepEqual(built.animations.map(a => a.name), ['idle', 'hello'], 'GUIDE_HELLO: the build must hold idle and hello');
   const helloLength = (b: Built) => b.animations.find(a => a.name === 'hello')?.duration;
@@ -209,6 +224,7 @@ try {
   console.log('[bar:guide-hello] step 9b build exit 0; out/check/build holds idle, hello (4.75 s) PASS');
   // Step 9c: the cloth recipe puts the side locks, the fringe and the skirt on physics.
   run(['bash', '-eu', '-o', 'pipefail', '-c', blocks(step('9c'), 'sh')[0]], consumer);
+  rootGate('out/check/check.json', 'cloth');
   const physical = JSON.parse(readFileSync(join(consumer, 'out/check/build/skeleton.model.json'), 'utf8')) as Built;
   assert.deepEqual(physical.animations.map(a => a.name), ['idle', 'hello'], 'GUIDE_CLOTH: the build must still hold idle and hello');
   assert.equal(helloLength(physical), 4.75, `GUIDE_CLOTH: expected a 4.75 s hello, found ${helloLength(physical)}`);

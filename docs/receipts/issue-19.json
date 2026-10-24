@@ -1,0 +1,412 @@
+{
+  "spec": "getting-started-motion-receipt/1",
+  "date": "2026-10-24",
+  "parts_source": "4f276e0deee1915f178aa10a6803a82998befdc4",
+  "example_source": "01436ee3f02c189fe1a1e9656fe62068889837f5",
+  "keypoints": "docs/KEYPOINTS.md hand-placed set, step 7 ankle correction",
+  "toolchains": {
+    "original_parts_checker_core": "2.60.0",
+    "candidate_core": "2.67.2",
+    "pose": "1.0.2",
+    "bun": "1.4.2",
+    "spine_core": null
+  },
+  "floor": "hit.px > round(max(box[2]-box[0], box[3]-box[1]) / hit.cell)",
+  "scope": "body-root GAP only; internal seams WARN, ghost INFO; unmeasured is SKIP",
+  "wave": {
+    "peak_degrees": 180,
+    "tested_peaks": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      150,
+      180
+    ],
+    "shoulder_gap_max_cells": 0,
+    "source_check_exit": 0,
+    "internal_elbow_warning": {
+      "fps": 12,
+      "frames": 25,
+      "max_cells": 24
+    },
+    "limit": "largest tested shortest-turn endpoint; no failing shoulder boundary or continuous-time proof",
+    "posed_span_degrees": {
+      "12fps": 176.4812,
+      "24fps": 179.338
+    },
+    "upper_arm_span_degrees": 0,
+    "angle_semantics": "unwrapped relative world direction max minus min, not displacement from setup",
+    "forearm_angle_range_degrees": {
+      "12fps": [
+        -187.8379,
+        -11.3567
+      ],
+      "24fps": [
+        -190.6947,
+        -11.3567
+      ]
+    }
+  },
+  "frames": [
+    {
+      "name": "original-wave",
+      "fps": 12,
+      "frames": 37,
+      "frames_sha256": "904343079c28472198f300daac4a6bb0187a3ccc82d836fa4985c82dc7b02aa4",
+      "viewport": {
+        "x": -483.74933967572065,
+        "y": -27.510351255340154,
+        "width": 797.0842671883286,
+        "height": 1336.7794407887964,
+        "scale": 0.478762599477408,
+        "pixelWidth": 382,
+        "pixelHeight": 640
+      }
+    },
+    {
+      "name": "original-hello",
+      "fps": 12,
+      "frames": 58,
+      "frames_sha256": "5136738ba9bd151ea5f6df9fbc7390e7081d4a25d6eece909a2d618a53bbbacf",
+      "viewport": {
+        "x": -390.9180531201089,
+        "y": -25.12096345979839,
+        "width": 707.5738259957463,
+        "height": 1272.2517755488711,
+        "scale": 0.5030450829780867,
+        "pixelWidth": 356,
+        "pixelHeight": 640
+      }
+    },
+    {
+      "name": "wave-180",
+      "fps": 12,
+      "frames": 37,
+      "frames_sha256": "2b08b86a9aefec6ee4bf3f7c95ecfa4b6d1065754eb4c329d4ee7e1d682cab6c",
+      "viewport": {
+        "x": -383.1500942729061,
+        "y": -24.994520844308475,
+        "width": 693.9691913744823,
+        "height": 1268.8520196909412,
+        "scale": 0.5043929394980883,
+        "pixelWidth": 350,
+        "pixelHeight": 640
+      }
+    },
+    {
+      "name": "wave-180-24",
+      "fps": 24,
+      "frames": 73,
+      "frames_sha256": "36caef3957326e0872bd491a3563615aee85be440d07fe63063609b22191900b",
+      "viewport": {
+        "x": -383.1500942729061,
+        "y": -24.994520844308475,
+        "width": 693.9691913744823,
+        "height": 1268.8520196909412,
+        "scale": 0.5043929394980883,
+        "pixelWidth": 350,
+        "pixelHeight": 640
+      }
+    },
+    {
+      "name": "hello-quarter",
+      "fps": 12,
+      "frameCount": 58,
+      "framesSha256": "c8fb94ba2f37f17243902a6fa1d7542ecf2fa7371f8918d43346bbb51c26d36c",
+      "viewport": {
+        "x": -390.5847358496366,
+        "y": -25.12051467113536,
+        "width": 707.2404914641716,
+        "height": 1272.251309499106,
+        "scale": 0.5030452672530339,
+        "pixelWidth": 356,
+        "pixelHeight": 640
+      }
+    },
+    {
+      "name": "hello-quarter-24",
+      "fps": 24,
+      "frameCount": 115,
+      "framesSha256": "0786d7a7dafde904a662b02a56143e01fdd568dbcab83bbad4f9f5ea39478249",
+      "viewport": {
+        "x": -390.5847358496366,
+        "y": -25.12051467113536,
+        "width": 707.2404914641716,
+        "height": 1272.251309499106,
+        "scale": 0.5030452672530339,
+        "pixelWidth": 356,
+        "pixelHeight": 640
+      }
+    },
+    {
+      "name": "hello-cloth-quarter-swing",
+      "fps": 12,
+      "frameCount": 58,
+      "framesSha256": "7532d110827d24778df42fba3137af74521792c87b8de89a62ed701b7928a43d",
+      "viewport": {
+        "x": -390.62863867762536,
+        "y": -25.16441749912409,
+        "width": 707.328297120149,
+        "height": 1273.4366858548015,
+        "scale": 0.5025770084284924,
+        "pixelWidth": 355,
+        "pixelHeight": 640
+      }
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "bun",
+        "../getting-started/scripts/wave.ts",
+        "keypoints.json",
+        "wave-180.pose.json",
+        "--peak-degrees",
+        "180"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "bunx",
+        "rig-pose",
+        "clean",
+        "--pose",
+        "wave-180.pose.json",
+        "--out",
+        "wave-180.clean.json"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "bunx",
+        "rig-pose",
+        "retarget",
+        "--rig",
+        "base-out/rig",
+        "--map",
+        "map.json",
+        "--pose",
+        "wave-180.clean.json",
+        "--out",
+        "wave-180.motion.json",
+        "--name",
+        "wave",
+        "--profile",
+        "spine-html",
+        "--build",
+        "wave-180-build"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "bunx",
+        "rigc",
+        "render",
+        "--candidate",
+        "wave-180-build",
+        "--animation",
+        "wave",
+        "--fps",
+        "12",
+        "--max",
+        "640",
+        "--seam",
+        "topwear:upperarm_r,topwear:upperarm_l,bottomwear:thigh_r,bottomwear:thigh_l",
+        "--angle-range",
+        "sleeve_r1:sleeve_r0,sleeve_r0:chest",
+        "--out",
+        "measure-wave-180"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "bunx",
+        "rigc",
+        "render",
+        "--candidate",
+        "wave-180-build",
+        "--animation",
+        "wave",
+        "--fps",
+        "24",
+        "--max",
+        "640",
+        "--seam",
+        "topwear:upperarm_r,topwear:upperarm_l,bottomwear:thigh_r,bottomwear:thigh_l",
+        "--angle-range",
+        "sleeve_r1:sleeve_r0,sleeve_r0:chest",
+        "--out",
+        "measure-wave-180-24"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "bun",
+        "../parts/cli.ts",
+        "check",
+        "--rig",
+        "final-wave-rig",
+        "--parts",
+        "base-out",
+        "--source",
+        "inputs/painting.png",
+        "--out",
+        "final-wave-check"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "bash",
+        "-eu",
+        "-o",
+        "pipefail",
+        "-c",
+        "bun ../getting-started/scripts/hello.ts out/rig/rig.json --no-skirt-keys\ncat > work/cloth.json <<'EOF'\n{\n  \"cloth\": {\n    \"bottomwear\": { \"chains\": 3, \"links\": 3, \"wind\": [1, 6], \"gravity\": [2, 12], \"translate\": 0.2,\n                    \"swing\": { \"scales\": [0.3, 0.25, 0.3] } },\n    \"front hair\": { \"chains\": 1, \"links\": 3, \"wind\": [1, 6], \"gravity\": [2, 12], \"translate\": 0.2,\n                    \"strength\": { \"trunk\": 100, \"branch\": 100, \"edge\": 100 } }\n  }\n}\nEOF\nbun ../getting-started/scripts/take.ts work/cloth.json config.json cloth\nbun ../parts/cli.ts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json --cloth config.json --write-config config.cloth.json\nmv config.cloth.json config.json\nbun -e 'const f = \"config.json\", c = await Bun.file(f).json(); c.motion.tracks.find((t) => t.bone === \"bun\").amp = 1; await Bun.write(f, JSON.stringify(c, null, 2) + \"\\n\")'\nbun ../parts/cli.ts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop --lead-in 1"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "bunx",
+        "rigc",
+        "render",
+        "--candidate",
+        "out/check/build",
+        "--animation",
+        "hello",
+        "--fps",
+        "12",
+        "--max",
+        "640",
+        "--seam",
+        "topwear:upperarm_r,topwear:upperarm_l,bottomwear:thigh_r,bottomwear:thigh_l",
+        "--angle-range",
+        "sleeve_r1:sleeve_r0,sleeve_r0:chest",
+        "--out",
+        "measure-hello-cloth-quarter-swing"
+      ],
+      "exit": 0
+    }
+  ],
+  "frame_policy": "ordered concatenated PNG digest; bulk frames deleted after receipt and small sheets",
+  "related": [
+    "https://github.com/rig-c/getting-started/issues/19",
+    "https://github.com/rig-c/getting-started/issues/18"
+  ],
+  "command_context": "isolated experiment; parts is the unchanged source package; getting-started/scripts are this guide",
+  "input_keypoints_sha256": "91468bb164b88ff6aacd741dea7d3e08e1884712fa3498208c985a8e31c05938",
+  "source_runtime_files": "201 files match provisioned source; isolated dependency manifest pins rig-c 2.67.2 and ag-psd 31.0.2, without dev dependencies",
+  "hello": {
+    "stance": 0.1,
+    "hip_x_px": -1.5,
+    "skirt_follow_degrees": 0.415,
+    "plain_source_build_exit": 0,
+    "thigh_gap_max_cells": {
+      "right": 1,
+      "left": 0
+    },
+    "above_floor_frames": {
+      "12fps": {
+        "right": 0,
+        "left": 0
+      },
+      "24fps": {
+        "right": 0,
+        "left": 0
+      }
+    },
+    "frames": {
+      "12fps": 58,
+      "24fps": 115
+    },
+    "ankle_key_verification": {
+      "status": "PASS",
+      "tracks": 16,
+      "keys_per_track": 115,
+      "feet_keyed": false,
+      "ankles": {
+        "leg_r": {
+          "max_y_drift_px": 0.00018931910904029792,
+          "max_x_travel_px": 8.400024295589986,
+          "rounding_bound_px": 0.0007552363832644824
+        },
+        "leg_l": {
+          "max_y_drift_px": 9.370924749418919e-05,
+          "max_x_travel_px": 0.0006038233645000446,
+          "rounding_bound_px": 0.0007132210721812228
+        }
+      }
+    }
+  },
+  "rejected_hello": {
+    "original": {
+      "stance": 0.4,
+      "hip_x_px": -6,
+      "right_gap": 10,
+      "left_gap": 8,
+      "floor": 6,
+      "frame": 44
+    },
+    "half": {
+      "stance": 0.2,
+      "hip_x_px": -3,
+      "right_gap": 4,
+      "floor": 2,
+      "frame": 45
+    }
+  },
+  "rejected_cloth": {
+    "swing_scales": [
+      1.2,
+      1,
+      1.2
+    ],
+    "pair": "bottomwear|thigh_r",
+    "gap": 6,
+    "floor": 5,
+    "frame": 9,
+    "idle_above_floor_frames": 32,
+    "hello_above_floor_frames": 30
+  },
+  "cloth": {
+    "swing_scales": [
+      0.3,
+      0.25,
+      0.3
+    ],
+    "source_build_exit": 0,
+    "source_roots": "PASS",
+    "fps": 12,
+    "thigh_gap_max_cells": {
+      "right": 4,
+      "left": 0
+    },
+    "right_worst_floor": 4,
+    "above_floor_frames": {
+      "right": 0,
+      "left": 0
+    },
+    "physics_constraints": 27,
+    "transform_constraints": 3
+  },
+  "rejected_cloth_half": {
+    "swing_scales": [
+      0.6,
+      0.5,
+      0.6
+    ],
+    "gap": 4,
+    "floor": 3,
+    "frame": 10,
+    "idle_above_floor_frames": 3,
+    "hello_above_floor_frames": 3
+  }
+}

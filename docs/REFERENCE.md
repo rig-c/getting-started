@@ -11,7 +11,8 @@ quoted from. Three words recur:
 ## Tested with
 
 Recorded 2026-10-13; *Try it first* re-run twice on 2026-10-20, the second time with step 9b, and twice on 2026-10-21, with step 9c and then with the stance settle. Everything marked *measured* on this
-page was run on this machine with these versions.
+page was run on this machine with these versions, except where a later section names
+its own run and toolchain.
 
 | | |
 | --- | --- |
@@ -171,6 +172,95 @@ The full `rigc --version` line on an install is `@esotericsoftware/spine-core ab
 round trip and the commands that need it are not available here`. It is correct: the
 published package checks every build with rigc's own validator, and the
 [rig-c README](https://github.com/rig-c/core#install) explains the two.
+
+### Step 9, the forearm wave
+
+Re-read 2026-10-24 for [#19](https://github.com/rig-c/getting-started/issues/19),
+on Linux with Bun 1.4.2. The input is the public example above and
+[KEYPOINTS.md](KEYPOINTS.md)'s hand-placed joints, including step 7's ankle correction.
+Parts source is [4f276e0](https://github.com/rig-c/parts/commit/4f276e0deee1915f178aa10a6803a82998befdc4),
+which includes the body-root gate from parts #707 and the carrier fix from #710.
+The source's package version still says 1.60.2; this is a source-gate reading, not a claim
+that the published 1.60.2 contains it. Candidate runs used rig-c 2.67.2 and pose 1.0.2,
+without spine-core. No art, gate, floor or retarget output was edited.
+
+**First, the old motions.** The unchanged base passed. Before trying a new motion, the old
+wave's frame 5 and hello's frame 44 were rendered at 12 fps. The source checker, with its
+locked rig-c 2.60.0, reproduced the issue's three refusals:
+
+| motion and pair | worst GAP cells | frame | one-cell floor | frames above floor |
+| --- | --- | --- | --- | --- |
+| wave, topwear \| upperarm_r | 4,921 | 5 | 129 | 35 of 37 |
+| hello, bottomwear \| thigh_r | 10 | 44 | 6 | 12 of 58 |
+| hello, bottomwear \| thigh_l | 8 | 44 | 6 | 8 of 58 |
+
+**The bar, before the candidates.** The shoulder roots must be measured, with no GAP hit
+over the producer's existing floor. Its definition is
+`px > round(max(box width, box height) / cell)`: cells, not screen pixels, and equality
+stays under the floor. Roots gate GAP only. The older internal pairs still warn, aggregate
+ghost is INFO, and an absent band is SKIP rather than zero. The source may exempt an entire
+GAP box only when every cell centre is covered in the full composite; partial or unavailable
+coverage keeps the whole original count. The original controls retained those counts.
+
+The candidate keeps the elbow at its painted position and turns only the forearm, with
+the same three-second ramp and 22-degree oscillation at 2 Hz. The domain was fixed at
+0–180 degrees, the shortest-turn range. Peak settings 0, 30, 60, 90, 120, 150 and 180 were
+sent through the actual `clean` and `retarget` commands. Every setting read **0 GAP cells**
+at both shoulders over all 37 frames at 12 fps. The 180-degree endpoint was also read at
+24 fps:
+
+| default wave after clean and retarget | 12 fps | 24 fps |
+| --- | --- | --- |
+| forearm angular span, sleeve_r1 against sleeve_r0 | 176.4812 degrees | 179.3380 degrees |
+| upper-arm angular span, sleeve_r0 against chest | 0 degrees | 0 degrees |
+| shoulder GAP, either side | 0 cells on 37/37 frames | 0 cells on 73/73 frames |
+
+`--angle-range` follows each relative world direction across frames and reports its
+maximum minus minimum; it does not subtract the rig's setup angle. The 24 fps forearm
+range is -190.6947 to -11.3567 degrees, and the 12 fps range -187.8379 to -11.3567.
+
+The largest tested setting is therefore 180; this family did not reach a failing shoulder
+boundary. This is a sampled shortest-turn endpoint, not a proof over continuous time or
+an unrestricted angle search. The final source `check` passed, including all four measured
+body-root pairs. The elbow still warned on 25 frames, max 24 cells at 12 fps; the separate
+elbow work in [#18](https://github.com/rig-c/getting-started/issues/18) remains open.
+The compact [receipt](receipts/issue-19.json) records commands, pins and frame digests;
+the frame series were deleted after their digests and sheets were made.
+
+### Step 9b, the body-root reach
+
+The same source-gate run replaced the 40 percent stance and 6 px hip shift. Those old keys
+opened the right/left thigh GAP by 10/8 cells at frame 44, over floor 6. Halving both
+numbers still failed: 20 percent / 3 px left a right-thigh GAP of 4 cells at frame 45,
+over floor 2. The floor follows each hit's box; a smaller count alone does not pass it.
+
+The current keys use **10 percent / 1.5 px**, with `skirt_c0` and `skirt_l0` following by
+0.415 degrees. On the hand-placed joints the right ankle travels 8.4 px toward parallel,
+from 16.05 to 15.28 degrees; its leg keys reach +3.20 / -5.25 degrees, and the left leg's
++0.48 / -0.78. The two-bone solve and timing are unchanged, and neither foot is keyed.
+At 24 fps, the plain hello's right thigh reads **1 GAP cell**, equal to its floor of 1,
+and the left **0**, with zero above-floor frames on both over all 115 frames.
+The source build and `FEET_STAY_LEVEL` pass. Independent evaluation of all 115 generated
+leg keys gives maximum ankle y drift 0.000190 px right and 0.000094 px left, inside the
+bound derived from rounding each angle to four decimal places.
+
+**Cloth needed its own correction.** Before the hello's settle, the old shared-swing gains
+`[1.2, 1, 1.2]` already opened the right thigh on the idle: GAP 6 / floor 5 at frame 9,
+32 idle and 30 hello frames over the floor. Half gains `[0.6, 0.5, 0.6]` still opened
+3 frames of each, GAP 4 / floor 3 at frame 10. The source defines these numbers as the
+linear rotation gains from the shared physics swing to each tree's first link, not a
+seam threshold. The guide now uses **`[0.3, 0.25, 0.3]`**, with the same 27 physics and
+3 transform constraints and the same wind, gravity and translation settings.
+
+That source build/check passed. Over all 58 hello frames at 12 fps, the right thigh's
+maximum is **4 GAP cells / floor 4**, the left 0; both have zero frames over the floor.
+All four roots pass on both idle and hello. Physics reference worlds, aggregate ghost,
+internal elbow WARN and named SKIPs retain their meanings. The cloth root reading was
+not repeated at 24 fps, nor with the player's mixed hello-over-idle and breeze.
+
+The older bars and readings below are retained as history; they did not read the new
+body-root gate. The shoulder/elbow distinction and the reported exclusions remain those
+in *Step 9, the forearm wave* above.
 
 ### Step 9b, the hello
 
@@ -356,6 +446,9 @@ breeze](#step-10-the-breeze).
 against rigc's render frame by frame.
 
 ### The settle: a stance change
+
+The 40 percent / 6 px readings below are historical. The current 10 percent / 1.5 px
+settle is measured in *Step 9b, the body-root reach* below.
 
 Added 2026-10-21. The owner asked for the settle to bring the feet toward a parallel stance
 and back, which would also drive the skirt. A read-only probe on this build (parts 1.48.0)
