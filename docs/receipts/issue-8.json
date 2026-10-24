@@ -1,0 +1,1792 @@
+{
+  "spec": "getting-started-published-receipt/1",
+  "date": "2026-10-25",
+  "issue": "https://github.com/rig-c/getting-started/issues/8",
+  "source_commit": "7db1d11eb09abb7e43a4ec09629148da33499d90",
+  "example_source": "01436ee3f02c189fe1a1e9656fe62068889837f5",
+  "method": {
+    "entry": "python3 budget.py python3 run.py",
+    "shell": [
+      "bash",
+      "-eu",
+      "-o",
+      "pipefail",
+      "-c",
+      "<verbatim README stage block>"
+    ],
+    "setup_substitutions": [
+      "guide clone replaced by byte-identical source-commit copy because worker Git commands were prohibited",
+      "exact dependency and override manifest seeded immediately before the original unversioned bun add; installed graph and package bytes verified"
+    ],
+    "pins": {
+      "@rig-c/parts": "1.61.0",
+      "rig-c": "2.69.0",
+      "@rig-c/pose": "1.0.2",
+      "@rig-c/play": "1.17.0"
+    },
+    "cache_start_empty": {
+      "BUN_INSTALL_CACHE_DIR": true,
+      "UV_CACHE_DIR": true,
+      "XDG_CACHE_HOME": true
+    },
+    "python": "3.12.14",
+    "uv_python_selection": "UV_PYTHON=3.12.14",
+    "bun": "1.4.2",
+    "uv": "uv 0.12.17 (x86_64-unknown-linux-gnu)",
+    "os": "Linux-6.6.87.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "browser": "145.0.7632.6",
+    "wall_seconds": 305.659,
+    "wall_scope": "guide, cold package/Python/model downloads, version/graph receipts and final browser install/flow; excludes archive transport and initial uv executable bootstrap; not a timing comparison"
+  },
+  "published_integrity": [
+    {
+      "package": "@rig-c/parts",
+      "version": "1.61.0",
+      "integrity": "sha512-r6Xoz0w30QbJoHtIg3ho2oQHwSzGj4Nd1GfFGw8qIYE1YTk3xYZPGhKvmcFjvJ2+xQet13NaktGJcRE3CNjTLg==",
+      "verified_published_files": 86
+    },
+    {
+      "package": "rig-c",
+      "version": "2.69.0",
+      "integrity": "sha512-rcmFNJGPq9WkX2+lA+ANISkkA3e2abK/L0KQNtxyX0Zvzq40LR4iCnib690HePF22+/DOONDvTJUmiaXFA2bPw==",
+      "verified_published_files": 237
+    },
+    {
+      "package": "@rig-c/pose",
+      "version": "1.0.2",
+      "integrity": "sha512-xD2IEsjy+3vZCzBIt32h2K7uYARyYlEwCY22lW+PIiKgsN9uOplpCQ+GT+1f5TTe9thi7BAJqMWr37US5wiM1w==",
+      "verified_published_files": 33
+    },
+    {
+      "package": "@rig-c/play",
+      "version": "1.17.0",
+      "integrity": "sha512-lqSruH3wkbT1PI66Zsjl50f7ktjBtUgEGA6tKNWwnGIcG0+V/qjVdxR4pJZa0jcH/I2j8aceszHubqrhe7h9FQ==",
+      "verified_published_files": 24
+    }
+  ],
+  "dependency_graph": {
+    "reader": "actual installed package manifests and nearest node_modules resolution",
+    "nodes": {
+      "node_modules/rig-c/package.json": {
+        "name": "rig-c",
+        "version": "2.69.0",
+        "dependencies": {}
+      },
+      "node_modules/base64-js/package.json": {
+        "name": "base64-js",
+        "version": "1.5.1",
+        "dependencies": {}
+      },
+      "node_modules/pako/package.json": {
+        "name": "pako",
+        "version": "2.1.0",
+        "dependencies": {}
+      },
+      "node_modules/ag-psd/package.json": {
+        "name": "ag-psd",
+        "version": "31.0.3",
+        "dependencies": {
+          "base64-js": {
+            "requested": "1.5.1",
+            "version": "1.5.1",
+            "manifest": "node_modules/base64-js/package.json"
+          },
+          "pako": {
+            "requested": "2.1.0",
+            "version": "2.1.0",
+            "manifest": "node_modules/pako/package.json"
+          }
+        }
+      },
+      "node_modules/@rig-c/parts/package.json": {
+        "name": "@rig-c/parts",
+        "version": "1.61.0",
+        "dependencies": {
+          "ag-psd": {
+            "requested": "^31.0.2",
+            "version": "31.0.3",
+            "manifest": "node_modules/ag-psd/package.json"
+          },
+          "rig-c": {
+            "requested": "^2.69.0",
+            "version": "2.69.0",
+            "manifest": "node_modules/rig-c/package.json"
+          }
+        }
+      },
+      "node_modules/@rig-c/pose/package.json": {
+        "name": "@rig-c/pose",
+        "version": "1.0.2",
+        "dependencies": {
+          "rig-c": {
+            "requested": "^2.60.0",
+            "version": "2.69.0",
+            "manifest": "node_modules/rig-c/package.json"
+          }
+        }
+      },
+      "node_modules/@rig-c/play/package.json": {
+        "name": "@rig-c/play",
+        "version": "1.17.0",
+        "dependencies": {}
+      }
+    }
+  },
+  "stages": [
+    {
+      "step": "1",
+      "command": "mkdir rig-c-start\ncd rig-c-start\ngit clone https://github.com/rig-c/getting-started\nmkdir my-rig\ncd my-rig\nbun add @rig-c/parts rig-c @rig-c/pose @rig-c/play",
+      "exit": 0,
+      "seconds": 0.266,
+      "log_sha256": "c8735d1d7c2e681030fc4a7597b67c7d04954942de0a701e7e446f2074972066"
+    },
+    {
+      "step": "2",
+      "command": "curl -L -o exam.tar.gz https://codeload.github.com/rig-c/exam/tar.gz/01436ee3f02c189fe1a1e9656fe62068889837f5\ntar -xzf exam.tar.gz --strip-components=3 exam-01436ee3f02c189fe1a1e9656fe62068889837f5/tasks/01-build/inputs\ntar -xzf exam.tar.gz --strip-components=1 exam-01436ee3f02c189fe1a1e9656fe62068889837f5/LICENSE exam-01436ee3f02c189fe1a1e9656fe62068889837f5/NOTICE.md\nrm exam.tar.gz",
+      "exit": 0,
+      "seconds": 2.323,
+      "log_sha256": "494d28f9f818292434b3a8f18b84b24dcdb4d89216ddbe4e2c239e7b69379c14"
+    },
+    {
+      "step": "3",
+      "command": "cat > config.json <<'EOF'\n{\n  \"key\": \"exam-01\",\n  \"seethrough\": { \"resolution\": 1024, \"steps\": 30, \"seed\": 42, \"offload\": true },\n  \"assemble\": { \"rig_scale\": 0.5 }\n}\nEOF\nbunx rig-parts inputs --source inputs/painting.png --config config.json --out work",
+      "exit": 0,
+      "seconds": 1.23,
+      "log_sha256": "c83a200f08097fed88e61761943fc7be9701ae160d011204da4e7a08caeac2e5"
+    },
+    {
+      "step": "4",
+      "command": "bunx rig-parts layers inputs/layers/full\nbunx rig-parts propose --head-box --full inputs/layers/full --canvas 1664x2432 | tail -n 1 > work/head_box.json\nbun ../getting-started/scripts/take.ts work/head_box.json config.json seethrough.head_box=head_box\nbunx rig-parts inputs --source inputs/painting.png --config config.json --out work",
+      "exit": 0,
+      "seconds": 1.915,
+      "log_sha256": "36e7919d86bf591332a87705c2c78e4bb372e50776937385f2978db128c92783"
+    },
+    {
+      "step": "5",
+      "command": "bunx rig-parts assemble --propose-plan --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --config config.json > work/plan.json\nbun ../getting-started/scripts/take.ts work/plan.json config.json assemble.plan=plan assemble.extend_below_crop=extend_below_crop\nbunx rig-parts assemble --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --config config.json --out work",
+      "exit": 0,
+      "seconds": 16.612,
+      "log_sha256": "0f3cff98a244aae9ae82c700cf7f0a0d4cb1df956500a9bb731815af48cd1f11"
+    },
+    {
+      "step": "6",
+      "command": "uv run --with rtmlib --with onnxruntime python ../getting-started/scripts/keypoints.py inputs/painting.png --out keypoints.json",
+      "exit": 0,
+      "seconds": 18.237,
+      "log_sha256": "bfddab6ee2c82623e15d6b037ed54e25166fa68e2aa1bcf7ed2107326193903d"
+    },
+    {
+      "step": "7",
+      "command": "bun -e 'const f = \"keypoints.json\", k = await Bun.file(f).json(); k.people[0].joints.l_ankle.at = [848, 2140]; await Bun.write(f, JSON.stringify(k, null, 1) + \"\\n\")'\nbunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json\nbun ../getting-started/scripts/take.ts work/proposal.json config.json bones meshes regions motion limbs",
+      "exit": 0,
+      "seconds": 2.428,
+      "log_sha256": "59e347e269b301b4b5e1c10de11fa408de3ee2da0e572eb1d8bc4b85c70600a6"
+    },
+    {
+      "step": "8",
+      "command": "bunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop",
+      "exit": 0,
+      "seconds": 37.888,
+      "log_sha256": "5df294c326f1263f9a563def7eeb5cb1784ba901de02510fe431301d432e6ae0"
+    },
+    {
+      "step": "9",
+      "command": "bun ../getting-started/scripts/wave.ts keypoints.json wave.pose.json\nbunx rig-pose clean --pose wave.pose.json --out wave.pose.clean.json\ncat > map.json <<'EOF'\n{\n  \"spec\": \"rig-pose-map/1\",\n  \"chains\": [\n    { \"name\": \"trunk\", \"bones\": [\"chest\"], \"joints\": [\"mid_hip\", \"neck\"], \"aim\": [\"neck\"] },\n    { \"name\": \"arm_r\", \"bones\": [\"sleeve_r0\", \"sleeve_r1\"], \"joints\": [\"r_shoulder\", \"r_elbow\", \"r_wrist\"], \"bend\": \"free\" },\n    { \"name\": \"arm_l\", \"bones\": [\"sleeve_l0\", \"sleeve_l1\"], \"joints\": [\"l_shoulder\", \"l_elbow\", \"l_wrist\"], \"bend\": \"free\" }\n  ],\n  \"translate\": { \"bone\": \"hip\", \"joint\": \"mid_hip\", \"scale\": { \"pose\": [\"mid_hip\", \"neck\"], \"rig\": [\"hip\", \"neck\"] } }\n}\nEOF\nbunx rig-pose retarget --rig out/rig --map map.json --pose wave.pose.clean.json --out wave.motion.json --name wave --profile spine-html --build wave-build\nmkdir -p wave-rig\ncp -R out/rig/. wave-rig/\ncp wave.motion.json wave-rig/motion.json\nbunx rig-parts check --rig wave-rig --parts out --out wave-check",
+      "exit": 0,
+      "seconds": 37.569,
+      "log_sha256": "4483e43ab527302ef8ce466ff9dff2bb019ab1e39bab7e6cd13615d65404a5d9"
+    },
+    {
+      "step": "9b",
+      "command": "bun ../getting-started/scripts/hello.ts out/rig/rig.json\necho '{\"animations_from\": \"hello.anim.json\"}' > work/hello-from.json\nbun ../getting-started/scripts/take.ts work/hello-from.json config.json motion.animations_from=animations_from\nbunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop",
+      "exit": 0,
+      "seconds": 59.936,
+      "log_sha256": "95209e88c131c9edcfd9aea421dbcb4e5744bc49145cbbd716be7538ba487bf3"
+    },
+    {
+      "step": "9c",
+      "command": "bun ../getting-started/scripts/hello.ts out/rig/rig.json --no-skirt-keys\ncat > work/cloth.json <<'EOF'\n{\n  \"cloth\": {\n    \"bottomwear\": { \"chains\": 3, \"links\": 3, \"wind\": [1, 6], \"gravity\": [2, 12], \"translate\": 0.2,\n                    \"swing\": { \"scales\": [0.3, 0.25, 0.3] } },\n    \"front hair\": { \"chains\": 1, \"links\": 3, \"wind\": [1, 6], \"gravity\": [2, 12], \"translate\": 0.2,\n                    \"strength\": { \"trunk\": 100, \"branch\": 100, \"edge\": 100 } }\n  }\n}\nEOF\nbun ../getting-started/scripts/take.ts work/cloth.json config.json cloth\nbunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json --cloth config.json --write-config config.cloth.json\nmv config.cloth.json config.json\nbun -e 'const f = \"config.json\", c = await Bun.file(f).json(); c.motion.tracks.find((t) => t.bone === \"bun\").amp = 1; await Bun.write(f, JSON.stringify(c, null, 2) + \"\\n\")'\nbunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop --lead-in 1",
+      "exit": 0,
+      "seconds": 103.34,
+      "log_sha256": "98e3217930cca99f08f608acd4560e42dac0335b7534c8272f0dfdf995b356ee"
+    },
+    {
+      "step": "10",
+      "command": "bun ../getting-started/scripts/serve.ts",
+      "exit": 0,
+      "seconds": 23.139,
+      "log_sha256": "67f6a2920077a96f286344c1d13a3c1248fa8997864ffcfee8d39c441953ec96"
+    }
+  ],
+  "roots": [
+    {
+      "step": "8",
+      "pass": true,
+      "root_mode": "gap-only",
+      "root_pairs": [
+        "topwear|upperarm_l",
+        "topwear|upperarm_r",
+        "bottomwear|thigh_r",
+        "bottomwear|thigh_l"
+      ],
+      "root_rows": 4,
+      "animations": [
+        "idle"
+      ],
+      "failed": 0
+    },
+    {
+      "step": "9",
+      "pass": true,
+      "root_mode": "gap-only",
+      "root_pairs": [
+        "topwear|upperarm_l",
+        "topwear|upperarm_r",
+        "bottomwear|thigh_r",
+        "bottomwear|thigh_l"
+      ],
+      "root_rows": 8,
+      "animations": [
+        "idle",
+        "wave"
+      ],
+      "failed": 0
+    },
+    {
+      "step": "9b",
+      "pass": true,
+      "root_mode": "gap-only",
+      "root_pairs": [
+        "topwear|upperarm_l",
+        "topwear|upperarm_r",
+        "bottomwear|thigh_r",
+        "bottomwear|thigh_l"
+      ],
+      "root_rows": 8,
+      "animations": [
+        "idle",
+        "hello"
+      ],
+      "failed": 0
+    },
+    {
+      "step": "9c",
+      "pass": true,
+      "root_mode": "gap-only",
+      "root_pairs": [
+        "topwear|upperarm_l",
+        "topwear|upperarm_r",
+        "bottomwear|thigh_r",
+        "bottomwear|thigh_l"
+      ],
+      "root_rows": 8,
+      "animations": [
+        "idle",
+        "hello"
+      ],
+      "failed": 0
+    }
+  ],
+  "expected_output_checks": {
+    "spec": "getting-started-expected-lines/1",
+    "manual": [
+      {
+        "step": "1",
+        "literal": "@esotericsoftware/spine-core absent",
+        "byte_offset": 30,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "3",
+        "literal": "st_input_full.png 2432x2432",
+        "byte_offset": 60,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "3",
+        "literal": "no seethrough.head_box in the config",
+        "byte_offset": 147,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "4",
+        "literal": "29 layer(s): 29 with opaque pixels",
+        "byte_offset": 3538,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "4",
+        "literal": "0 WARN line(s)",
+        "byte_offset": 3588,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "4",
+        "literal": "st_input_head.png 516x516",
+        "byte_offset": 3827,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "5",
+        "literal": "22 part(s)",
+        "byte_offset": 129,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "5",
+        "literal": "recomposite vs source: mean |d|=1.13, within 8: 97.8%",
+        "byte_offset": 4829,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "6",
+        "literal": "18 observed, 0 occluded, 0 missing -> keypoints.json",
+        "byte_offset": 7827,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "7",
+        "literal": "and foot_r, shoes's share below the ankle, on bone foot_r at the r_ankle joint under leg_r1",
+        "byte_offset": 2993,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "7",
+        "literal": "and foot_l, shoes's share below the ankle, on bone foot_l at the l_ankle joint under leg_l1",
+        "byte_offset": 3385,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "7",
+        "literal": "0 LINT line(s) over 6 mesh(es) and the hip",
+        "byte_offset": 8975,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "7",
+        "literal": "44 bone(s) — 29 checked and clean, 0 checked with a LINT line, 15 not checked",
+        "byte_offset": 17810,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "8",
+        "literal": "limb cut: \"shoes\" opaque 13735 = \"foot_r\" 8071 + \"foot_l\" 5664",
+        "byte_offset": 8654,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "8",
+        "literal": "[check] check: PASS; 12 of 14 bar(s) measured, 2 skipped (FEET_STAY_LEVEL, STRESS_OFF_CHAIN)",
+        "byte_offset": 26693,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "8",
+        "literal": "build: PASS",
+        "byte_offset": 29172,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9",
+        "literal": "73 frame(s), 3 s at 24 fps",
+        "byte_offset": 9,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9",
+        "literal": "GATE   rigc build --profile spine-html: green",
+        "byte_offset": 12803,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9",
+        "literal": "FOLD   rigc render --folds at 24 fps: no mesh folds",
+        "byte_offset": 14845,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9",
+        "literal": "wrote wave.motion.json — animations: idle, wave",
+        "byte_offset": 15472,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9",
+        "literal": "check: PASS",
+        "byte_offset": 27060,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9b",
+        "literal": "hello.ts: 4 beats (hm?, heh, wave, settle), 4.75 s at 24 fps, 16 tracks of 115 keys; sleeve_r0 at most 4.0 deg; settle: right ankle 8.3 px in (10 % of the way to parallel, 15.96 -> 15.19 deg), hip 1.5 px",
+        "byte_offset": 0,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9b",
+        "literal": "animations beside the idle",
+        "byte_offset": 13912,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9b",
+        "literal": "hello.anim.json as written: hello",
+        "byte_offset": 14054,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9b",
+        "literal": "ANIMATIONS_DO_NOT_FOLD: PASS — 2 animation(s) read by rigc render --folds at 12 fps (idle, hello)",
+        "byte_offset": 23895,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9b",
+        "literal": "FEET_STAY_LEVEL: PASS",
+        "byte_offset": 24060,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9b",
+        "literal": "check: PASS",
+        "byte_offset": 29105,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9b",
+        "literal": "build: PASS",
+        "byte_offset": 31559,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "14 tracks of 115 keys",
+        "byte_offset": 62,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "skirt0_0 follows the thigh, the rest left to physics",
+        "byte_offset": 264,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "3 tree(s) on one shared swing, skirt_swing",
+        "byte_offset": 4576,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "wrote config.cloth.json:",
+        "byte_offset": 18279,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "every other byte as read",
+        "byte_offset": 18963,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "loop physics: 27 physics constraint(s) left out of the loop's frames, reported, not judged",
+        "byte_offset": 36914,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "WARN chain",
+        "byte_offset": 54414,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "CLOTH_SETTLES",
+        "byte_offset": 53672,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "check: PASS",
+        "byte_offset": 55649,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "lead-in:",
+        "byte_offset": 56052,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "max |d| 1, 0 px over 40 — the jump at the wrap",
+        "byte_offset": 56217,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "9c",
+        "literal": "build: PASS",
+        "byte_offset": 58379,
+        "pass": true,
+        "comparison": "UTF-8 byte substring; no stdout normalization"
+      },
+      {
+        "step": "4",
+        "file": "work/head_box.json",
+        "expected": "{\"head_box\":[616,32,1132,548]}\n",
+        "observed": "{\"head_box\":[616,32,1132,548]}\n",
+        "pass": true,
+        "comparison": "exact bytes including terminal LF"
+      }
+    ],
+    "readme_output_literals": [
+      {
+        "step": "3",
+        "literal": "st_input_full.png 2432x2432",
+        "pass": true,
+        "byte_offset": 60
+      },
+      {
+        "step": "4",
+        "literal": "29 layer(s): 29 with opaque pixels",
+        "pass": true,
+        "byte_offset": 3538
+      },
+      {
+        "step": "4",
+        "literal": "0 WARN line(s)",
+        "pass": true,
+        "byte_offset": 3588
+      },
+      {
+        "step": "4",
+        "literal": "st_input_head.png 516x516",
+        "pass": true,
+        "byte_offset": 3827
+      },
+      {
+        "step": "5",
+        "literal": "recomposite vs source: mean |d|=1.13, within 8: 97.8%",
+        "pass": true,
+        "byte_offset": 4829
+      },
+      {
+        "step": "5",
+        "literal": "work/render/recomposite_error_rig.png",
+        "pass": true,
+        "byte_offset": 5820
+      },
+      {
+        "step": "6",
+        "literal": "18 observed, 0 occluded, 0 missing -> keypoints.json",
+        "pass": true,
+        "byte_offset": 7827
+      },
+      {
+        "step": "7",
+        "literal": "and foot_r, shoes's share below the ankle, on bone foot_r at the r_ankle joint under leg_r1",
+        "pass": true,
+        "byte_offset": 2993
+      },
+      {
+        "step": "7",
+        "literal": "0 LINT line(s) over 6 mesh(es) and the hip",
+        "pass": true,
+        "byte_offset": 8975
+      },
+      {
+        "step": "7",
+        "literal": "44 bone(s) — 29 checked and clean, 0 checked with a LINT line, 15 not checked",
+        "pass": true,
+        "byte_offset": 17810
+      },
+      {
+        "step": "8",
+        "literal": "limb cut: \"shoes\" opaque 13735 = \"foot_r\" 8071 + \"foot_l\" 5664",
+        "pass": true,
+        "byte_offset": 8654
+      },
+      {
+        "step": "8",
+        "literal": "[check] check: PASS; 12 of 14 bar(s) measured, 2 skipped (FEET_STAY_LEVEL, STRESS_OFF_CHAIN)",
+        "pass": true,
+        "byte_offset": 26693
+      },
+      {
+        "step": "8",
+        "literal": "build: PASS",
+        "pass": true,
+        "byte_offset": 29172
+      },
+      {
+        "step": "9",
+        "literal": "73 frame(s), 3 s at 24 fps",
+        "pass": true,
+        "byte_offset": 9
+      },
+      {
+        "step": "9",
+        "literal": "GATE   rigc build --profile spine-html: green",
+        "pass": true,
+        "byte_offset": 12803
+      },
+      {
+        "step": "9",
+        "literal": "FOLD   rigc render --folds at 24 fps: no mesh folds",
+        "pass": true,
+        "byte_offset": 14845
+      },
+      {
+        "step": "9",
+        "literal": "wrote wave.motion.json — animations: idle, wave",
+        "pass": true,
+        "byte_offset": 15472
+      },
+      {
+        "step": "9",
+        "literal": "check: PASS",
+        "pass": true,
+        "byte_offset": 27060
+      },
+      {
+        "step": "9b",
+        "literal": "hello.ts: 4 beats (hm?, heh, wave, settle), 4.75 s at 24 fps, 16 tracks of 115 keys; sleeve_r0 at most 4.0 deg; settle: right ankle 8.3 px in (10 % of the way to parallel, 15.96 -> 15.19 deg), hip 1.5 px",
+        "pass": true,
+        "byte_offset": 0
+      },
+      {
+        "step": "9b",
+        "literal": "animations beside the idle",
+        "pass": true,
+        "byte_offset": 13912
+      },
+      {
+        "step": "9b",
+        "literal": "hello.anim.json as written: hello",
+        "pass": true,
+        "byte_offset": 14054
+      },
+      {
+        "step": "9b",
+        "literal": "ANIMATIONS_DO_NOT_FOLD: PASS — 2 animation(s) read by rigc render --folds at 12 fps (idle, hello)",
+        "pass": true,
+        "byte_offset": 23895
+      },
+      {
+        "step": "9b",
+        "literal": "FEET_STAY_LEVEL: PASS",
+        "pass": true,
+        "byte_offset": 24060
+      },
+      {
+        "step": "9b",
+        "literal": "check: PASS",
+        "pass": true,
+        "byte_offset": 29105
+      },
+      {
+        "step": "9b",
+        "literal": "build: PASS",
+        "pass": true,
+        "byte_offset": 31559
+      },
+      {
+        "step": "9b",
+        "literal": "SEAM_OVER_MOTION",
+        "pass": true,
+        "byte_offset": 26080
+      },
+      {
+        "step": "9b",
+        "literal": "out/check/build/",
+        "pass": true,
+        "byte_offset": 29056
+      },
+      {
+        "step": "9b",
+        "literal": "idle",
+        "pass": true,
+        "byte_offset": 526
+      },
+      {
+        "step": "9b",
+        "literal": "hello",
+        "pass": true,
+        "byte_offset": 0
+      },
+      {
+        "step": "9c",
+        "literal": "14 tracks of 115 keys",
+        "pass": true,
+        "byte_offset": 62
+      },
+      {
+        "step": "9c",
+        "literal": "skirt0_0 follows the thigh, the rest left to physics",
+        "pass": true,
+        "byte_offset": 264
+      },
+      {
+        "step": "9c",
+        "literal": "skirt0_0",
+        "pass": true,
+        "byte_offset": 264
+      },
+      {
+        "step": "9c",
+        "literal": "bottomwear",
+        "pass": true,
+        "byte_offset": 4303
+      },
+      {
+        "step": "9c",
+        "literal": "front hair",
+        "pass": true,
+        "byte_offset": 1739
+      },
+      {
+        "step": "9c",
+        "literal": "3 tree(s) on one shared swing, skirt_swing",
+        "pass": true,
+        "byte_offset": 4576
+      },
+      {
+        "step": "9c",
+        "literal": "lockt0_",
+        "pass": true,
+        "byte_offset": 2678
+      },
+      {
+        "step": "9c",
+        "literal": "lock1t0_",
+        "pass": true,
+        "byte_offset": 3149
+      },
+      {
+        "step": "9c",
+        "literal": "wrote config.cloth.json: config.json's text with",
+        "pass": true,
+        "byte_offset": 18279
+      },
+      {
+        "step": "9c",
+        "literal": "meshes.hair_front",
+        "pass": true,
+        "byte_offset": 12751
+      },
+      {
+        "step": "9c",
+        "literal": "meshes.bottomwear",
+        "pass": true,
+        "byte_offset": 18640
+      },
+      {
+        "step": "9c",
+        "literal": "every other byte as read",
+        "pass": true,
+        "byte_offset": 18963
+      },
+      {
+        "step": "9c",
+        "literal": "loop physics: 27 physics constraint(s) left out of the loop's frames, reported, not judged",
+        "pass": true,
+        "byte_offset": 36914
+      },
+      {
+        "step": "9c",
+        "literal": "WARN chain",
+        "pass": true,
+        "byte_offset": 54414
+      },
+      {
+        "step": "9c",
+        "literal": "check: PASS",
+        "pass": true,
+        "byte_offset": 55649
+      },
+      {
+        "step": "9c",
+        "literal": "lead-in:",
+        "pass": true,
+        "byte_offset": 56052
+      },
+      {
+        "step": "9c",
+        "literal": "max |d| 1, 0 px over 40 — the jump at the wrap",
+        "pass": true,
+        "byte_offset": 56217
+      },
+      {
+        "step": "9c",
+        "literal": "build: PASS",
+        "pass": true,
+        "byte_offset": 58379
+      }
+    ]
+  },
+  "browser": {
+    "browser": "145.0.7632.6",
+    "renderer": "native WebGL via software ANGLE",
+    "flows": [
+      {
+        "name": "hello",
+        "tracks": [
+          "idle",
+          "hello"
+        ],
+        "paint": {
+          "backend": "webgl",
+          "canvases": [
+            {
+              "width": 160,
+              "height": 224,
+              "alpha": 11438
+            },
+            {
+              "width": 64,
+              "height": 96,
+              "alpha": 1345
+            },
+            {
+              "width": 320,
+              "height": 256,
+              "alpha": 31382
+            },
+            {
+              "width": 160,
+              "height": 224,
+              "alpha": 14069
+            },
+            {
+              "width": 64,
+              "height": 64,
+              "alpha": 518
+            },
+            {
+              "width": 160,
+              "height": 224,
+              "alpha": 7693
+            }
+          ]
+        },
+        "pose_advanced": true,
+        "pixels_changed": true,
+        "pause_resume": true,
+        "breeze_toggle": true,
+        "animation_selection": true,
+        "first_sha256": "a33bdd76d40d843824b98e824adae137eaf433f88d341efe2eed8e2a742a104e",
+        "second_sha256": "9b2a4e80bb9af22ba48177982e195f030bd540d238428b91a44896722997e9d7",
+        "errors": []
+      },
+      {
+        "name": "wave",
+        "tracks": [
+          "wave",
+          null
+        ],
+        "paint": {
+          "backend": "webgl",
+          "canvases": [
+            {
+              "width": 160,
+              "height": 224,
+              "alpha": 11371
+            },
+            {
+              "width": 64,
+              "height": 96,
+              "alpha": 1351
+            },
+            {
+              "width": 320,
+              "height": 256,
+              "alpha": 31274
+            },
+            {
+              "width": 160,
+              "height": 224,
+              "alpha": 13906
+            },
+            {
+              "width": 64,
+              "height": 64,
+              "alpha": 515
+            },
+            {
+              "width": 128,
+              "height": 224,
+              "alpha": 7643
+            }
+          ]
+        },
+        "pose_advanced": true,
+        "pixels_changed": true,
+        "pause_resume": true,
+        "breeze_toggle": true,
+        "animation_selection": false,
+        "first_sha256": "abf47675c28caab2c0587feb4f5aa58a76bc0426d58c823117fcbc7304dce8c3",
+        "second_sha256": "d5819d37df25877dc35f660c37f55a2f31bd1edc99f8a1f20d6a4441672f7141",
+        "errors": []
+      }
+    ],
+    "wind0": true,
+    "scope": "functional playback only; no mixed hello-over-idle/breeze seam certification"
+  },
+  "frames": {
+    "order": "filename lexical ascending, SHA256 of concatenated PNG bytes",
+    "policy": "frames deleted with isolated clean tree after browser receipt",
+    "sets": [
+      {
+        "directory": "out/check/idle_frames/idle",
+        "frames": 41,
+        "first": "f0000.png",
+        "last": "f0040.png",
+        "ordered_png_sha256": "4dcc8d9074c9eecf48f1b6a22de1fb26000945f027967b54a2e42838a07403cd",
+        "viewport": null
+      },
+      {
+        "directory": "out/check/seam_motion/default/hello",
+        "frames": 58,
+        "first": "f0000.png",
+        "last": "f0057.png",
+        "ordered_png_sha256": "4a9b5a9072622cfe99707ad08fc1044938f5901dbcf5e444c7dbd05b25f9a4b4",
+        "viewport": null
+      },
+      {
+        "directory": "out/check/seam_motion/default/idle",
+        "frames": 41,
+        "first": "f0000.png",
+        "last": "f0040.png",
+        "ordered_png_sha256": "a633eb1b8b280d4c09367708ad26efa637766c1b32a4d57ac2837871cf5120e7",
+        "viewport": null
+      },
+      {
+        "directory": "out/check/seam_motion/still/hello",
+        "frames": 58,
+        "first": "f0000.png",
+        "last": "f0057.png",
+        "ordered_png_sha256": "dcf062a27c90a821b00067ba221b07c000e263c8b175ab5e73bf91a1faa23c38",
+        "viewport": null
+      },
+      {
+        "directory": "out/check/seam_motion/still/idle",
+        "frames": 41,
+        "first": "f0000.png",
+        "last": "f0040.png",
+        "ordered_png_sha256": "b4cd01d92879e314d5e45a95eef69d2a710fc6ca0dad2647135f3517700bd519",
+        "viewport": null
+      },
+      {
+        "directory": "wave-check/idle_frames/idle",
+        "frames": 41,
+        "first": "f0000.png",
+        "last": "f0040.png",
+        "ordered_png_sha256": "0cdde458f839937bc132dd7752cde0f74e37abe1b34c723d6c39e206e0ceec68",
+        "viewport": null
+      }
+    ]
+  },
+  "outputs": {
+    "6": {
+      "config.json": {
+        "bytes": 2042,
+        "sha256": "3ac5e5cdc1ac6c505ab634401c49c5e480f92cc7032e18333dfe253bb3dd6f90"
+      },
+      "keypoints.json": {
+        "bytes": 2465,
+        "sha256": "63a679155afe76e2f5f021c8024cd8f857b9d1b65bcf4769e6458ace4fc9554a"
+      },
+      "package.json": {
+        "bytes": 311,
+        "sha256": "e6956afafb42ae9fb081e957f398d30105462c9a1eef9d6ac48aea1f0d86c3a8"
+      },
+      "work/head_box.json": {
+        "bytes": 31,
+        "sha256": "0ee0f14951684a0eda872b7b871dfb11fa31ad0e5bbf4a42c36562b1cb7c8b13"
+      },
+      "work/plan.json": {
+        "bytes": 3963,
+        "sha256": "e8380638f67dd8120d57c100dd7d6f850e3d1178f8c4b2ad101d1f361d7cde5a"
+      },
+      "work/rig/parts.json": {
+        "bytes": 14061,
+        "sha256": "37279c02566aa07bcdac75f187a4336828a8583c27c3ea8916126db0fa04998c"
+      }
+    },
+    "7": {
+      "config.json": {
+        "bytes": 13922,
+        "sha256": "957ffd34db2bcbbdbc5e5b44eb081d8952cedfda0af85fc210d37a986b49cabd"
+      },
+      "keypoints.json": {
+        "bytes": 2457,
+        "sha256": "76e912e77e743b0b6c89639bad4aac38c830ddb27878cd00d8153a1d1470d589"
+      },
+      "package.json": {
+        "bytes": 311,
+        "sha256": "e6956afafb42ae9fb081e957f398d30105462c9a1eef9d6ac48aea1f0d86c3a8"
+      },
+      "work/basis.json": {
+        "bytes": 38142,
+        "sha256": "1cf08f8d86d299dd845a2b43259c1f1e6c1e548acb2bd2f902fa1b1b675f3879"
+      },
+      "work/head_box.json": {
+        "bytes": 31,
+        "sha256": "0ee0f14951684a0eda872b7b871dfb11fa31ad0e5bbf4a42c36562b1cb7c8b13"
+      },
+      "work/plan.json": {
+        "bytes": 3963,
+        "sha256": "e8380638f67dd8120d57c100dd7d6f850e3d1178f8c4b2ad101d1f361d7cde5a"
+      },
+      "work/proposal.json": {
+        "bytes": 20005,
+        "sha256": "3688e66f707d9dd81c82ce5a31e49c3ecc71beb5f13db0805ae17b2731f706f6"
+      },
+      "work/rig/parts.json": {
+        "bytes": 14061,
+        "sha256": "37279c02566aa07bcdac75f187a4336828a8583c27c3ea8916126db0fa04998c"
+      }
+    },
+    "8": {
+      "config.json": {
+        "bytes": 13922,
+        "sha256": "957ffd34db2bcbbdbc5e5b44eb081d8952cedfda0af85fc210d37a986b49cabd"
+      },
+      "keypoints.json": {
+        "bytes": 2457,
+        "sha256": "76e912e77e743b0b6c89639bad4aac38c830ddb27878cd00d8153a1d1470d589"
+      },
+      "package.json": {
+        "bytes": 311,
+        "sha256": "e6956afafb42ae9fb081e957f398d30105462c9a1eef9d6ac48aea1f0d86c3a8"
+      },
+      "work/basis.json": {
+        "bytes": 38142,
+        "sha256": "1cf08f8d86d299dd845a2b43259c1f1e6c1e548acb2bd2f902fa1b1b675f3879"
+      },
+      "work/head_box.json": {
+        "bytes": 31,
+        "sha256": "0ee0f14951684a0eda872b7b871dfb11fa31ad0e5bbf4a42c36562b1cb7c8b13"
+      },
+      "work/plan.json": {
+        "bytes": 3963,
+        "sha256": "e8380638f67dd8120d57c100dd7d6f850e3d1178f8c4b2ad101d1f361d7cde5a"
+      },
+      "work/proposal.json": {
+        "bytes": 20005,
+        "sha256": "3688e66f707d9dd81c82ce5a31e49c3ecc71beb5f13db0805ae17b2731f706f6"
+      },
+      "out/parts.json": {
+        "bytes": 20084,
+        "sha256": "34d44bac2755581ff6f499060f1178bc41b4780403d45f40ebd764ff2bbf72df"
+      },
+      "out/idle.gif": {
+        "bytes": 613888,
+        "sha256": "ad216210d84e1a0c4b8d785ec57b0927a5499f4c1486090c368955697ec2f5f8"
+      },
+      "work/rig/parts.json": {
+        "bytes": 14061,
+        "sha256": "37279c02566aa07bcdac75f187a4336828a8583c27c3ea8916126db0fa04998c"
+      },
+      "out/rig/mesh_report.json": {
+        "bytes": 1505,
+        "sha256": "1a20d3545a6d3f8ee36a1b1fa941504a2e137d3ff513893aceeaf4028acb1a65"
+      },
+      "out/rig/motion.json": {
+        "bytes": 51063,
+        "sha256": "3f4cf902917fd3c81dac393e8df2be92b76fd171db15121f4d55108879788c3a"
+      },
+      "out/rig/rig.json": {
+        "bytes": 144425,
+        "sha256": "e06434edb774fba2d96a4c5ba8d3c252a12e2e795e5c1ad787984642327a3393"
+      },
+      "out/check/check.json": {
+        "bytes": 17222,
+        "sha256": "a74ae48101040de1f851cae54b8f2ffde347ff1b99267499e62cfc87c71e941a"
+      },
+      "out/check/contact.png": {
+        "bytes": 144995,
+        "sha256": "4f85d504de91a7b98b9b79a30fe4655c7301ce58e2cf645ced8d8fecfc90cd55"
+      },
+      "out/check/idle_frames/frames.json": {
+        "bytes": 503,
+        "sha256": "370c83ba313ff618c0d163a4c66343f2797d58a035121c87a0f11e66e9da99d9"
+      },
+      "out/check/build/skeleton.png": {
+        "bytes": 617310,
+        "sha256": "203fdf42a73df55d817a3233edbfe5d4eeb0da0e8a903e64ac748d94327db58a"
+      },
+      "out/check/build/skeleton.atlas": {
+        "bytes": 1945,
+        "sha256": "40b204f20e7a9e13d6bfb8584e46c50226c5b1d7c47c9fa534d26731c11deada"
+      },
+      "out/check/build/skeleton.json": {
+        "bytes": 228991,
+        "sha256": "ce4318909572bc28831223679d5a21938df31dd043cd0e29ddc7a94211c562ab"
+      },
+      "out/check/build/skeleton.model.json": {
+        "bytes": 366953,
+        "sha256": "891439a49aa6b3fa4855d80ba4e5e74300872fe71d0d509a4703e3269609dc81"
+      },
+      "out/check/idle_frames/idle/geometry.json": {
+        "bytes": 1233698,
+        "sha256": "0d9f55d18c01d5dc7f719f5f21bcb67d351b4e8d257eeacc081f237a22b5c86a"
+      },
+      "out/check/idle_frames/idle/contact.png": {
+        "bytes": 144995,
+        "sha256": "4f85d504de91a7b98b9b79a30fe4655c7301ce58e2cf645ced8d8fecfc90cd55"
+      }
+    },
+    "9": {
+      "wave.pose.json": {
+        "bytes": 68472,
+        "sha256": "c8050488191650088660174e257978646a3cd30a5536417182f0f7bc467ae50d"
+      },
+      "wave.motion.json": {
+        "bytes": 128646,
+        "sha256": "26ed14310044ef6c9dcc7e38eb861f412f79708c19f4945f06607ee7c084638c"
+      },
+      "config.json": {
+        "bytes": 13922,
+        "sha256": "957ffd34db2bcbbdbc5e5b44eb081d8952cedfda0af85fc210d37a986b49cabd"
+      },
+      "map.json": {
+        "bytes": 514,
+        "sha256": "97dbda55dc01665a58c297d68dc9b0be7d4d40595ec9027248cfb6eaafbe6c24"
+      },
+      "wave.motion.report.json": {
+        "bytes": 19041,
+        "sha256": "946b99e20ee2540a7ce60f16946dc772b5d53e9d74351f9c582be6d79f5aef08"
+      },
+      "keypoints.json": {
+        "bytes": 2457,
+        "sha256": "76e912e77e743b0b6c89639bad4aac38c830ddb27878cd00d8153a1d1470d589"
+      },
+      "package.json": {
+        "bytes": 311,
+        "sha256": "e6956afafb42ae9fb081e957f398d30105462c9a1eef9d6ac48aea1f0d86c3a8"
+      },
+      "wave.pose.clean.json": {
+        "bytes": 220465,
+        "sha256": "89d8d69e69707ecdead365053031fefa8d53914249d0b421f3044177d1ddbdb4"
+      },
+      "work/basis.json": {
+        "bytes": 38142,
+        "sha256": "1cf08f8d86d299dd845a2b43259c1f1e6c1e548acb2bd2f902fa1b1b675f3879"
+      },
+      "work/head_box.json": {
+        "bytes": 31,
+        "sha256": "0ee0f14951684a0eda872b7b871dfb11fa31ad0e5bbf4a42c36562b1cb7c8b13"
+      },
+      "work/plan.json": {
+        "bytes": 3963,
+        "sha256": "e8380638f67dd8120d57c100dd7d6f850e3d1178f8c4b2ad101d1f361d7cde5a"
+      },
+      "work/proposal.json": {
+        "bytes": 20005,
+        "sha256": "3688e66f707d9dd81c82ce5a31e49c3ecc71beb5f13db0805ae17b2731f706f6"
+      },
+      "out/parts.json": {
+        "bytes": 20084,
+        "sha256": "34d44bac2755581ff6f499060f1178bc41b4780403d45f40ebd764ff2bbf72df"
+      },
+      "out/idle.gif": {
+        "bytes": 613888,
+        "sha256": "ad216210d84e1a0c4b8d785ec57b0927a5499f4c1486090c368955697ec2f5f8"
+      },
+      "wave-check/check.json": {
+        "bytes": 20007,
+        "sha256": "1dadfbc4fb842bf8827595685ab4fda522d01c81de3d521fb5b98cac1f4ec967"
+      },
+      "wave-check/contact.png": {
+        "bytes": 147012,
+        "sha256": "1ba8016c6d8fea8aa634c310e5f256e8cabdd9ea70059aaf4f0c46bcae537a6a"
+      },
+      "wave-build/retarget.json": {
+        "bytes": 1177,
+        "sha256": "5dc235f83680f1b0904c28ddb3b634db759e88cab4e48e4461b9e08273fef8be"
+      },
+      "wave-build/skeleton.atlas": {
+        "bytes": 3481,
+        "sha256": "ce513e5f78df47a0f1e6f46cc1faa7b47455772001a8b166accb3c124d476e51"
+      },
+      "wave-build/skeleton.json": {
+        "bytes": 265852,
+        "sha256": "c44a9bbffabbf351a60e0324e020fd79b5d5a30db38d43a937ed947bc9a4c163"
+      },
+      "wave-build/skeleton.model.json": {
+        "bytes": 419432,
+        "sha256": "c553d5839ef54395264cab1f0b45b5795e485815fdd55273ce2a40054e8ba7fc"
+      },
+      "wave-rig/mesh_report.json": {
+        "bytes": 1505,
+        "sha256": "1a20d3545a6d3f8ee36a1b1fa941504a2e137d3ff513893aceeaf4028acb1a65"
+      },
+      "wave-rig/motion.json": {
+        "bytes": 128646,
+        "sha256": "26ed14310044ef6c9dcc7e38eb861f412f79708c19f4945f06607ee7c084638c"
+      },
+      "wave-rig/rig.json": {
+        "bytes": 144425,
+        "sha256": "e06434edb774fba2d96a4c5ba8d3c252a12e2e795e5c1ad787984642327a3393"
+      },
+      "work/rig/parts.json": {
+        "bytes": 14061,
+        "sha256": "37279c02566aa07bcdac75f187a4336828a8583c27c3ea8916126db0fa04998c"
+      },
+      "out/rig/mesh_report.json": {
+        "bytes": 1505,
+        "sha256": "1a20d3545a6d3f8ee36a1b1fa941504a2e137d3ff513893aceeaf4028acb1a65"
+      },
+      "out/rig/motion.json": {
+        "bytes": 51063,
+        "sha256": "3f4cf902917fd3c81dac393e8df2be92b76fd171db15121f4d55108879788c3a"
+      },
+      "out/rig/rig.json": {
+        "bytes": 144425,
+        "sha256": "e06434edb774fba2d96a4c5ba8d3c252a12e2e795e5c1ad787984642327a3393"
+      },
+      "out/check/check.json": {
+        "bytes": 17222,
+        "sha256": "a74ae48101040de1f851cae54b8f2ffde347ff1b99267499e62cfc87c71e941a"
+      },
+      "out/check/contact.png": {
+        "bytes": 144995,
+        "sha256": "4f85d504de91a7b98b9b79a30fe4655c7301ce58e2cf645ced8d8fecfc90cd55"
+      },
+      "out/check/idle_frames/frames.json": {
+        "bytes": 503,
+        "sha256": "370c83ba313ff618c0d163a4c66343f2797d58a035121c87a0f11e66e9da99d9"
+      },
+      "out/check/build/skeleton.png": {
+        "bytes": 617310,
+        "sha256": "203fdf42a73df55d817a3233edbfe5d4eeb0da0e8a903e64ac748d94327db58a"
+      },
+      "out/check/build/skeleton.atlas": {
+        "bytes": 1945,
+        "sha256": "40b204f20e7a9e13d6bfb8584e46c50226c5b1d7c47c9fa534d26731c11deada"
+      },
+      "out/check/build/skeleton.json": {
+        "bytes": 228991,
+        "sha256": "ce4318909572bc28831223679d5a21938df31dd043cd0e29ddc7a94211c562ab"
+      },
+      "out/check/build/skeleton.model.json": {
+        "bytes": 366953,
+        "sha256": "891439a49aa6b3fa4855d80ba4e5e74300872fe71d0d509a4703e3269609dc81"
+      },
+      "out/check/idle_frames/idle/geometry.json": {
+        "bytes": 1233698,
+        "sha256": "0d9f55d18c01d5dc7f719f5f21bcb67d351b4e8d257eeacc081f237a22b5c86a"
+      },
+      "out/check/idle_frames/idle/contact.png": {
+        "bytes": 144995,
+        "sha256": "4f85d504de91a7b98b9b79a30fe4655c7301ce58e2cf645ced8d8fecfc90cd55"
+      },
+      "wave-check/idle_frames/frames.json": {
+        "bytes": 504,
+        "sha256": "735f2736f1fe2013efa1e2a6b66f78e5c86860fc0388ffb9e74a0ac7fb2faaa3"
+      },
+      "wave-check/build/skeleton.png": {
+        "bytes": 617310,
+        "sha256": "203fdf42a73df55d817a3233edbfe5d4eeb0da0e8a903e64ac748d94327db58a"
+      },
+      "wave-check/build/skeleton.atlas": {
+        "bytes": 1945,
+        "sha256": "40b204f20e7a9e13d6bfb8584e46c50226c5b1d7c47c9fa534d26731c11deada"
+      },
+      "wave-check/build/skeleton.json": {
+        "bytes": 265860,
+        "sha256": "b18626dc2c1b966230f4e83bb205baa49b3ccc4acd342e096259703e21af6ce0"
+      },
+      "wave-check/build/skeleton.model.json": {
+        "bytes": 415632,
+        "sha256": "15fe2d81eec9ca00a72deb212058b1c017a49dee8da0140fe787f2b59700606b"
+      },
+      "wave-check/idle_frames/idle/geometry.json": {
+        "bytes": 1233699,
+        "sha256": "0798c5f19fd29d7d086e529170d14f8c70abc8e17c186bf3ca5e7a49fc7f137e"
+      },
+      "wave-check/idle_frames/idle/contact.png": {
+        "bytes": 147012,
+        "sha256": "1ba8016c6d8fea8aa634c310e5f256e8cabdd9ea70059aaf4f0c46bcae537a6a"
+      }
+    },
+    "9b": {
+      "wave.pose.json": {
+        "bytes": 68472,
+        "sha256": "c8050488191650088660174e257978646a3cd30a5536417182f0f7bc467ae50d"
+      },
+      "wave.motion.json": {
+        "bytes": 128646,
+        "sha256": "26ed14310044ef6c9dcc7e38eb861f412f79708c19f4945f06607ee7c084638c"
+      },
+      "config.json": {
+        "bytes": 13964,
+        "sha256": "0237eef66a27318fea14c7c4009bf4bfba9fb3197d80a7642e0e6cf4c6621a39"
+      },
+      "map.json": {
+        "bytes": 514,
+        "sha256": "97dbda55dc01665a58c297d68dc9b0be7d4d40595ec9027248cfb6eaafbe6c24"
+      },
+      "wave.motion.report.json": {
+        "bytes": 19041,
+        "sha256": "946b99e20ee2540a7ce60f16946dc772b5d53e9d74351f9c582be6d79f5aef08"
+      },
+      "keypoints.json": {
+        "bytes": 2457,
+        "sha256": "76e912e77e743b0b6c89639bad4aac38c830ddb27878cd00d8153a1d1470d589"
+      },
+      "package.json": {
+        "bytes": 311,
+        "sha256": "e6956afafb42ae9fb081e957f398d30105462c9a1eef9d6ac48aea1f0d86c3a8"
+      },
+      "wave.pose.clean.json": {
+        "bytes": 220465,
+        "sha256": "89d8d69e69707ecdead365053031fefa8d53914249d0b421f3044177d1ddbdb4"
+      },
+      "hello.anim.json": {
+        "bytes": 43310,
+        "sha256": "c226ac080edeb54c996ffec1ab21b43d2bf8b3ddbf1f27840b24205ee9a66c5f"
+      },
+      "work/basis.json": {
+        "bytes": 38142,
+        "sha256": "1cf08f8d86d299dd845a2b43259c1f1e6c1e548acb2bd2f902fa1b1b675f3879"
+      },
+      "work/head_box.json": {
+        "bytes": 31,
+        "sha256": "0ee0f14951684a0eda872b7b871dfb11fa31ad0e5bbf4a42c36562b1cb7c8b13"
+      },
+      "work/plan.json": {
+        "bytes": 3963,
+        "sha256": "e8380638f67dd8120d57c100dd7d6f850e3d1178f8c4b2ad101d1f361d7cde5a"
+      },
+      "work/proposal.json": {
+        "bytes": 20005,
+        "sha256": "3688e66f707d9dd81c82ce5a31e49c3ecc71beb5f13db0805ae17b2731f706f6"
+      },
+      "work/hello-from.json": {
+        "bytes": 39,
+        "sha256": "d8585f0712d91d5a8bbccad02fbae88b120a10d6a54001f20ba5aeb5f42805dc"
+      },
+      "out/parts.json": {
+        "bytes": 20084,
+        "sha256": "34d44bac2755581ff6f499060f1178bc41b4780403d45f40ebd764ff2bbf72df"
+      },
+      "out/idle.gif": {
+        "bytes": 616080,
+        "sha256": "07e4fc33703853a10b32699757febc48244a514107440ebb8a1c11dae84ed324"
+      },
+      "wave-check/check.json": {
+        "bytes": 20007,
+        "sha256": "1dadfbc4fb842bf8827595685ab4fda522d01c81de3d521fb5b98cac1f4ec967"
+      },
+      "wave-check/contact.png": {
+        "bytes": 147012,
+        "sha256": "1ba8016c6d8fea8aa634c310e5f256e8cabdd9ea70059aaf4f0c46bcae537a6a"
+      },
+      "wave-build/retarget.json": {
+        "bytes": 1177,
+        "sha256": "5dc235f83680f1b0904c28ddb3b634db759e88cab4e48e4461b9e08273fef8be"
+      },
+      "wave-build/skeleton.atlas": {
+        "bytes": 3481,
+        "sha256": "ce513e5f78df47a0f1e6f46cc1faa7b47455772001a8b166accb3c124d476e51"
+      },
+      "wave-build/skeleton.json": {
+        "bytes": 265852,
+        "sha256": "c44a9bbffabbf351a60e0324e020fd79b5d5a30db38d43a937ed947bc9a4c163"
+      },
+      "wave-build/skeleton.model.json": {
+        "bytes": 419432,
+        "sha256": "c553d5839ef54395264cab1f0b45b5795e485815fdd55273ce2a40054e8ba7fc"
+      },
+      "wave-rig/mesh_report.json": {
+        "bytes": 1505,
+        "sha256": "1a20d3545a6d3f8ee36a1b1fa941504a2e137d3ff513893aceeaf4028acb1a65"
+      },
+      "wave-rig/motion.json": {
+        "bytes": 128646,
+        "sha256": "26ed14310044ef6c9dcc7e38eb861f412f79708c19f4945f06607ee7c084638c"
+      },
+      "wave-rig/rig.json": {
+        "bytes": 144425,
+        "sha256": "e06434edb774fba2d96a4c5ba8d3c252a12e2e795e5c1ad787984642327a3393"
+      },
+      "work/rig/parts.json": {
+        "bytes": 14061,
+        "sha256": "37279c02566aa07bcdac75f187a4336828a8583c27c3ea8916126db0fa04998c"
+      },
+      "out/rig/mesh_report.json": {
+        "bytes": 1505,
+        "sha256": "1a20d3545a6d3f8ee36a1b1fa941504a2e137d3ff513893aceeaf4028acb1a65"
+      },
+      "out/rig/motion.json": {
+        "bytes": 187186,
+        "sha256": "d0ee26b90ba096e2184c9032e7dee71dd5444eae447c71b0c80d0f531bbf841f"
+      },
+      "out/rig/rig.json": {
+        "bytes": 144425,
+        "sha256": "e06434edb774fba2d96a4c5ba8d3c252a12e2e795e5c1ad787984642327a3393"
+      },
+      "out/check/check.json": {
+        "bytes": 21313,
+        "sha256": "823972c094d916e82e878eef652ae8aa92cfc4e518e5e36985f7bbbbb22c4802"
+      },
+      "out/check/contact.png": {
+        "bytes": 145855,
+        "sha256": "47053fd0c63449515f7b0f74769127050ad96a513ede4e63dc00d5cf0e281143"
+      },
+      "out/check/idle_frames/frames.json": {
+        "bytes": 502,
+        "sha256": "0584ad0aee7f9470f610c0831422980eefe73f7b51087ae7d35b862d9b21b868"
+      },
+      "out/check/build/skeleton.png": {
+        "bytes": 617310,
+        "sha256": "203fdf42a73df55d817a3233edbfe5d4eeb0da0e8a903e64ac748d94327db58a"
+      },
+      "out/check/build/skeleton.atlas": {
+        "bytes": 1945,
+        "sha256": "40b204f20e7a9e13d6bfb8584e46c50226c5b1d7c47c9fa534d26731c11deada"
+      },
+      "out/check/build/skeleton.json": {
+        "bytes": 375074,
+        "sha256": "5013721b948007cbbd879293cda81a3afd18e133daadd50aa26158fb733418aa"
+      },
+      "out/check/build/skeleton.model.json": {
+        "bytes": 585896,
+        "sha256": "61c6610246025e1b6de973de8a26b1d7b3fa2c2d67b386ecb555ca154877c80d"
+      },
+      "out/check/idle_frames/idle/geometry.json": {
+        "bytes": 1233697,
+        "sha256": "ec6e451186cc11eba676bdc8a566c31ca0c0678402b042c674dbc27bff097e2d"
+      },
+      "out/check/idle_frames/idle/contact.png": {
+        "bytes": 145855,
+        "sha256": "47053fd0c63449515f7b0f74769127050ad96a513ede4e63dc00d5cf0e281143"
+      },
+      "wave-check/idle_frames/frames.json": {
+        "bytes": 504,
+        "sha256": "735f2736f1fe2013efa1e2a6b66f78e5c86860fc0388ffb9e74a0ac7fb2faaa3"
+      },
+      "wave-check/build/skeleton.png": {
+        "bytes": 617310,
+        "sha256": "203fdf42a73df55d817a3233edbfe5d4eeb0da0e8a903e64ac748d94327db58a"
+      },
+      "wave-check/build/skeleton.atlas": {
+        "bytes": 1945,
+        "sha256": "40b204f20e7a9e13d6bfb8584e46c50226c5b1d7c47c9fa534d26731c11deada"
+      },
+      "wave-check/build/skeleton.json": {
+        "bytes": 265860,
+        "sha256": "b18626dc2c1b966230f4e83bb205baa49b3ccc4acd342e096259703e21af6ce0"
+      },
+      "wave-check/build/skeleton.model.json": {
+        "bytes": 415632,
+        "sha256": "15fe2d81eec9ca00a72deb212058b1c017a49dee8da0140fe787f2b59700606b"
+      },
+      "wave-check/idle_frames/idle/geometry.json": {
+        "bytes": 1233699,
+        "sha256": "0798c5f19fd29d7d086e529170d14f8c70abc8e17c186bf3ca5e7a49fc7f137e"
+      },
+      "wave-check/idle_frames/idle/contact.png": {
+        "bytes": 147012,
+        "sha256": "1ba8016c6d8fea8aa634c310e5f256e8cabdd9ea70059aaf4f0c46bcae537a6a"
+      }
+    },
+    "9c": {
+      "wave.pose.json": {
+        "bytes": 68472,
+        "sha256": "c8050488191650088660174e257978646a3cd30a5536417182f0f7bc467ae50d"
+      },
+      "wave.motion.json": {
+        "bytes": 128646,
+        "sha256": "26ed14310044ef6c9dcc7e38eb861f412f79708c19f4945f06607ee7c084638c"
+      },
+      "config.json": {
+        "bytes": 18931,
+        "sha256": "7826e4c62ac84bbe0e9594003b1c8fd99c27132b0d78f07e0ae5860de6a9c336"
+      },
+      "map.json": {
+        "bytes": 514,
+        "sha256": "97dbda55dc01665a58c297d68dc9b0be7d4d40595ec9027248cfb6eaafbe6c24"
+      },
+      "wave.motion.report.json": {
+        "bytes": 19041,
+        "sha256": "946b99e20ee2540a7ce60f16946dc772b5d53e9d74351f9c582be6d79f5aef08"
+      },
+      "keypoints.json": {
+        "bytes": 2457,
+        "sha256": "76e912e77e743b0b6c89639bad4aac38c830ddb27878cd00d8153a1d1470d589"
+      },
+      "package.json": {
+        "bytes": 311,
+        "sha256": "e6956afafb42ae9fb081e957f398d30105462c9a1eef9d6ac48aea1f0d86c3a8"
+      },
+      "wave.pose.clean.json": {
+        "bytes": 220465,
+        "sha256": "89d8d69e69707ecdead365053031fefa8d53914249d0b421f3044177d1ddbdb4"
+      },
+      "hello.anim.json": {
+        "bytes": 38032,
+        "sha256": "8f5a9b1f75aa1b97265b733a8a870e3dadf994de8a12e12a46c27598a84e1a78"
+      },
+      "work/cloth.json": {
+        "bytes": 361,
+        "sha256": "bf42abd454d0827aa5d3c4df47c57f8ca80982c9fdf84aac28618fd3b6d99439"
+      },
+      "work/basis.json": {
+        "bytes": 41253,
+        "sha256": "c453b5e2a762021daaceddb5d250c0f3f2bb7dbbac7f47571d27247c6522705d"
+      },
+      "work/head_box.json": {
+        "bytes": 31,
+        "sha256": "0ee0f14951684a0eda872b7b871dfb11fa31ad0e5bbf4a42c36562b1cb7c8b13"
+      },
+      "work/plan.json": {
+        "bytes": 3963,
+        "sha256": "e8380638f67dd8120d57c100dd7d6f850e3d1178f8c4b2ad101d1f361d7cde5a"
+      },
+      "work/proposal.json": {
+        "bytes": 26725,
+        "sha256": "a5c34f733f44ad44d672130d54d37486a4201477ed476c195cd694f863caa5ac"
+      },
+      "work/hello-from.json": {
+        "bytes": 39,
+        "sha256": "d8585f0712d91d5a8bbccad02fbae88b120a10d6a54001f20ba5aeb5f42805dc"
+      },
+      "out/parts.json": {
+        "bytes": 20084,
+        "sha256": "34d44bac2755581ff6f499060f1178bc41b4780403d45f40ebd764ff2bbf72df"
+      },
+      "out/idle.gif": {
+        "bytes": 526535,
+        "sha256": "1b8f2aa34c75db54410b22f09513e6c16b7e7cf06a506cc738a9d38999f82c24"
+      },
+      "wave-check/check.json": {
+        "bytes": 20007,
+        "sha256": "1dadfbc4fb842bf8827595685ab4fda522d01c81de3d521fb5b98cac1f4ec967"
+      },
+      "wave-check/contact.png": {
+        "bytes": 147012,
+        "sha256": "1ba8016c6d8fea8aa634c310e5f256e8cabdd9ea70059aaf4f0c46bcae537a6a"
+      },
+      "wave-build/retarget.json": {
+        "bytes": 1177,
+        "sha256": "5dc235f83680f1b0904c28ddb3b634db759e88cab4e48e4461b9e08273fef8be"
+      },
+      "wave-build/skeleton.atlas": {
+        "bytes": 3481,
+        "sha256": "ce513e5f78df47a0f1e6f46cc1faa7b47455772001a8b166accb3c124d476e51"
+      },
+      "wave-build/skeleton.json": {
+        "bytes": 265852,
+        "sha256": "c44a9bbffabbf351a60e0324e020fd79b5d5a30db38d43a937ed947bc9a4c163"
+      },
+      "wave-build/skeleton.model.json": {
+        "bytes": 419432,
+        "sha256": "c553d5839ef54395264cab1f0b45b5795e485815fdd55273ce2a40054e8ba7fc"
+      },
+      "wave-rig/mesh_report.json": {
+        "bytes": 1505,
+        "sha256": "1a20d3545a6d3f8ee36a1b1fa941504a2e137d3ff513893aceeaf4028acb1a65"
+      },
+      "wave-rig/motion.json": {
+        "bytes": 128646,
+        "sha256": "26ed14310044ef6c9dcc7e38eb861f412f79708c19f4945f06607ee7c084638c"
+      },
+      "wave-rig/rig.json": {
+        "bytes": 144425,
+        "sha256": "e06434edb774fba2d96a4c5ba8d3c252a12e2e795e5c1ad787984642327a3393"
+      },
+      "work/rig/parts.json": {
+        "bytes": 14061,
+        "sha256": "37279c02566aa07bcdac75f187a4336828a8583c27c3ea8916126db0fa04998c"
+      },
+      "out/rig/mesh_report.json": {
+        "bytes": 1494,
+        "sha256": "c9784e916a414c39c8636e23b094be1e394884277b09f742c7a88431c0f5c3a5"
+      },
+      "out/rig/motion.json": {
+        "bytes": 134975,
+        "sha256": "5463bae425e0382491f08c1f67e87dcf70a5f5625e29fb9bcbba584e2e55466b"
+      },
+      "out/rig/rig.json": {
+        "bytes": 145906,
+        "sha256": "5437930154c59693d5f4cbdfb6ac37dba463a0a46bc680c8a42302c147e3f17a"
+      },
+      "out/check/check.json": {
+        "bytes": 43543,
+        "sha256": "2762f9e4474dc2e5be63b0535d9dff9c5170900e9413bcc8f990c13d06251799"
+      },
+      "out/check/contact.png": {
+        "bytes": 137202,
+        "sha256": "083a6f1356d4bbdbc7ac3c0bfa9ca5b23d5fcc6bb6d20c6e852c37e26261684f"
+      },
+      "out/check/idle_frames/frames.json": {
+        "bytes": 574,
+        "sha256": "69dc66d24370476b64e25dc3a8df34fdfbc7354507e3dc53ae0323b83efaf2ab"
+      },
+      "out/check/build/skeleton.png": {
+        "bytes": 617310,
+        "sha256": "203fdf42a73df55d817a3233edbfe5d4eeb0da0e8a903e64ac748d94327db58a"
+      },
+      "out/check/build/skeleton.atlas": {
+        "bytes": 1945,
+        "sha256": "40b204f20e7a9e13d6bfb8584e46c50226c5b1d7c47c9fa534d26731c11deada"
+      },
+      "out/check/build/skeleton.json": {
+        "bytes": 315480,
+        "sha256": "568ed37cca804b3c97741739542d9aa293e14b3526bbd9b66ce7f957d55e771e"
+      },
+      "out/check/build/skeleton.model.json": {
+        "bytes": 506264,
+        "sha256": "1523b0f167d2c911d772a36bd649f8c3463c4ffdd4e9f442caf1bd64e523809f"
+      },
+      "out/check/idle_frames/idle/geometry.json": {
+        "bytes": 1058496,
+        "sha256": "dee4d947787e16bfb9fc05dde6e58cc75ba94c80957f6d98844c3cd2e6ce0478"
+      },
+      "out/check/idle_frames/idle/contact.png": {
+        "bytes": 137202,
+        "sha256": "083a6f1356d4bbdbc7ac3c0bfa9ca5b23d5fcc6bb6d20c6e852c37e26261684f"
+      },
+      "out/check/seam_motion/default/frames.json": {
+        "bytes": 805,
+        "sha256": "9cad4ad068cfe792f533a657750f823e8ca8a7ebff7d0689445d362fb6097b0e"
+      },
+      "out/check/seam_motion/still/frames.json": {
+        "bytes": 899,
+        "sha256": "9a1b7801a4cd81f715609ccd5c1911c3e4d8b10caf9b1a32664d6dbb39174409"
+      },
+      "out/check/seam_motion/default/idle/geometry.json": {
+        "bytes": 1058494,
+        "sha256": "4bfbfcad67f712f1836d29b6c07d871c6290f3ea8d1f9e719105bcd8c026ca7b"
+      },
+      "out/check/seam_motion/default/idle/seam.json": {
+        "bytes": 94843,
+        "sha256": "4b778e7ef660871693744cc200b58b1bdcc83556b35086eeca09c8500f9ad07e"
+      },
+      "out/check/seam_motion/default/idle/contact.png": {
+        "bytes": 137253,
+        "sha256": "5e6f94fae330df5a645faa44d3207096a8b5fb5729959ed8ce8f1e5183ab1044"
+      },
+      "out/check/seam_motion/default/hello/geometry.json": {
+        "bytes": 1473973,
+        "sha256": "a12f981b67ef2156ac4de858bfbf232e8236ce4e13c5c08448778542843fd764"
+      },
+      "out/check/seam_motion/default/hello/seam.json": {
+        "bytes": 178787,
+        "sha256": "20681bc0e94cacf8fdfdbba3b970f0e97ab8da30289d215e0ebe77fd5790fb87"
+      },
+      "out/check/seam_motion/default/hello/contact.png": {
+        "bytes": 196309,
+        "sha256": "acf22e0e22c5917e18768b0e6c532c38569ba878c4fd7a9776867d1c34f467c6"
+      },
+      "out/check/seam_motion/still/idle/seam.json": {
+        "bytes": 67337,
+        "sha256": "fc35c1574b3f7e53366095780ae333caea1be82b03535c8674f290da774d6cc1"
+      },
+      "out/check/seam_motion/still/idle/contact.png": {
+        "bytes": 134891,
+        "sha256": "0e02137069490dcc3396790ec6b7e82e587ee0763babbd43fbe56f55d94d206f"
+      },
+      "out/check/seam_motion/still/hello/seam.json": {
+        "bytes": 142543,
+        "sha256": "63130e59e031eef1baac4d1ec78c4e940796913acaa31f0ce629ae04b5d731de"
+      },
+      "out/check/seam_motion/still/hello/contact.png": {
+        "bytes": 194402,
+        "sha256": "7bf79f892558194061be6796648c79c24f625a1f021038e096433838ac0ca032"
+      },
+      "wave-check/idle_frames/frames.json": {
+        "bytes": 504,
+        "sha256": "735f2736f1fe2013efa1e2a6b66f78e5c86860fc0388ffb9e74a0ac7fb2faaa3"
+      },
+      "wave-check/build/skeleton.png": {
+        "bytes": 617310,
+        "sha256": "203fdf42a73df55d817a3233edbfe5d4eeb0da0e8a903e64ac748d94327db58a"
+      },
+      "wave-check/build/skeleton.atlas": {
+        "bytes": 1945,
+        "sha256": "40b204f20e7a9e13d6bfb8584e46c50226c5b1d7c47c9fa534d26731c11deada"
+      },
+      "wave-check/build/skeleton.json": {
+        "bytes": 265860,
+        "sha256": "b18626dc2c1b966230f4e83bb205baa49b3ccc4acd342e096259703e21af6ce0"
+      },
+      "wave-check/build/skeleton.model.json": {
+        "bytes": 415632,
+        "sha256": "15fe2d81eec9ca00a72deb212058b1c017a49dee8da0140fe787f2b59700606b"
+      },
+      "wave-check/idle_frames/idle/geometry.json": {
+        "bytes": 1233699,
+        "sha256": "0798c5f19fd29d7d086e529170d14f8c70abc8e17c186bf3ca5e7a49fc7f137e"
+      },
+      "wave-check/idle_frames/idle/contact.png": {
+        "bytes": 147012,
+        "sha256": "1ba8016c6d8fea8aa634c310e5f256e8cabdd9ea70059aaf4f0c46bcae537a6a"
+      }
+    }
+  },
+  "resource_budget": {
+    "cpus": 4,
+    "family_peak_bytes": 2565324800,
+    "limit_bytes": 6442450944,
+    "exceeded": false,
+    "pool": "ordinary shared pool",
+    "exclusive": false
+  },
+  "provenance": {
+    "input_manifest_sha256": "afabefb981095c86bc9ac34288c44e44c174eef96a73eade9d41f5dcb23c6b34",
+    "sealed_result_sha256": "17951e6d198397f4cab67f3c90762c79c43a6558b5e1487555eee8941bdbd4d2",
+    "browser_collector_sha256": "f9ecb04ec786dd8cae6a5a74068c371461b5d8774246bc4a3911a6542eb8060f",
+    "collector_correction": "scratch browser collector corrected before step10 read: shared WebGL backend plus copied display-canvas alpha; initial manifest browser hash differs, corrected bytes are sealed as an artifact",
+    "install_collector_red": "initial attempt stopped after install because npm ls rejects Bun-generated caret dependencies beside exact overrides (EOVERRIDE); retained failed receipt; installed-manifest graph reader replaced that collector"
+  },
+  "exclusions": "#18 internal elbow WARN; mixed ghost ownership(core#1555), exact partially covered GAP partition(core#1556), physics reference worlds, named SKIPs incl. no leg posing on wave and STRESS_OFF_CHAIN. A00_ROUNDTRIP_PARSE SKIP because spine-core absent. No cloth24fps root rerun, mixed hello-over-idle/breeze seam certification, joint-model rerun, native editor/engine/mobile/Safari/Firefox or full parts selftest claimed.",
+  "exclusions_lifted_by_this_card": [
+    "published parts1.61 install validated",
+    "cold joint-model run required and completed; prior joint-model exclusion is historical"
+  ],
+  "ci": "external PR CI remains required; no CI result for these docs edits is claimed"
+}

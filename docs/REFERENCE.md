@@ -10,6 +10,85 @@ quoted from. Three words recur:
 
 ## Tested with
 
+Measured 2026-10-25 for [#8](https://github.com/rig-c/getting-started/issues/8), on
+published packages only. The numbered steps passed **10/10**, with the current **9b and
+9c** also passing. These versions and expected lines supersede the earlier walkthroughs
+below; the separate motion measurements retain their own dates and toolchains.
+The compact [published-run receipt](receipts/issue-8.json) keeps every verbatim command,
+exit, output comparison, installed dependency edge, integrity and output hash.
+
+| Latest published walkthrough | Version or environment |
+| --- | --- |
+| `@rig-c/parts` | 1.61.0 |
+| `rig-c` | 2.69.0 |
+| `@rig-c/pose` | 1.0.2 |
+| `@rig-c/play` | 1.17.0 |
+| Bun | 1.4.2 |
+| uv / detector Python | 0.12.17 / 3.12.14 |
+| Machine | x86_64 Linux / WSL2, ordinary shared pool; job limited to 4 CPUs and 6 GiB |
+| Browser | Chromium 145.0.7632.6, Playwright 1.58.2, software ANGLE WebGL |
+
+The versions and SHA-512 integrities came from `npm view`. All **380 installed files**
+of those four packages matched the verified npm tarballs before the later guide stages. Both
+parts and pose resolved `rig-c` to 2.69.0; the remaining installed packages were ag-psd
+31.0.3, base64-js 1.5.1 and pako 2.1.0. No Spine runtime or source override was installed.
+
+The runner executed each README `sh` block with `bash -eu -o pipefail -c`, in order,
+from an empty consumer with empty HOME, Bun, uv and XDG/model caches. It selected Python
+3.12.14 and ran the actual step-6 `uv run --with rtmlib --with onnxruntime` detector:
+18 observed, 0 occluded, 0 missing. Step 1 has two explicit experiment preparations:
+Git commands were prohibited to the worker, so its clone was replaced by a byte-identical
+copy of guide commit `7db1d11eb09abb7e43a4ec09629148da33499d90`; an exact dependency and
+override manifest was seeded before the original unversioned `bun add`, and the installed
+graph proved which versions that command consumed. The README commands themselves are
+unchanged. The hand-placed route was not re-run for this refresh.
+
+Walkthrough wall clock under `python3 budget.py python3 run.py`: **305.659 s**.
+This includes the cold package, Python and pose-model downloads and step 10's browser
+installation and real flow. It excludes archive transport and the initial uv executable
+bootstrap. It is an observation in a shared pool, not a machine-speed comparison.
+
+| README step | Exit | Seconds |
+| --- | --- | --- |
+| 1 | 0 | 0.266 |
+| 2 | 0 | 2.323 |
+| 3 | 0 | 1.230 |
+| 4 | 0 | 1.915 |
+| 5 | 0 | 16.612 |
+| 6 | 0 | 18.237 |
+| 7 | 0 | 2.428 |
+| 8 | 0 | 37.888 |
+| 9 | 0 | 37.569 |
+| 9b | 0 | 59.936 |
+| 9c | 0 | 103.340 |
+| 10 | 0 | 23.139 |
+
+Every quoted output fragment in the README's expected-output paragraphs passed a UTF-8
+byte-substring comparison against its stage log (47 checks), along with 41 explicit
+comparisons including the exact head-box file and its terminal newline. Only Markdown
+source line-wrapping was removed from quoted fragments; stdout bytes were not normalized.
+The readings that changed are step 8's `12 of 14 bar(s) measured`, the detected hello's
+`right ankle 8.3 px in (10 % of the way to parallel, 15.96 -> 15.19 deg), hip 1.5 px`, and
+step 9c's `max |d| 1, 0 px over 40 — the jump at the wrap`. The old hand-placed hello's
+8.4 px / 16.05 -> 15.28 degrees remains a historical reading below.
+
+The published checker measured all four body-root pairs: four rows for the idle and
+eight rows each for wave, hello and cloth (both animations), all PASS with zero failed
+roots. Step 9b and 9c measured 13 of 14 bars, skipping STRESS_OFF_CHAIN. The final config
+still holds 27 physics and 3 transform constraints. These are fresh published-package
+checks, not the earlier source-run results.
+
+The actual documented server was opened in Chromium for hello over idle and for wave.
+Both drew non-empty canvas pixels through the WebGL backend, advanced their poses and
+changed their screenshots, paused and resumed, and answered the breeze toggle; the
+hello's animation selector and the `wind=0` URL also passed, with no page/request errors.
+This checks functional playback, not mixed-track seam correctness. Six final frame sets
+were reduced to ordered PNG digests and deleted with the isolated working tree; only
+small browser screenshots and receipts remain. Physics reference worlds, internal elbow
+WARN and the other exclusions under *Step 9, the forearm wave* remain unchanged.
+
+### Earlier measurements
+
 Recorded 2026-10-13; *Try it first* re-run twice on 2026-10-20, the second time with step 9b, and twice on 2026-10-21, with step 9c and then with the stance settle. Everything marked *measured* on this
 page was run on this machine with these versions, except where a later section names
 its own run and toolchain.
@@ -1048,8 +1127,8 @@ changes is the packages' decision.
 | Whether the Civitai checkpoint download asks for a login | one download attempt, signed out |
 | Route B, all of it | an Apple Silicon Mac, ~23 GB of models, and the two code-read risks checked (`--offload` → `'cuda'`; `bitsandbytes` on macOS) |
 | Route C: the Space run, its real quota, the PSD it returns going through *Try it first*; ModelScope | a Hugging Face account and two runs (likely two days at the stated 1–2/day), then the steps with `--full x.psd --head y.psd` |
-| The joint model download time | an empty `~/.cache/rtmlib` (about 307 MB to download) |
-| *Try it first* on Windows and Linux; the page in Safari and Firefox | runs on those systems and browsers |
+| The joint model download time by itself | a separate download-only timer; the 2026-10-25 cold detector stage above includes both model downloads and inference |
+| *Try it first* on Windows; the page in Safari and Firefox | runs on those systems and browsers (Linux/Chromium was run on 2026-10-25 above) |
 | `git clone https://github.com/rig-c/getting-started` as written | the guide published (the smoke copied the checkout instead) |
 | ComfyUI Desktop on macOS (address, custom nodes folder) | reading its docs further and one install |
 | The Spine editor import of the guide's build, as written | the packages writing each weighted vertex's bones in ascending bone-index order (the one edit that imported), then the round trip again on a fresh build |

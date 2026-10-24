@@ -19,9 +19,10 @@ into movable pieces on a skeleton — breathing, blinking and waving in your bro
 Only steps 1 and 2 want a GPU, and both have a no-GPU way. The four packages make neither
 the painting nor the layers, and ship no model weights.
 
-Everything in *Try it first* was run as written on an Apple Silicon Mac. The versions, the
-date and the timings are in [docs/REFERENCE.md](docs/REFERENCE.md) — if an output of yours
-differs in a detail, look there first.
+*Try it first* has been run on an Apple Silicon Mac and, for the latest published-package
+refresh, on Linux with empty caches and the joint detector. The versions, setup, date and
+timings are in [docs/REFERENCE.md](docs/REFERENCE.md) — if an output of yours differs in a
+detail, look there first.
 
 **Contents:** [Try it first](#try-it-first--no-gpu-about-3-minutes) ·
 [Use what you made](#use-what-you-made) ·
@@ -133,8 +134,8 @@ should see `18 observed, 0 occluded, 0 missing -> keypoints.json`.
 No Python? [docs/KEYPOINTS.md](docs/KEYPOINTS.md) has a hand-placed set for this very
 painting; save it as `keypoints.json`. Its left ankle is already where step 7's first line
 puts it, and you get the same 44 bones. It was tuned to the script's joints, so the steps
-print the readings below. The current body-root measurements use this hand-placed set;
-the joint model was not re-run for them.
+print slightly different joint-dependent readings. The earlier body-root measurements used
+this hand-placed set; the expected lines below now use the cold detector run.
 
 ### 7. Draft the bones
 
@@ -168,7 +169,7 @@ bunx rig-parts build --config config.json --source inputs/painting.png --full in
 ```
 
 About a minute. You should see `limb cut: "shoes" opaque 13735 = "foot_r" 8071 + "foot_l"
-5664`, the shoes cut in two, then `[check] check: PASS; 11 of 13 bar(s) measured, 2 skipped
+5664`, the shoes cut in two, then `[check] check: PASS; 12 of 14 bar(s) measured, 2 skipped
 (FEET_STAY_LEVEL, STRESS_OFF_CHAIN)`, then `build: PASS`. `FEET_STAY_LEVEL` is skipped
 because the idle turns no leg; step 9b's hello does. Open `out/idle.gif`: the character breathes and blinks in a 3.3-second loop.
 If any line says `FAIL`, nothing was written, and that line says what to change.
@@ -201,7 +202,7 @@ cp wave.motion.json wave-rig/motion.json
 bunx rig-parts check --rig wave-rig --parts out --out wave-check
 ```
 
-You should see `73 frame(s), 3 s at 24 fps`, `GATE … green`, and
+You should see `73 frame(s), 3 s at 24 fps`, `GATE   rigc build --profile spine-html: green`, and
 `FOLD   rigc render --folds at 24 fps: no mesh folds`, and
 `wrote wave.motion.json — animations: idle, wave`. A `FOLD` line is a reading, not a
 failure: where a mesh does fold, it names the part and the frames to look at.
@@ -229,9 +230,9 @@ bunx rig-parts build --config config.json --source inputs/painting.png --full in
 ```
 
 About a minute and a half. You should see `hello.ts: 4 beats (hm?, heh, wave, settle), 4.75 s
-at 24 fps, 16 tracks of 115 keys; sleeve_r0 at most 4.0 deg; settle: right ankle 8.4 px in
-(10 % of the way to parallel, 16.05 -> 15.28 deg), hip 1.5 px` on the hand-placed set, then from the build
-`animations beside the idle, from …/hello.anim.json as written: hello`,
+at 24 fps, 16 tracks of 115 keys; sleeve_r0 at most 4.0 deg; settle: right ankle 8.3 px in
+(10 % of the way to parallel, 15.96 -> 15.19 deg), hip 1.5 px` on the detected joints, then from the build
+`animations beside the idle`, ending `hello.anim.json as written: hello`,
 `ANIMATIONS_DO_NOT_FOLD: PASS — 2 animation(s) read by rigc render --folds at 12 fps (idle,
 hello)`, `FEET_STAY_LEVEL: PASS`, `check: PASS`, and `build: PASS`. The internal elbow
 reading in `SEAM_OVER_MOTION` remains a warning: where the forearm turns
@@ -308,7 +309,7 @@ swing at least as far as the one above. The draft gives the bun 0.8 degrees unde
 
 From the build you should see `loop physics: 27 physics constraint(s) left out of the loop's
 frames, reported, not judged`, `WARN chain` lines from `CLOTH_SETTLES` for the skirt,
-`check: PASS`, warnings from the internal seams and `CLOTH_SETTLES`, a `lead-in:` line ending `max |d| 0, 0 px over
+`check: PASS`, warnings from the internal seams and `CLOTH_SETTLES`, a `lead-in:` line ending `max |d| 1, 0 px over
 40 — the jump at the wrap`, and `build: PASS`. Physics starts at rest when an animation
 starts, and the skirt hangs into place within 2 seconds. Then it rests, because the idle
 never moves her hip; `CLOTH_SETTLES` says so, and it is a warning, not a failure. The hello's
