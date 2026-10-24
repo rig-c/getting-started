@@ -6,6 +6,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, mkdirSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+import { createLinkReader, urls } from './link-reader.ts';
 
 const root = resolve(import.meta.dir, '..');
 const readme = readFileSync(join(root, 'README.md'), 'utf8');
@@ -14,6 +15,8 @@ const profileRef = arg('--profile-ref') ?? 'main';
 const profilePath = arg('--profile-file');
 const partsSource = arg('--parts-source');
 if (partsSource) assert.equal(JSON.parse(readFileSync(join(resolve(partsSource), 'package.json'), 'utf8')).name, '@rig-c/parts', 'PARTS_SOURCE: expected a parts package');
+const { get, checkLink } = createLinkReader({ root, profileRef, tutorialUrl });
+run(['bun', 'test', join(root, 'scripts/link-reader.test.ts')], root);
 const profileUrl = `https://raw.githubusercontent.com/rig-c/.github/${encodeURIComponent(profileRef)}/profile/README.md`;
 const profile = profilePath ? readFileSync(resolve(profilePath), 'utf8') : await get(profileUrl);
 const temp = mkdtempSync(join(tmpdir(), 'rig-c-onboarding-'));
@@ -55,30 +58,6 @@ function step(number: number | string) {
   assert(match, `GUIDE_STEP: missing step ${number}`);
   return match[1];
 }
-async function get(url: string) {
-  const response = await fetch(url, { signal: AbortSignal.timeout(45000), headers: { 'User-Agent': 'rig-c-onboarding-link-check' } });
-  assert(response.ok, `LINK_HTTP: ${url} returned ${response.status}`);
-  return response.text();
-}
-function urls(source: string): string[] {
-  const found = [
-    ...[...source.matchAll(/!?\[[^\]\n]*\]\(([^\s)]+)(?:\s+"[^"]*")?\)/g)].map(m => m[1]),
-    ...[...source.matchAll(/(?:href|src)="([^"]+)"/g)].map(m => m[1]),
-    ...[...source.matchAll(/^\[[^\]]+\]:\s*(\S+)/gm)].map(m => m[1]),
-    ...[...source.matchAll(/<(https?:\/\/[^>]+)>/g)].map(m => m[1]),
-  ];
-  return [...new Set(found)];
-}
-const slug = (s: string) => s.toLowerCase().replace(/<[^>]+>/g, '').replace(/[^\p{L}\p{N}_\-\s]/gu, '').replace(/\s/g, '-');
-function anchorExists(source: string, anchor: string) {
-  const seen = new Map<string, number>();
-  return source.split('\n').some(line => {
-    const heading = line.match(/^#{1,6}\s+(.+?)\s*#*$/);
-    if (!heading) return false;
-    const base = slug(heading[1]); const n = seen.get(base) ?? 0; seen.set(base, n + 1);
-    return (n ? `${base}-${n}` : base) === decodeURIComponent(anchor);
-  });
-}
 // Step 10's two addresses: the hello from step 9b (on step 9c's physics build) over the idle, and step 9's wave.
 const tutorialModels: Record<string, { anim: string; under: string | null }> = {
   'out/check/build/skeleton.model.json': { anim: 'hello', under: 'idle' },
@@ -93,30 +72,6 @@ function tutorialUrl(link: string) {
   assert.equal(url.searchParams.get('anim'), expected.anim, `TUTORIAL_ANIMATION: expected ${expected.anim}`);
   assert.equal(url.searchParams.get('under'), expected.under, `TUTORIAL_UNDER: expected ${expected.under}`);
   return tutorialOrigin + url.pathname + url.search;
-}
-async function checkLink(link: string, source: string, repo: string, directory: string, local: boolean) {
-  if (link.startsWith('#')) { assert(anchorExists(source, link.slice(1)), `LINK_ANCHOR: ${repo} ${link}`); return; }
-  if (!/^https?:/.test(link)) {
-    const [path, anchor] = link.split('#');
-    const content = local ? readFileSync(resolve(root, directory, path), 'utf8') : await get(`https://raw.githubusercontent.com/${repo}/${profileRef}/${directory}/${path}`);
-    if (anchor) assert(anchorExists(content, anchor), `LINK_ANCHOR: ${repo} ${link}`);
-    return;
-  }
-  if (new URL(link).hostname === 'localhost') { await get(tutorialUrl(link)); return; }
-  const url = new URL(link); const anchor = url.hash.slice(1); url.hash = '';
-  const html = await get(url.href);
-  // GitHub renders README headings dynamically; check the source Markdown too.
-  if (anchor && url.hostname === 'github.com') {
-    const parts = url.pathname.split('/').filter(Boolean);
-    if (parts.length === 2 || parts[2] === 'tree' || parts[2] === 'blob') {
-      // Read the default-branch README directly; metadata API quotas do not
-      // decide whether a public heading exists. Explicit blob/tree refs stay explicit.
-      const branch = parts.length === 2 ? 'HEAD' : parts[3];
-      const file = parts.length === 2 ? 'README.md' : parts.slice(4).join('/') + (parts[2] === 'tree' ? '/README.md' : '');
-      const md = await get(`https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/${branch}/${file}`);
-      assert(anchor === 'readme' || anchorExists(md, anchor), `LINK_ANCHOR: ${link}`);
-    } else assert(html.includes(`id="${anchor}"`) || html.includes(`id="user-content-${anchor}"`), `LINK_ANCHOR: ${link}`);
-  }
 }
 async function links() {
   const failures: string[] = [];
