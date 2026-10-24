@@ -133,7 +133,8 @@ should see `18 observed, 0 occluded, 0 missing -> keypoints.json`.
 No Python? [docs/KEYPOINTS.md](docs/KEYPOINTS.md) has a hand-placed set for this very
 painting; save it as `keypoints.json`. Its left ankle is already where step 7's first line
 puts it, and you get the same 44 bones. It was tuned to the script's joints, so the steps
-print what they quote, except that step 9b's hello reads `33.6 px in` and `16.05 -> 12.92 deg`.
+print the readings below. The current body-root measurements use this hand-placed set;
+the joint model was not re-run for them.
 
 ### 7. Draft the bones
 
@@ -194,13 +195,23 @@ cat > map.json <<'EOF'
 }
 EOF
 bunx rig-pose retarget --rig out/rig --map map.json --pose wave.pose.clean.json --out wave.motion.json --name wave --profile spine-html --build wave-build
+mkdir -p wave-rig
+cp -R out/rig/. wave-rig/
+cp wave.motion.json wave-rig/motion.json
+bunx rig-parts check --rig wave-rig --parts out --out wave-check
 ```
 
 You should see `73 frame(s), 3 s at 24 fps`, `GATE … green`, and
 `FOLD   rigc render --folds at 24 fps: no mesh folds`, and
 `wrote wave.motion.json — animations: idle, wave`. A `FOLD` line is a reading, not a
 failure: where a mesh does fold, it names the part and the frames to look at.
-`wave-build/` holds the rig with the new animation.
+`wave-build/` holds the rig with the new animation. The last four lines hand the same
+motion to the parts checker too: retarget checks the compile and folds, while the parts
+checker also reads the body-root seams. It should end `check: PASS`.
+
+The upper arm stays under the armhole so the shoulder never opens as the forearm waves
+(`--peak-degrees 180` by default; [the measurements](docs/REFERENCE.md#step-9-the-forearm-wave)).
+The separate elbow opening is tracked in [#18](https://github.com/rig-c/getting-started/issues/18).
 
 ### 9b. Say hello
 
@@ -218,23 +229,25 @@ bunx rig-parts build --config config.json --source inputs/painting.png --full in
 ```
 
 About a minute and a half. You should see `hello.ts: 4 beats (hm?, heh, wave, settle), 4.75 s
-at 24 fps, 16 tracks of 115 keys; sleeve_r0 at most 4.0 deg; settle: right ankle 33.2 px in
-(40 % of the way to parallel, 15.96 -> 12.87 deg), hip 6.0 px`, then from the build
+at 24 fps, 16 tracks of 115 keys; sleeve_r0 at most 4.0 deg; settle: right ankle 8.4 px in
+(10 % of the way to parallel, 16.05 -> 15.28 deg), hip 1.5 px` on the hand-placed set, then from the build
 `animations beside the idle, from …/hello.anim.json as written: hello`,
 `ANIMATIONS_DO_NOT_FOLD: PASS — 2 animation(s) read by rigc render --folds at 12 fps (idle,
-hello)`, `FEET_STAY_LEVEL: PASS`, `check: PASS; 12 of 13 bar(s) measured, 1 skipped
-(STRESS_OFF_CHAIN); 1 warning(s)`, and `build: PASS`. The warning is `SEAM_OVER_MOTION`, never a bar: where the forearm turns
+hello)`, `FEET_STAY_LEVEL: PASS`, `check: PASS`, and `build: PASS`. The internal elbow
+reading in `SEAM_OVER_MOTION` remains a warning: where the forearm turns
 at the elbow, a sliver of it shows past the sleeve's cuff. `out/check/build/` now holds `idle`
 and `hello`.
 
 The wave here is the forearm's, with the upper arm kept within 4 degrees of rest. On this
 painting the upper arm and its puff sleeve are one image under a sleeveless top, so
-swinging it out, as step 9's wave does, opens a gap at the armhole. Then she re-plants her
+swinging it out opens a gap at the armhole, which step 9 now avoids by holding it still. Then she re-plants her
 weight as the arm comes down: her splayed right leg (the picture's left) slides its foot
-40 % of the way in toward parallel with the other, the knee bending the way it is painted, her hip
-follows 6 px, and both go back by the end of the loop. The feet are the two parts step 7's
+10 % of the way in toward parallel with the other, the knee bending the way it is painted, her hip
+follows 1.5 px, and both go back by the end of the loop. The feet are the two parts step 7's
 correction made; each keeps its shoe level while the leg turns, and the hello never keys
-them. The comment at the top of `hello.ts` says why each limit is where it is.
+them. The skirt keeps the tops of both thighs covered as she settles. The comment at the top of `hello.ts`
+and [the reference](docs/REFERENCE.md#step-9b-the-body-root-reach) say why the settle is smaller;
+[#18](https://github.com/rig-c/getting-started/issues/18) remains the separate elbow reading.
 
 ### 9c. Let the hair and the skirt answer
 
@@ -250,7 +263,7 @@ cat > work/cloth.json <<'EOF'
 {
   "cloth": {
     "bottomwear": { "chains": 3, "links": 3, "wind": [1, 6], "gravity": [2, 12], "translate": 0.2,
-                    "swing": { "scales": [1.2, 1, 1.2] } },
+                    "swing": { "scales": [0.3, 0.25, 0.3] } },
     "front hair": { "chains": 1, "links": 3, "wind": [1, 6], "gravity": [2, 12], "translate": 0.2,
                     "strength": { "trunk": 100, "branch": 100, "edge": 100 } }
   }
@@ -280,6 +293,10 @@ the new ones inserted, `meshes.hair_front`, `meshes.bottomwear`, their idle trac
 physics constraints, one on every link, and 3 that turn each skirt tree's first link with
 the swing hung from the hip.
 
+The `swing.scales` line gives each skirt tree a quarter of the earlier shared swing.
+The skirt keeps the tops of her thighs covered as she breathes and settles
+([the figures](docs/REFERENCE.md#step-9b-the-body-root-reach)). The physics and its forces remain.
+
 Two lines are corrections to the draft. The `strength` line makes the side locks as stiff as
 the fringe's middle: at the recipe's default the locks trail her head's turn in the hello
 far enough to pull off her cheek by more than this guide allows (the figures are in
@@ -290,9 +307,8 @@ swing at least as far as the one above. The draft gives the bun 0.8 degrees unde
 0.9; without the line the build stops at `CHECK_CHAIN_LAG`.
 
 From the build you should see `loop physics: 27 physics constraint(s) left out of the loop's
-frames, reported, not judged`, four `WARN chain` lines from `CLOTH_SETTLES` for the skirt,
-`check: PASS; 12 of 13 bar(s) measured, 1 skipped (STRESS_OFF_CHAIN); 5 warning(s)
-(SEAM_OVER_MOTION, CLOTH_SETTLES, not a bar)`, a `lead-in:` line ending `max |d| 0, 0 px over
+frames, reported, not judged`, `WARN chain` lines from `CLOTH_SETTLES` for the skirt,
+`check: PASS`, warnings from the internal seams and `CLOTH_SETTLES`, a `lead-in:` line ending `max |d| 0, 0 px over
 40 — the jump at the wrap`, and `build: PASS`. Physics starts at rest when an animation
 starts, and the skirt hangs into place within 2 seconds. Then it rests, because the idle
 never moves her hip; `CLOTH_SETTLES` says so, and it is a warning, not a failure. The hello's

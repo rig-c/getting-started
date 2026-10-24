@@ -14,7 +14,7 @@
 //   heh     the eyes narrow and the mouth widens, two shoulder bobs;
 //   wave    the forearm comes up beside the shoulder and waves twice;
 //   settle  she re-plants her weight: as the arm comes down, her splayed right
-//           leg (the picture's left) slides its foot 40 % of the way in toward
+//           leg (the picture's left) slides its foot 10 % of the way in toward
 //           parallel with the other, her hip follows it, and both go back.
 // Nothing here comes from a video or a dataset: it is an authored test motion,
 // keyed on the bones, sampled once per frame.
@@ -24,16 +24,17 @@
 //    and the arm in one piece, under a sleeveless top, so swinging it out shows
 //    background at the armhole (50 px at 6 degrees). The forearm tucks under
 //    the cuff and is free at the elbow, so the wave is the forearm's.
-//  - The right foot comes 40 % of the way to parallel, 33.2 px. Each foot is a
-//    part of its own on a bone that keeps the shoe level (step 7's keypoint
+//  - The right foot comes 10 % of the way to parallel (8.4 px with the
+//    hand-placed joints). Each foot is a part on a bone that keeps the shoe level (step 7's keypoint
 //    correction gives the rig foot_r and foot_l), so the ankle slides along the
 //    floor and a two-bone solve bends the knee the way it is painted. The thigh
 //    art starts at the skirt's hem, so the skirt's link over the right thigh
 //    turns with it. At 50 % the skirt's top pulls off the shirt under physics
 //    (topwear|bottomwear ghost 54 px, over the guide's 50); past about 75 %
 //    the hem opens and the knees meet.
-//  - The hip moves 6 px (0.5 % of the figure); a larger move opens the hem
-//    over the left thigh. The left foot stays where it was painted.
+//  - The hip moves 1.5 px (0.125 % of the figure). The former 40 % stance and
+//    6 px shift opened both thigh roots: GAP 10/8 over floor 6 at frame 44
+//    on the hand-placed joints (getting-started #19). The left foot stays put.
 //  - The feet are never keyed: the right shoe is painted turned out, and
 //    turning its image reads as a shoe tipped on its side.
 // --no-skirt-keys is for step 9c's cloth recipe, which hangs the skirt on
@@ -119,9 +120,9 @@ const twoLifts = (t: number, a: number, b: number) =>
 const UPPER_ARM = -4; // degrees: sleeve_r0, out from her side; the limit above
 const FOREARM = -125; // degrees: sleeve_r1, the forearm up beside the shoulder
 const WAVE = 15; // degrees each way, twice a second
-const STANCE = 0.4; // of the way from the painted stance to parallel: the right ankle's slide; the limit above
-const SHIFT = -6; // px: hip x, toward the picture's left, over the feet's new middle; the limit above
-const SKIRT = 1.66; // degrees: skirt_c0, skirt_l0 following the hip (no physics)
+const STANCE = 0.1; // of the way from the painted stance to parallel: the right ankle's slide; the limit above
+const SHIFT = -1.5; // px: hip x, toward the picture's left, over the feet's new middle; the limit above
+const SKIRT = 0.415; // degrees: skirt_c0, skirt_l0 following the hip (no physics)
 
 // Settle: out over 3.15–3.75 s, held to 4.15 s, back over 4.15–4.75 s.
 const settle = (t: number) => smooth(3.15, 3.75, t) - smooth(4.15, 4.75, t);
@@ -224,7 +225,7 @@ const doc = {
     hello: {
       duration: seconds,
       loop: true,
-      note: `scripts/hello.ts over ${rigPath}: hm? (head straightens, brows up), heh (eyes narrowed, mouth wide, two shoulder bobs), an elbow-down wave, a settle (the right foot 40 % of the way to parallel, the hip after it); ${seconds} s at ${fps} fps`,
+      note: `scripts/hello.ts over ${rigPath}: hm? (head straightens, brows up), heh (eyes narrowed, mouth wide, two shoulder bobs), an elbow-down wave, a settle (the right foot 10 % of the way to parallel, the hip after it); ${seconds} s at ${fps} fps`,
       tracks,
     },
   },

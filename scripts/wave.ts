@@ -1,15 +1,15 @@
 // Make a short wave from one painting's keypoints, as a pose sequence rig-pose reads.
 //
-//   bun wave.ts <keypoints.json> <pose.json> [--seconds 3] [--fps 24]
+//   bun wave.ts <keypoints.json> <pose.json> [--seconds 3] [--fps 24] [--peak-degrees 180]
 //
 // <keypoints.json> is the spine-parts-keypoints/1 file of the painting (from
 // scripts/keypoints.py, or placed by hand). <pose.json> is written as
 // rig-pose-sequence/1, in the same picture pixels.
 //
 // Every joint stays where the keypoints put it, except the subject's right arm:
-// over the first sixth of the clip the upper arm swings out and up about the
-// shoulder, the forearm turns to point up and waves twice a second, and over
-// the last sixth the arm comes back down to where it started. The arm keeps the
+// the upper arm stays where it was painted. Over the first sixth the forearm
+// turns up and waves twice a second; over the last sixth it returns to rest.
+// The arm keeps the
 // lengths the keypoints give it. Nothing here comes from a video or a dataset:
 // it is a test motion, made so that the rest of the chain can be run on any
 // painting without footage.
@@ -23,8 +23,8 @@ const opt = (name: string, dflt: number): number => {
   const i = args.indexOf(name);
   if (i < 0) return dflt;
   const v = Number(args[i + 1]);
-  if (!Number.isFinite(v) || v <= 0) {
-    console.error(`wave.ts: ${name} is ${args[i + 1]}; a positive number is required`);
+  if (!Number.isFinite(v) || (name === '--peak-degrees' ? v < 0 : v <= 0)) {
+    console.error(`wave.ts: ${name} is ${args[i + 1]}; ${name === '--peak-degrees' ? 'a nonnegative' : 'a positive'} number is required`);
     process.exit(2);
   }
   args.splice(i, 2);
@@ -32,9 +32,14 @@ const opt = (name: string, dflt: number): number => {
 };
 const seconds = opt('--seconds', 3);
 const fps = opt('--fps', 24);
+const peak = opt('--peak-degrees', 180);
+if (peak > 180) {
+  console.error('wave.ts: --peak-degrees must be at most 180, the shortest-turn range');
+  process.exit(2);
+}
 const [kpPath, outPath] = args;
 if (!kpPath || !outPath) {
-  console.error('usage: bun wave.ts <keypoints.json> <pose.json> [--seconds 3] [--fps 24]');
+  console.error('usage: bun wave.ts <keypoints.json> <pose.json> [--seconds 3] [--fps 24] [--peak-degrees 180]');
   process.exit(2);
 }
 
@@ -66,9 +71,9 @@ const foreRest = ang(el, wr);
 // subject's right arm is on the picture's left: pointing left is 180 deg,
 // pointing up is 270 deg.
 const deg = Math.PI / 180;
-const upperUp = 200 * deg; // out to the side, a little above level
-const foreUp = 270 * deg; // straight up
-const waveAmp = 22 * deg;
+const upperUp = upperRest; // the sleeve stays under the painted armhole
+const waveAmp = Math.min(22, peak / 2) * deg;
+const foreUp = foreRest + peak * deg - waveAmp;
 const waveHz = 2;
 
 // Unwrap a target angle so the turn from `from` is the short way round.
@@ -106,7 +111,7 @@ const doc = {
   space: { units: 'picture-px', origin: 'top-left', y: 'down' },
   width: kp.width,
   height: kp.height,
-  source: `scripts/wave.ts over ${kpPath}: the subject's right arm raised and waved, ${seconds} s at ${fps} fps; every other joint held`,
+  source: `scripts/wave.ts over ${kpPath}: the subject's right forearm waved through at most ${peak} deg, upper arm held, ${seconds} s at ${fps} fps; every other joint held`,
   frames,
 };
 writeFileSync(outPath, JSON.stringify(doc) + '\n');
