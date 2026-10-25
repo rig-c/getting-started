@@ -10,6 +10,32 @@ quoted from. Three words recur:
 
 ## Tested with
 
+<!-- try-it-tested:start -->
+### Automated walkthrough
+
+Latest complete CI run; timings below retain their original dates and machines.
+
+```json
+{
+  "status": "PASS",
+  "complete": true,
+  "date": "2026-10-25",
+  "versions": {
+    "@rig-c/parts": "1.64.0",
+    "rig-c": "2.70.0",
+    "@rig-c/pose": "1.0.2",
+    "@rig-c/play": "1.17.1"
+  },
+  "bun": "1.4.4",
+  "guide_sha256": "09d6b2e71aa9cc631fadcb2854b2cb0c6360b615a6c67a4db2a50cd6ee19f2e5",
+  "clone_commit": "4a549046c8a089034d24ded782a5d03ad26e416f",
+  "run": "https://github.com/rig-c/getting-started/actions/runs/40175216463"
+}
+```
+<!-- try-it-tested:end -->
+
+### Published walkthrough measured 2026-10-25
+
 Measured 2026-10-25 for [#8](https://github.com/rig-c/getting-started/issues/8), on
 published packages only. The numbered steps passed **10/10**, with the current **9b and
 9c** also passing. These versions and expected lines supersede the earlier walkthroughs
