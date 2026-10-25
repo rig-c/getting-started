@@ -40,9 +40,13 @@ including the previous date, even after a weekly forced run.
 
 Only a trusted main-branch scheduled/manual publication job receives write scopes:
 `contents: write`, `pull-requests: write`, `actions: write`. `GITHUB_TOKEN` pushes a
-single `automation/try-it-tested` branch and opens a PR. Since bot PR events do not
-start ordinary CI, the publisher explicitly dispatches this same workflow on that
-branch. PR verification has read-only permissions and cannot publish. Enable
+single `automation/try-it-tested` branch and opens a PR. In this repository, each
+bot-created PR's ordinary workflow waits for a maintainer's workflow approval
+(`action_required`). The publisher also explicitly dispatches this same workflow
+on that branch for verification; that separate dispatch does not approve the waiting
+PR workflow. A maintainer approves the run and reviews the record PR. The automation
+does not approve or merge it. PR verification has read-only permissions and cannot
+publish. Enable
 **Allow GitHub Actions to create and approve pull requests** in repository Actions
 settings; an organization policy may also need to allow it. Permission refusal is
 a named failed publication step. No PAT or cross-repository release dispatch is used.
