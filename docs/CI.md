@@ -9,7 +9,8 @@ caches. The literal clone, unversioned install and CPU joint detector run too.
 
 The final server fence has `<!-- try-it-ci: server -->` immediately above it. The
 runner supervises that command and opens the two addresses from its step in Chromium.
-It checks non-empty WebGL pixels, animation movement, tracks, pause/resume and breeze,
+It checks the actual WebGL backend, non-empty visible canvas pixels, changing stage
+screenshots, animation movement, tracks, pause/resume and breeze,
 then stops its server. Human visual and seam assessment is not run by this job.
 Other persistent commands hit the named walkthrough timeout rather than silently pass.
 
@@ -50,7 +51,11 @@ The bot PR references item 1 of issue #1 and closes nothing.
 Workflow concurrency serializes writers. A current record returns before any git,
 PR or dispatch call. Failed and incomplete runs upload their receipt/logs without
 modifying the record. Logs and generated consumer files live in ignored `.try-it/`;
-the large consumer and model caches are removed after execution.
+the large consumer and model caches are removed after execution. TMPDIR is a fresh
+directory outside the repository: under RUNNER_TEMP in Actions, or an explicitly
+supplied TRY_IT_TEMP_ROOT in a session scratchpad / shared-pool job directory. A
+repository-internal path is refused so package discovery cannot find an ancestor's
+node_modules and invalidate refusal controls.
 
 For a targeted check: `bun test scripts/try-it.test.ts`.
 For the real manual scheduled path, dispatch `adapters.yml` with `try_it=force` on

@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { createHash } from 'node:crypto';
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const tools = join(dirname(input.output), 'browser-tools'); mkdirSync(tools, { recursive: true });
 writeFileSync(join(tools, 'package.json'), '{"private":true,"type":"module"}\n');
@@ -31,20 +32,26 @@ try {
     await page.goto(link);
     await page.waitForFunction('!!window.rigPlayer', null, { timeout: 60000 });
     const sample = () => page.evaluate(`(() => {
-      const p = window.rigPlayer, c = document.querySelector('canvas');
-      if (!c) throw Error('no canvas');
+      const p = window.rigPlayer;
       p.frame(0);
-      const gl = c.getContext('webgl2') || c.getContext('webgl');
-      if (!gl) throw Error('no WebGL context');
-      const pixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
-      gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
       let painted = 0, hash = 2166136261;
-      for (let i = 0; i < pixels.length; i++) { if (i % 4 === 3 && pixels[i]) painted++; hash = Math.imul(hash ^ pixels[i], 16777619); }
-      return { painted, hash: hash >>> 0, pose: JSON.stringify(p.posedFrame()), tracks: [p.entry(0)?.animation ?? null, p.entry(1)?.animation ?? null], wind: p.environment().wind };
+      // DOM mode rasterizes in shared offscreen GL, then blits to visible 2D canvases.
+      for (const c of document.querySelectorAll('#root canvas')) {
+        if (!c.width || !c.height) continue;
+        const ctx = c.getContext('2d');
+        if (!ctx) throw Error('no visible canvas context');
+        const pixels = ctx.getImageData(0, 0, c.width, c.height).data;
+        for (let i = 0; i < pixels.length; i++) { if (i % 4 === 3 && pixels[i]) painted++; hash = Math.imul(hash ^ pixels[i], 16777619); }
+      }
+      return { painted, hash: hash >>> 0, backend: p.renderer.meshBackendActive ?? p.renderer.backendActive, pose: JSON.stringify(p.posedFrame()), tracks: [p.entry(0)?.animation ?? null, p.entry(1)?.animation ?? null], wind: p.environment().wind };
     })()`);
-    const first = await sample(); await page.waitForTimeout(700); const second = await sample();
+    const first = await sample(); const firstScreenshot = await page.locator('#stage').screenshot();
+    await page.waitForTimeout(700); const second = await sample(); const secondScreenshot = await page.locator('#stage').screenshot();
+    const sha = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
+    assert.equal(first.backend, 'webgl', 'Step 10 must rasterize through WebGL');
+    assert.equal(second.backend, 'webgl', 'Step 10 must keep the WebGL backend');
     assert(first.painted > 0 && second.painted > 0, 'Step 10 empty canvas');
-    assert(first.pose !== second.pose && first.hash !== second.hash, 'Step 10 frozen pose or pixels');
+    assert(first.pose !== second.pose && sha(firstScreenshot) !== sha(secondScreenshot), 'Step 10 frozen pose or screen pixels');
     assert.deepEqual(second.tracks, url.searchParams.get('under') ? [url.searchParams.get('under'), url.searchParams.get('anim')] : [url.searchParams.get('anim'), null]);
     await page.locator('#pause').click(); await page.waitForTimeout(150);
     const paused = await sample(); await page.waitForTimeout(300); const held = await sample();
@@ -56,8 +63,9 @@ try {
     await page.locator('#breeze').check(); await page.waitForTimeout(100);
     const wind = (await sample()).wind; assert(wind[0] >= 0.5 && wind[0] <= 1 && wind[1] === 0, 'Step 10 breeze on');
     assert.deepEqual(errors, [], 'Step 10 browser errors');
-    observations.push({ url: link, painted: second.painted, changed_pixels: first.hash !== second.hash, advanced: true, pause_resume: true, breeze: true, tracks: second.tracks });
+    writeFileSync(join(dirname(input.output), `browser-${observations.length}.png`), secondScreenshot);
+    observations.push({ url: link, backend: second.backend, painted: second.painted, screenshots_sha256: [sha(firstScreenshot), sha(secondScreenshot)], changed_pixels: true, advanced: true, pause_resume: true, breeze: true, tracks: second.tracks });
     await page.close();
   }
-  writeFileSync(input.output, JSON.stringify({ browser: browser.version(), backend: 'WebGL / SwiftShader', observations }, null, 2) + '\n');
+  writeFileSync(input.output, JSON.stringify({ browser: browser.version(), backend: 'WebGL rasterization / visible canvas blits (SwiftShader)', observations }, null, 2) + '\n');
 } finally { await browser.close(); }

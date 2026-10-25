@@ -58,6 +58,7 @@ jobs:
             .try-it/REFERENCE.md
             .try-it/walkthrough.log
             .try-it/browser.json
+            .try-it/browser-*.png
           if-no-files-found: error
           retention-days: 14
   publish-tested-record:

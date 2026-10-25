@@ -1,7 +1,7 @@
 // Commands come from README.md, never from a second copy of the tutorial.
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, mkdtempSync, realpathSync } from 'node:fs';
+import { resolve, join, sep } from 'node:path';
 
 export const packages = ['@rig-c/parts', 'rig-c', '@rig-c/pose', '@rig-c/play'] as const;
 export type Versions = Record<string, string>;
@@ -9,6 +9,13 @@ export type Step = { title: string; line: number; text: string; blocks: { comman
 const begin = '<!-- try-it-tested:start -->', end = '<!-- try-it-tested:end -->';
 export const digest = (text: string) => createHash('sha256').update(text).digest('hex');
 export const quote = (text: string) => "'" + text.replaceAll("'", "'\\''") + "'";
+export function externalTemp(root: string, base?: string) {
+  if (!base) throw Error('TMPDIR: set TRY_IT_TEMP_ROOT to a session scratchpad or Nova job directory outside the repository (CI uses RUNNER_TEMP)');
+  mkdirSync(base, { recursive: true });
+  const actualRoot = realpathSync(root), actualBase = realpathSync(base);
+  if (actualBase === actualRoot || actualBase.startsWith(actualRoot + sep)) throw Error('TMPDIR: temporary files must be outside the repository');
+  return mkdtempSync(join(actualBase, 'try-it-'));
+}
 
 export function extract(source: string): Step[] {
   const lines = source.split('\n');
@@ -144,7 +151,13 @@ export async function execute(steps: Step[], directory: string, browserCommand: 
     }
   }
   try {
-    await Promise.all([drain(child.stdout), drain(child.stderr, true), child.exited]);
+    const exited = child.exited.then(exit => {
+      // A failed browser must not leave the server holding stdout/stderr open.
+      stop();
+      hardStop ??= setTimeout(() => { try { process.kill(-child.pid, 'SIGKILL'); } catch {} }, 5000);
+      return exit;
+    });
+    await Promise.all([drain(child.stdout), drain(child.stderr, true), exited]);
     const exit = timedOut ? 124 : child.exitCode ?? 1;
     if (exit !== 0 && current >= 0) {
       rows[current].status = 'FAIL'; rows[current].seconds = +((performance.now() - started) / 1000).toFixed(3);
@@ -164,6 +177,7 @@ export async function main() {
   let phase = 'GUIDE';
   const started = performance.now();
   const receipt: any = { status: 'FAIL', complete: false, guide_sha256: digest(readme), rows: [] };
+  let temporary: string | undefined;
   try {
     const steps = extract(readme);
     // Report explicit exceptions even when the final server itself is NOT RUN.
@@ -185,7 +199,8 @@ export async function main() {
     writeFileSync(join(out, 'browser-input.json'), JSON.stringify({ links, output: join(out, 'browser.json') }));
     const consumer = join(out, 'consumer');
     if (await Bun.file(join(consumer, 'commands.sh')).exists()) throw Error('ISOLATION: consumer already used; choose a fresh --out');
-    const isolated = Object.fromEntries(['HOME', 'XDG_CACHE_HOME', 'BUN_INSTALL_CACHE_DIR', 'UV_CACHE_DIR', 'UV_PYTHON_INSTALL_DIR', 'PLAYWRIGHT_BROWSERS_PATH', 'TMPDIR'].map(key => [key, join(out, 'cache', key)]));
+    temporary = externalTemp(root, process.env.RUNNER_TEMP ?? process.env.TRY_IT_TEMP_ROOT);
+    const isolated = { ...Object.fromEntries(['HOME', 'XDG_CACHE_HOME', 'BUN_INSTALL_CACHE_DIR', 'UV_CACHE_DIR', 'UV_PYTHON_INSTALL_DIR', 'PLAYWRIGHT_BROWSERS_PATH'].map(key => [key, join(out, 'cache', key)])), TMPDIR: temporary };
     for (const value of Object.values(isolated)) mkdirSync(value, { recursive: true });
     for (const tool of ['bash', 'git', 'bun', 'uv', 'curl', 'tar']) if (!Bun.which(tool)) throw Error(`PREREQUISITE: ${tool} is not on PATH`);
     phase = 'WALKTHROUGH';
@@ -202,7 +217,10 @@ export async function main() {
     if (git.exitCode) throw Error('PROVENANCE: cannot identify literal clone');
     const cloneReadme = readFileSync(join(clone, 'README.md'), 'utf8');
     receipt.clone_commit = git.stdout.toString().trim(); receipt.clone_guide_sha256 = digest(cloneReadme);
-    receipt.provenance = receipt.guide_sha256 === receipt.clone_guide_sha256 ? 'same README' : 'checkout README differs from literal clone; helper scripts are from clone_commit';
+    const helpers = [...new Set([...steps.map(s => s.text).join('\n').matchAll(/scripts\/([\w.-]+)/g)].map(m => m[1]))];
+    receipt.helpers = Object.fromEntries(helpers.map(name => [name, { checkout_sha256: digest(readFileSync(join(root, 'scripts', name), 'utf8')), clone_sha256: digest(readFileSync(join(clone, 'scripts', name), 'utf8')) }]));
+    const differentHelpers = helpers.filter(name => receipt.helpers[name].checkout_sha256 !== receipt.helpers[name].clone_sha256);
+    receipt.provenance = receipt.guide_sha256 === receipt.clone_guide_sha256 && !differentHelpers.length ? 'same README and referenced helpers' : `checkout differs from literal clone: README=${receipt.guide_sha256 !== receipt.clone_guide_sha256}, helpers=${differentHelpers.join(', ') || 'none'}; executed helpers are from clone_commit`;
     console.log(`PROVENANCE: ${receipt.provenance}`);
     Object.assign(receipt, { status: 'PASS', complete: true, versions: installed, latest_before: before, latest_after: after, bun: Bun.version, browser: JSON.parse(readFileSync(join(out, 'browser.json'), 'utf8')) });
     const record = { status: 'PASS', complete: true, date: new Date().toISOString().slice(0, 10), versions: installed, bun: Bun.version, guide_sha256: digest(readme), clone_commit: receipt.clone_commit, run: process.env.GITHUB_RUN_ID ? `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}` : 'local verification; not a CI publication' };
@@ -224,6 +242,7 @@ export async function main() {
     rmSync(join(out, 'consumer'), { recursive: true, force: true });
     rmSync(join(out, 'cache'), { recursive: true, force: true });
     rmSync(join(out, 'browser-tools'), { recursive: true, force: true });
+    if (temporary) rmSync(temporary, { recursive: true, force: true });
   }
 }
 if (import.meta.main) await main();
