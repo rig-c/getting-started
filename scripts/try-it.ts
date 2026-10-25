@@ -20,6 +20,7 @@ export function extract(source: string): Step[] {
   let step: Step | undefined;
   for (let i = first + 1; i < last; i++) {
     const line = lines[i];
+    if (line.includes('<!-- try-it-ci:') && lines[i + 1] !== '```sh') throw Error(`GUIDE line ${i + 1}: CI marker must immediately precede a sh fence`);
     if (/^### /.test(line)) {
       step = { title: line.slice(4), line: i + 1, text: '', blocks: [] }; steps.push(step);
     }
@@ -114,7 +115,11 @@ export async function execute(steps: Step[], directory: string, browserCommand: 
   let current = -1, started = 0, timedOut = false;
   const child = Bun.spawn(['bash', '-eu', '-o', 'pipefail', scriptPath], { cwd: directory, env, stdout: 'pipe', stderr: 'pipe', detached: true });
   const stop = () => { try { process.kill(-child.pid, 'SIGTERM'); } catch {} };
-  const timer = setTimeout(() => { timedOut = true; stop(); }, timeoutMs);
+  let hardStop: ReturnType<typeof setTimeout> | undefined;
+  const timer = setTimeout(() => {
+    timedOut = true; stop();
+    hardStop = setTimeout(() => { try { process.kill(-child.pid, 'SIGKILL'); } catch {} }, 5000);
+  }, timeoutMs);
   async function drain(stream: ReadableStream<Uint8Array>, stderr = false) {
     let pending = '';
     for await (const bytes of stream) {
@@ -147,7 +152,7 @@ export async function execute(steps: Step[], directory: string, browserCommand: 
       console.error(`::error::Step ${rows[current].step}, README line ${rows[current].line}: ${rows[current].reason}`);
     }
     return { rows, exit };
-  } finally { clearTimeout(timer); stop(); await log.end(); }
+  } finally { clearTimeout(timer); clearTimeout(hardStop); stop(); await log.end(); }
 }
 
 function arg(name: string, fallback?: string) { const i = process.argv.indexOf(name); return i < 0 ? fallback : process.argv[i + 1]; }
@@ -161,6 +166,12 @@ export async function main() {
   const receipt: any = { status: 'FAIL', complete: false, guide_sha256: digest(readme), rows: [] };
   try {
     const steps = extract(readme);
+    // Report explicit exceptions even when the final server itself is NOT RUN.
+    if (steps.some(s => s.blocks.some(b => b.mode === 'not-run'))) {
+      const result = await execute(steps, join(out, 'consumer'), []);
+      receipt.rows = result.rows;
+      throw Error('NOT RUN: walkthrough incomplete; record publication blocked');
+    }
     phase = 'REGISTRY'; const before = await latest();
     const mode = arg('--mode', 'force');
     if (!['poll', 'force'].includes(mode!)) throw Error(`unknown mode ${mode}`);
@@ -176,6 +187,7 @@ export async function main() {
     if (await Bun.file(join(consumer, 'commands.sh')).exists()) throw Error('ISOLATION: consumer already used; choose a fresh --out');
     const isolated = Object.fromEntries(['HOME', 'XDG_CACHE_HOME', 'BUN_INSTALL_CACHE_DIR', 'UV_CACHE_DIR', 'UV_PYTHON_INSTALL_DIR', 'PLAYWRIGHT_BROWSERS_PATH', 'TMPDIR'].map(key => [key, join(out, 'cache', key)]));
     for (const value of Object.values(isolated)) mkdirSync(value, { recursive: true });
+    for (const tool of ['bash', 'git', 'bun', 'uv', 'curl', 'tar']) if (!Bun.which(tool)) throw Error(`PREREQUISITE: ${tool} is not on PATH`);
     phase = 'WALKTHROUGH';
     const result = await execute(steps, consumer, [process.execPath, join(root, 'scripts/try-it-browser.ts'), join(out, 'browser-input.json')], { ...process.env, ...isolated, OMP_NUM_THREADS: '4', OPENBLAS_NUM_THREADS: '4', MKL_NUM_THREADS: '4' });
     if (await Bun.file(join(consumer, 'walkthrough.log')).exists()) copyFileSync(join(consumer, 'walkthrough.log'), join(out, 'walkthrough.log'));

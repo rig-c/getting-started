@@ -52,6 +52,7 @@ test('marked NOT RUN is incomplete, names the reason and executes nothing', asyn
 test('missing blocks, unterminated fences and unsupported executable fences refuse', () => {
   for (const doc of ['## Try it first\n### 1. Empty\n', '## Try it first\n### 1. Broken\n```sh\ntrue\n', '## Try it first\n### 1. Unknown\n```bash\ntrue\n```\n']) expect(() => extract(doc)).toThrow();
   expect(() => extract(fixture('true').replace('```sh', '<!-- try-it-ci: not-run -->\n```sh'))).toThrow('reason');
+  expect(() => extract(fixture('true').replace('```sh', '<!-- try-it-ci: not-run reason="desktop" -->\n\n```sh'))).toThrow('immediately');
 });
 test('unclassified persistent command times out and names the step', async () => {
   await inDirectory(async directory => {
