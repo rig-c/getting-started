@@ -318,6 +318,7 @@ settle moves the skirt again. `--lead-in 1` plays the idle once before
 
 ### 10. Play it in your browser
 
+<!-- try-it-ci: server -->
 ```sh
 bun ../getting-started/scripts/serve.ts
 ```
