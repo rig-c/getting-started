@@ -52,6 +52,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: try-it-result
+          include-hidden-files: true
           path: |
             .try-it/receipt.json
             .try-it/summary.md
