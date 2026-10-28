@@ -48,10 +48,10 @@ cd rig-c-start
 git clone https://github.com/rig-c/getting-started
 mkdir my-rig
 cd my-rig
-bun add @rig-c/parts rig-c @rig-c/pose @rig-c/play
+bun add @rig-c/parts @rig-c/core @rig-c/pose @rig-c/play
 ```
 
-Every command from here on runs in `my-rig`. `bunx rigc --version` prints the version and
+Every command from here on runs in `my-rig`. `bun run rigc --version` prints the version and
 then `@esotericsoftware/spine-core absent`. That line is expected: the installed `rigc`
 checks every build with its own validator.
 
@@ -183,7 +183,7 @@ names `propose` gave this rig.
 
 ```sh
 bun ../getting-started/scripts/wave.ts keypoints.json wave.pose.json
-bunx rig-pose clean --pose wave.pose.json --out wave.pose.clean.json
+bun run rig-pose clean --pose wave.pose.json --out wave.pose.clean.json
 cat > map.json <<'EOF'
 {
   "spec": "rig-pose-map/1",
