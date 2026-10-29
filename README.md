@@ -128,8 +128,9 @@ small specks are normal; a large red area means a part is missing.
 uv run --with rtmlib --with onnxruntime python ../getting-started/scripts/keypoints.py inputs/painting.png --out keypoints.json
 ```
 
-The first run downloads two pose models (about 300 MB) and some Python packages. You
-should see `18 observed, 0 occluded, 0 missing -> keypoints.json`.
+The first run downloads two pose models (330 MB) and some Python packages (580 MB), about a
+minute in all on a fast connection; after that it takes about 2 seconds. You should see
+`18 observed, 0 occluded, 0 missing -> keypoints.json`.
 
 No Python? [docs/KEYPOINTS.md](docs/KEYPOINTS.md) has a hand-placed set for this very
 painting; save it as `keypoints.json`. Its left ankle is already where step 7's first line
@@ -457,8 +458,8 @@ come [after](#the-joints).
 | | Route A: NVIDIA GPU | Route B: Apple Silicon Mac | Route C: no GPU |
 | --- | --- | --- | --- |
 | **You'll need** | a card with 12–16 GB of memory, ~23 GB of disk, Python | an M1–M4 Mac, ~23 GB of disk, Python | a browser and a free Hugging Face account |
-| **Per character** | seconds for the painting, a few minutes per See-through run | we don't know yet | two web runs, 2–3 minutes each, at 1–2 runs a day |
-| **Tried by** | the project itself | nobody yet | written from See-through's own pages |
+| **Per character** | 44 seconds for the painting and under 4 minutes per See-through run, on a 16 GB card | we don't know yet | two web runs of up to 2 minutes each, on a free tier of 5 GPU minutes a day |
+| **Tried by** | the project, 2026-10-29, on an RTX 5070 Ti | nobody yet | written from the demo's own pages, read 2026-10-29 |
 
 ### Route A: your own NVIDIA GPU
 
@@ -469,9 +470,14 @@ git. Each requirement's exact wording and source is in
 [docs/REFERENCE.md](docs/REFERENCE.md#requirements-and-their-sources).
 
 You install ComfyUI, one set of custom nodes and four model files; then two `rig-parts`
-commands drive ComfyUI for you. (Any other way of running See-through works too.) The
-project's own runs this way took 18–20 seconds per painting and about 3 minutes per
-See-through run, on a card that record doesn't name — an order of magnitude, not a promise.
+commands drive ComfyUI for you. (Any other way of running See-through works too.) We ran
+both commands on 2026-10-29 against the project's own box — Windows, an NVIDIA GeForce RTX
+5070 Ti with 16 GB, ComfyUI 0.29.2, the See-through nodes at 0.5.0 — with the models already
+on disk: **44 seconds** for the painting and **3 minutes 45 seconds** for one See-through run
+at the default settings. One run each, on one card; your card will differ. The versions,
+the exact lines and what the card's memory did are in
+[docs/REFERENCE.md](docs/REFERENCE.md#route-a-measured-2026-10-29). What we have not
+measured: installing ComfyUI from nothing, and the model downloads themselves.
 
 **1. Install ComfyUI**, following its own [manual install](https://github.com/Comfy-Org/ComfyUI#manual-install-windows-linux):
 
@@ -512,6 +518,12 @@ in [docs/REFERENCE.md](docs/REFERENCE.md#the-model-files-exactly).
 | `4x-AnimeSharp.pth` | `models/upscale_models/` | [Kim2091/AnimeSharp](https://huggingface.co/Kim2091/AnimeSharp) (non-commercial licence; only enlarges the painting) |
 | See-through's two models | none | the wrapper downloads them from [Hugging Face](https://huggingface.co/layerdifforg/seethroughv0.0.2_layerdiff3d) on its first run |
 
+The first three are 6.94 GB, 2.50 GB and 0.07 GB; See-through's two are 10.16 GB and
+3.28 GB — about 23 GB in all. Those are the exact files on the project's box: on
+2026-10-29 each one's SHA-256 matched its download page, so the ControlNet row above is
+xinsir's upload and not another file of the same name. Civitai sent us the checkpoint
+without asking us to sign in.
+
 **4. Make the painting.** Do [step 1 of Try it first](#1-install-the-packages) and work in
 that `my-rig` folder. Copy the example `config.json` and `pose_a.json` from
 [docs/PAINTING-RECIPE.md](docs/PAINTING-RECIPE.md) — a checkpoint, a prompt in parts, and a
@@ -521,8 +533,13 @@ stick figure that holds the arms away from the body — then:
 bunx rig-parts comfy paint --config config.json --out inputs --host http://127.0.0.1:8188
 ```
 
-You should get `inputs/painting_74101.png` at 1664 x 2432, with the full prompts in a
-`_meta.json` beside it. `--seeds 4` makes four to choose from. Rename the one you keep to
+You should see `box: every node, input and model of the painting graph is on its
+/object_info`, then `seed 74101: GPU job started`, and after a wait a line ending
+`-> inputs/painting_74101.png (1664x2432)`. That wait was **44 seconds** on the box above.
+You get `inputs/painting_74101.png` at 1664 x 2432 — with this recipe, a full-figure
+character on white with her arms held out from her sides — the full prompts in a
+`_meta.json` beside it, and the stick figure the ControlNet was given as
+`control_pose-….png`. `--seeds 4` makes four to choose from. Rename the one you keep to
 `inputs/painting.png`.
 
 **5. Run See-through, twice.** Follow [Try it first](#try-it-first--no-gpu-about-3-minutes)
@@ -536,8 +553,12 @@ bunx rig-parts comfy seethrough --image work/st_input_full.png --out inputs/laye
 bunx rig-parts comfy seethrough --image work/st_input_head.png --out inputs/layers/head --host http://127.0.0.1:8188
 ```
 
-Each `--out` folder gets `layers.json`, `meta.json`, a `parts/` folder of PNGs and
-`previews/`. The defaults are resolution 1024, 30 steps, seed 42.
+Each run prints `queue empty`, `GPU job started`, then `GPU job finished in … s` and a line
+like `29 layer(s) on a 1024x1024 canvas, read back green by the layer reader`, naming the
+layers. The full run took **225 seconds** on the box above (3 minutes 45 seconds; the
+head run was not timed). Each `--out` folder gets `layers.json`, `meta.json`, a `parts/`
+folder of PNGs and `previews/`; `meta.json` records the run's own time and what the card's
+free memory did. The defaults are resolution 1024, 30 steps, seed 42.
 
 ### Route B: an Apple Silicon Mac
 
@@ -577,10 +598,32 @@ should name its address, `http://127.0.0.1:8188` by default.
 assume an NVIDIA card. (ComfyUI's [desktop app for macOS](https://docs.comfy.org/installation/desktop/macos)
 exists too; this guide doesn't walk through it.)
 
+**What this route downloads** — *not measured yet*: these are the names and the sizes
+their publishers state, read on 2026-10-29. Nobody has timed them or run the result on a
+Mac for this guide.
+
+| What | Where from | Size, as stated |
+| --- | --- | --- |
+| ComfyUI, the repository | `git clone` of [Comfy-Org/ComfyUI](https://github.com/Comfy-Org/ComfyUI) (its latest release was v0.43.0 on 2026-10-27) | not stated; not measured |
+| PyTorch for the Mac's GPU: `torch`, `torchvision`, `torchaudio` nightly wheels, `macosx_14_0_arm64` | the `nightly/cpu` index in step 2 (2.16.0.dev, 0.30.0.dev, 2.11.0.dev on 2026-10-29) | the nightly server does not answer size requests; the current stable `torch` wheel for the same Mac is 138,556,890 bytes on PyPI |
+| ComfyUI's other Python packages (`requirements.txt`, 33 entries) | PyPI | not stated; not measured |
+| The See-through nodes, [jtydhr88/ComfyUI-See-through](https://github.com/jtydhr88/ComfyUI-See-through) 0.5.0, and its 7 packages (`diffusers`, `peft`, `accelerate`, `opencv-python`, `scikit-learn`, `bitsandbytes`, `matplotlib`) | GitHub, PyPI | not stated; not measured. Whether `bitsandbytes` installs on macOS is not measured |
+| `novaAnimeXL_ilV80.safetensors` | [Civitai](https://civitai.com/models/376130) | 6,938,418,620 bytes (6.94 GB) |
+| `controlnet-openpose-sdxl-1.0.safetensors` | [xinsir](https://huggingface.co/xinsir/controlnet-openpose-sdxl-1.0), `diffusion_pytorch_model.safetensors` | 2,502,139,104 bytes (2.50 GB) |
+| `4x-AnimeSharp.pth` | [Kim2091/AnimeSharp](https://huggingface.co/Kim2091/AnimeSharp) | 67,010,245 bytes (0.07 GB) |
+| `layerdifforg/seethroughv0.0.2_layerdiff3d` | Hugging Face, fetched by the nodes on first use | 10,159,649,987 bytes (10.16 GB) |
+| `layerdifforg/seethroughv0.0.1_marigold` | Hugging Face, fetched by the nodes on first use | 3,276,274,643 bytes (3.28 GB) |
+
+The five model files come to 22.95 GB. The exact file sizes, hashes and licences are in
+[docs/REFERENCE.md](docs/REFERENCE.md#the-model-files-exactly).
+
 ### Route C: no GPU at all
 
-**You'll need:** a web browser, a free Hugging Face account, and patience: the demo allows
-about 1–2 runs a day, and a character needs two.
+**You'll need:** a web browser, a free Hugging Face account, and patience: the demo runs
+on Hugging Face's shared GPUs, which give a free account 5 minutes of GPU a day (2 minutes
+signed out), each run is budgeted at up to 2 minutes, and a character needs two runs. So
+expect one character per day or two. (Read from the demo's and Hugging Face's own pages on
+2026-10-29; we have not run it ourselves.)
 
 **The painting.** Any image generator will do, as long as the result is one character,
 front-facing, full body, taller than wide, on a plain background, arms away from the body.
@@ -588,24 +631,40 @@ Save it as `inputs/painting.png` in the `my-rig` folder of
 [step 1 of Try it first](#1-install-the-packages).
 
 **The layers.** See-through's authors run two free web demos — a
-[Hugging Face Space](https://huggingface.co/spaces/24yearsold/see-through-demo) (1–2 runs
-a day once you register, 2–3 minutes each) and a
+[Hugging Face Space](https://huggingface.co/spaces/24yearsold/see-through-demo) and a
 [ModelScope demo](https://modelscope.cn/studios/ljsabc/See-Through) for users in mainland
 China. Each gives you a layered `.psd`, which `rig-parts` reads as it is.
 
+The Space's page has an image box, a **Resolution** slider from 768 to 1280 (768 is what it
+recommends for the free tier: higher "may timeout or exhaust your daily quota"), a
+**Seed** slider, a **Split arms, eyes and ears** box, and a **Download layered PSD** link
+that appears when a run is done.
+
 1. Do steps 1 and 3 of [Try it first](#try-it-first--no-gpu-about-3-minutes) with your
    painting (skip step 2). Step 3 writes `work/st_input_full.png`, your painting centred on
-   a white square. **Upload that square, not the painting** — the Space centre-crops
-   anything that isn't square, which would cut off the head and the feet.
-2. Download the PSD as `inputs/full.psd`. Read it with `bunx rig-parts layers inputs/full.psd`.
-3. Continue to step 4 for the head box; upload `work/st_input_head.png` and save the result
-   as `inputs/head.psd`.
-4. Everywhere the steps write `inputs/layers/full` and `inputs/layers/head`, write
+   a white square. **Upload that square, not the painting.** The Space's page says a
+   non-square image is centre-cropped and its upload box says it is padded (both read
+   2026-10-29); the square makes the question moot, and a crop would cut off the head and
+   the feet.
+2. Tick **Split arms, eyes and ears**: Route A's ComfyUI nodes run with that split on, and
+   the example's layers are split that way (`handwear-r`, `handwear-l`, …), so your PSD
+   then matches what the rest of this guide reads. Set
+   **Resolution** to 1024 to match the `seethrough.resolution` in your `config.json` — or
+   leave it at 768 and write 768 there. Submit and wait.
+3. Download the PSD as `inputs/full.psd`. Read it with `bunx rig-parts layers inputs/full.psd`.
+4. Continue to step 4 for the head box; upload `work/st_input_head.png` with the same
+   settings and save the result as `inputs/head.psd`.
+5. Everywhere the steps write `inputs/layers/full` and `inputs/layers/head`, write
    `inputs/full.psd` and `inputs/head.psd`.
+
+The ModelScope demo's own page, read the same day, states no limit and no login; See-through's
+README says it is "completely free now, and supports slightly higher resolution than the
+HuggingFace demo".
 
 A PSD carries no per-layer depth, so one optional feature — turning the head along with the
 figure — isn't available on this route; the rest works the same. We haven't run the PSD
-path end to end ourselves yet.
+path end to end ourselves yet, and the layer names a PSD comes back with have not been
+checked against what `rig-parts` reads from Route A's `layers.json`.
 
 ### The joints
 
@@ -613,13 +672,16 @@ path end to end ourselves yet.
 guesses the torso from the clothes and draws no legs.
 
 **On the CPU**: [`scripts/keypoints.py`](scripts/keypoints.py) finds the 18 joints with a
-pose model (RTMPose), as in [step 6](#6-find-the-joints): about 300 MB of models the first
-time, then a few seconds per painting. On the example painting its joints were within 4–52
-pixels of a first hand-placed set, and the rig built green on them unchanged.
+pose model (RTMPose), as in [step 6](#6-find-the-joints). No GPU, no account. Measured on
+2026-10-29 on an Apple M4 Mac with empty caches: the Python packages the first time, 584 MB
+in 44 seconds; the two model files the first time, 330 MB in 19 seconds; after that **about
+2 seconds per painting**, of which the model's own work is 0.6–1.0 s. The same joints came
+out every run, byte for byte. On the example painting they were within 4–52 pixels of a
+first hand-placed set, and the rig built green on them unchanged.
 
 **By hand**: read the 18 positions off the painting in an image editor and write them into
-a small JSON file. The format, a diagram of where each joint goes, and a complete example
-are in [docs/KEYPOINTS.md](docs/KEYPOINTS.md).
+a small JSON file. The format, a picture of where each of the 18 joints goes, and a
+complete example are in [docs/KEYPOINTS.md](docs/KEYPOINTS.md).
 
 ## Troubleshooting
 
@@ -650,7 +712,9 @@ are in [docs/KEYPOINTS.md](docs/KEYPOINTS.md).
   didn't load, or a model file is missing or misnamed. Restart ComfyUI, read its
   `[ComfyUI-See-through]` lines, and check the file names against the table in Route A.
 - *Out of GPU memory during See-through* — the wrapper's README says, in order: a lower
-  `resolution`, then group offload (`--offload` here, about 2–3x slower). `--nf4` turns on
+  `resolution`, then group offload (`--offload` here, about 2–3x slower; See-through's own
+  README puts it at about 1.5x, read 2026-10-29). `--offload` needs `diffusers` 0.37 or
+  later, which the project's box does not have, so it was not measured. `--nf4` turns on
   its 4-bit mode, which needs the `bitsandbytes` package.
 - *The command waits and prints nothing new* — `rig-parts` waits for ComfyUI's queue to be
   empty before it sends a job, so it never cuts in front of someone else's. `--wait`
@@ -665,8 +729,11 @@ are in [docs/KEYPOINTS.md](docs/KEYPOINTS.md).
 
 **The web demo (Route C)**
 
-- *The Space says you're out of quota, or asks you to log in* — the daily limit. Sign in to
-  Hugging Face, or come back tomorrow.
+- *The Space says you're out of quota, or asks you to log in* — the daily limit: 2 minutes
+  of GPU a day signed out, 5 with a free account, and it resets 24 hours after your first
+  run. Sign in to Hugging Face, or come back tomorrow.
+- *The run times out on the Space* — lower **Resolution** to 768; each run has at most 2
+  minutes of GPU. Then write `768` into `seethrough.resolution` in `config.json`.
 - *`rig-parts layers` refuses the PSD* — it names the reason (not 8-bit RGB, a hidden layer,
   a layer at less than full opacity, a layer with no pixels). Re-export without changing the
   layers, or edit in an image editor that keeps the layer names.

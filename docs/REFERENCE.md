@@ -137,7 +137,10 @@ yours differs in a detail from what the README says you should see, the versions
 the ones that produced that text.
 
 The third-party READMEs quoted below were read on 2026-10-13: ComfyUI at `f9c6185`,
-See-through at `df019de`, the ComfyUI-See-through wrapper at `98d754b` (its 0.5.0).
+See-through at `df019de`, the ComfyUI-See-through wrapper at `98d754b` (its 0.5.0). They
+were read again on 2026-10-29: See-through's head was still `df019de` and the wrapper's
+`98d754b`; ComfyUI's head was `0df1646a`, its latest release v0.43.0 (2026-10-27). Where a
+sentence changed between the two readings, the section that quotes it says so.
 
 ### What was run
 
@@ -192,9 +195,12 @@ output of the second run was byte-identical to the first (`skeleton.json`,
 `skeleton.model.json`, `skeleton.png`, `keypoints.json`, `wave.pose.json`,
 `wave.motion.json`, `config.json`).
 
-Of the GPU routes, only the joint script was run. Route A's times come from the project's
-own record (below). Route B was not run (owner decision, 2026-10-13: written from the
-official docs, one visible note). Route C was not run.
+Of the GPU routes, the joint script was run, and on 2026-10-29 Route A's two commands were
+run once each against the project's own GPU box, with the models already on it
+([*Route A, measured 2026-10-29*](#route-a-measured-2026-10-29)); the ComfyUI install and
+the downloads were not. Route B was not run (owner decision, 2026-10-13: written from the
+official docs, one visible note; its download list was read from the publishers on
+2026-10-29). Route C was not run; its two demos' pages were read on 2026-10-29.
 
 Of *Use what you made*, the Spine editor import was run, from the command line, on a copy
 of the smoke run's build — and refused; the whole run is under
@@ -790,11 +796,34 @@ animation at a time); the page's breeze is read there only through the player.
 
 ### The joint script, `scripts/keypoints.py`
 
-- **Downloads, first run**: two model zips, 94,223,081 and 212,739,469 bytes (sizes from the
-  download server by HEAD request), unpacked in `~/.cache/rtmlib` to 101,400,344 +
-  228,708,578 bytes (330 MB). uv installs 224 MB of Python packages and, if it needs one, a
-  Python (72 MB here). The download time is not measured yet: an earlier job on this Mac had
-  already cached both models.
+**Measured 2026-10-29**, on the Apple M4 Mac of *Tested with* (macOS 26.6.1, 32 GB; uv
+0.12.17, which chose Python 3.12.14; rtmlib 0.0.16, onnxruntime 1.31.1, opencv 5.0.0,
+numpy 2.5.4), with the README's step-6 command as written, pointed at the example painting
+of *Try it first* (rig-c/exam `01436ee`, sha256 `1064fc12…`), and every cache empty: uv's
+(`UV_CACHE_DIR`) and rtmlib's (`XDG_CACHE_HOME`), both in a scratch directory. Each line is
+`/usr/bin/time -p` wall clock of the whole `uv run …` command.
+
+| Run | What was cold | Wall | The script's own lines |
+| --- | --- | --- | --- |
+| packages only (`python -c "import rtmlib"`) | uv's cache | 44.21 s | — ; uv's cache afterwards 584 MB, 9 packages, Python 3.12.14 |
+| first `keypoints.py` | the two models | 18.92 s | `models loaded in 16.4 s, one image in 0.6 s` |
+| second, third, fourth | nothing | 2.36, 1.94, 1.73 s | `models loaded in 0.2–0.3 s, one image in 0.6–1.0 s` |
+
+Every run printed `18 observed, 0 occluded, 0 missing`, and all four wrote the same bytes
+(sha256 `93367973…`); the left ankle is at `[855.7, 2154.1]`, as the README's step 7 says.
+The model downloads were 89.9 and 203 MB zipped (the server's own progress figures),
+unpacked to 101,400,344 + 228,708,578 bytes = 330,108,922 bytes (319 MiB) in
+`rtmlib/hub/checkpoints`. The same cold-model run on a different painting of the same size
+took 19.12 s (`models loaded in 17.5 s, one image in 0.4 s`). So the first run of step 6
+on an empty machine is about a minute (44 + 19 s) plus however long `uv` takes to fetch a
+Python if it has none; after that a painting takes about two seconds.
+
+- **Downloads, first run** (2026-10-13 reading): two model zips, 94,223,081 and 212,739,469
+  bytes (sizes from the download server by HEAD request), unpacked in `~/.cache/rtmlib` to
+  101,400,344 + 228,708,578 bytes (330 MB). uv installs 224 MB of Python packages and, if
+  it needs one, a Python (72 MB here). ~~The download time is not measured yet~~ — measured
+  above on 2026-10-29. (uv's cache held 584 MB in that run against 224 MB installed
+  here: the cache keeps the wheels as well as the unpacked packages.)
 - **Time, warm**: on the example painting, 3.6 s wall, of which models loaded in 0.6 s and
   one image in 1.6 s. On a second painting: models 0.3–0.6 s, inference 1.4–2.4 s, 2.4–2.5 s
   wall. The first run in a new uv environment took 43.5 s wall (5.5 s user), measured twice,
@@ -827,12 +856,56 @@ why. Both build green. The README's map leaves the legs out for this reason — 
 not move them, and a map written for one bone list misses on the other. To give each leg its
 own part, the parts guide's `assemble.cuts` cuts the layer in two.
 
-### Route A, from the project's own record
+### Route A, measured 2026-10-29
 
-The parts guide, [AUTHORING §8](https://github.com/rig-c/parts/blob/main/docs/AUTHORING.md#8-what-one-character-costs),
-records 18 to 20 seconds per painting and 171 to 199 seconds per See-through run through the
-same ComfyUI wrapper. That page does not name the GPU. The ComfyUI install time, the
-PyTorch size, the model download times and the peak GPU memory are not measured yet.
+One painting and one See-through run, through the README's own two commands, against the
+project's GPU box. The box was not installed for this guide: ComfyUI, the nodes and the
+models were already on it, so the install and the downloads are still not measured, and
+the figures are one run each on one card.
+
+| | |
+| --- | --- |
+| Box | Windows (ComfyUI reports `win32`), NVIDIA GeForce RTX 5070 Ti, 16 GB (ComfyUI reports 17,094,475,776 bytes; `nvidia-smi` 16,303 MiB), driver 610.88 |
+| ComfyUI | 0.29.2, its Windows standalone build, Python 3.12.10, PyTorch `2.8.0.dev20250613+cu128`, started with `--fast fp16_accumulation --disable-pinned-memory`; `diffusers` 0.33.1 |
+| See-through nodes | ComfyUI-See-through 0.5.0 at `98d754b` (read from its `pyproject.toml` and `.git/HEAD` on the box); 7 `SeeThrough_*` node classes on `/object_info`, which is the wrapper's "Loaded 7 nodes" |
+| `@rig-c/parts` | 1.73.1, installed with `bun add @rig-c/parts` into an empty folder; Bun 1.4.4 |
+| Client | the Apple M4 Mac of *Tested with*, on the same LAN |
+| Queue | empty on both of the box's instances before each job, read by the adapter (`queue empty`) and by hand |
+
+The painting, `bunx rig-parts comfy paint --config config.json --out inputs --host … --wait 300`
+with [PAINTING-RECIPE.md](PAINTING-RECIPE.md)'s `config.json` and `pose_a.json` as written:
+
+| | |
+| --- | --- |
+| Adapter's lines | `box: every node, input and model of the painting graph is on its /object_info`; `control: pose file … at 832x1216 -> inputs/control_pose-102906e39d33.png`; `seed 74101: GPU job finished in 44.1 s -> inputs/painting_74101.png (1664x2432)` |
+| GPU job | **44.1 s** (`elapsed_s` in `painting_74101_meta.json`) |
+| Whole command | 50.67 s wall, 0.38 s user |
+| Output | `painting_74101.png`, 1664 x 2432, 1,380,261 bytes: one full-figure character, front view, arms out from the body, white background — the recipe's own prompt |
+
+The See-through full run, `bunx rig-parts comfy seethrough --image work/st_input_full.png
+--out inputs/layers/full --host … --wait 300`, on the 2432 x 2432 square `rig-parts inputs`
+made from that painting, at the defaults (resolution 1024, 30 steps, seed 42, no offload, no
+LaMa, no nf4):
+
+| | |
+| --- | --- |
+| Adapter's lines | `queue empty`; `GPU job finished in 225.3 s`; `29 layer(s) on a 1024x1024 canvas, read back green by the layer reader` |
+| GPU job | **225.3 s** (`elapsed_s` in `meta.json`) |
+| Whole command | 234.44 s wall, 1.29 s user |
+| Output | `layers.json`, `meta.json`, `parts/` (29 PNG, 1024 x 1024), `previews/` (2 PNG); 9.6 MB |
+| Card memory | the adapter's `meta.json`: `vram_free_before_gb` 7.16, `vram_free_low_gb` 5.0 on the card. Polled from the Mac every 2 s (111 samples): free memory fell to 5,755,945,498 bytes at its lowest, so **10.56 GiB of the card's 15.92 GiB was in use at the peak** — but the box keeps other models resident (free was 7.16 GB before the job began), so the run's own footprint is somewhere between the 2.2 GB drop and the 10.56 GiB total, and is not separated here |
+| The head run | not run (one See-through job was the measurement's scope) |
+
+For comparison, the parts guide, [AUTHORING §8](https://github.com/rig-c/parts/blob/main/docs/AUTHORING.md#8-what-one-character-costs),
+records 18 to 20 seconds per painting and 171 to 199 seconds per See-through run through
+the same wrapper on a card it does not name. Today's painting took more than twice as long
+on the 5070 Ti (44.1 s against 18.3–20.2; the same recipe, so the difference is the box,
+its `fp16_accumulation` flag, a cold checkpoint load, or the card — not separated), and
+the See-through run 13 to 32 percent longer (225.3 s against 171–199).
+
+Still not measured: the ComfyUI install time and disk, the PyTorch download, the model
+download times, `--offload` (the wrapper's README says it needs `diffusers>=0.37.0`, and
+the box has 0.33.1), `--nf4`, and the run's own peak memory on an otherwise empty card.
 
 The wrapper's README describes its group offload (`--offload`) as cutting peak VRAM a great
 deal at "2–3x slower". The parts guide says the painting comes back at twice the
@@ -880,14 +953,26 @@ Where a project states no minimum, this says so rather than filling one in.
 - **PyTorch**: ComfyUI says 2.7 "is minimally supported", and a CUDA 13.0 build is required
   on 20 series and above.
 - **git**, to clone ComfyUI and the wrapper (no minimum stated).
-- **Accounts**: a Civitai download page for the checkpoint; whether it asks you to sign in
-  is not measured yet. The See-through models download from Hugging Face without a stated
-  login ([wrapper README][wrapper]).
+- **Accounts**: a Civitai download page for the checkpoint. Measured 2026-10-29, signed
+  out: a HEAD request to `https://civitai.com/api/download/models/1854228` answered `307`
+  straight to the file host, which answered `200`, `content-length: 6938418620`,
+  `content-disposition: attachment; filename="novaAnimeXL_ilV80.safetensors"` — no login
+  page. (A HEAD, not the 6.9 GB download itself.) The See-through models download from
+  Hugging Face without a stated login ([wrapper README][wrapper]).
 - **Starting ComfyUI for another machine**: `python main.py --listen` is ComfyUI's flag; it
   listens on every interface.
 - **The wrapper's startup line**: its code prints `[ComfyUI-See-through] Loaded 7 nodes`
-  (seven at 0.5.0; read in the code, not run). Its README says the nodes appear under a
-  **SeeThrough** category.
+  (seven at 0.5.0; read in the code). On 2026-10-29 the project's box, running 0.5.0,
+  listed exactly seven `SeeThrough_*` classes on `/object_info`: `LoadLayerDiffModel`,
+  `GenerateLayers`, `LoadDepthModel`, `GenerateDepth`, `PostProcess`, `PartsToLayers`,
+  `SavePSD`. Its README says the nodes appear under a **SeeThrough** category.
+- **Offload and the 4-bit mode, re-read 2026-10-29**: the wrapper's README still says
+  group offload is "2–3x slower" and its own table reads 138 s against 385 s at 1280
+  (2.8x), with "Requires `diffusers>=0.37.0`"; See-through's README now says "Group
+  offload trades speed for VRAM savings (roughly 1.5x slower)", "~10 GB at 1280
+  resolution" for 12 GB cards, "~8 GB peak VRAM at 1280" for the NF4 pipeline, and lists a
+  third option, a "block swap pipeline", also "~8 GB peak VRAM at 1280 resolution with bf16
+  precision". The two projects disagree on the slowdown; neither figure was measured here.
 
 ### Route B: Apple Silicon Mac
 
@@ -913,18 +998,61 @@ Where a project states no minimum, this says so rather than filling one in.
   needs, while its `pyproject.toml` does not list it among its dependencies. Whether
   `bitsandbytes` installs on macOS is not measured yet.
 - **Accounts**: as Route A.
+- **What it downloads**: the README's table under Route B, read on 2026-10-29. Sizes for
+  the model files are the Hugging Face and Civitai APIs' (*The model files, exactly*). The
+  PyTorch nightly index (`download.pytorch.org/whl/nightly/cpu`) listed
+  `torch-2.16.0.dev20261028-cp313-cp313-macosx_14_0_arm64.whl`,
+  `torchvision-0.30.0.dev20261028-py3-none-macosx_14_0_arm64.whl` and
+  `torchaudio-2.11.0.dev20261028-py3-none-macosx_14_0_arm64.whl` that day; a HEAD and a
+  ranged GET on each answered `403`, so their sizes are not stated here. The stable
+  `torch` 2.15.0 wheel for the same platform is 138,556,890 bytes on PyPI (a ranged GET,
+  `content-range: bytes 0-0/138556890`). ComfyUI's `requirements.txt` at `0df1646a` has 33
+  entries, pinned only for its own `comfyui-*` packages; the wrapper's has 7
+  (`diffusers>=0.25.0`, `peft>=0.18.0`, `accelerate>=0.20.0`, `opencv-python>=4.0.0`,
+  `scikit-learn>=1.0.0`, `bitsandbytes>=0.49.2`, `matplotlib`). None of the Python
+  package sizes, the clone sizes, the download times, the run times or the memory peak
+  are measured.
 
 ### Route C: no GPU
 
 - **Needs**: any system with a web browser.
-- **Hugging Face**: "if you register with HuggingFace, you should be able to run 1-2 PSD
+- **Hugging Face, from See-through's README** (read 2026-10-13 and again 2026-10-29, the
+  same words): "if you register with HuggingFace, you should be able to run 1-2 PSD
   extractions per day (approximately 2-3 mins each, at 1280 resolution)"
   ([See-through README][st-readme], *Online Demo*). Two runs per character, so with that
   limit one character can take two days.
-- **ModelScope**: "completely free now" (same section), offered for users in mainland
-  China; whether it needs an account is not stated there.
-- **The Space centre-crops**: its own page says "non-square images are center-cropped",
-  which is why the README says to upload `work/st_input_full.png` rather than the painting.
+- **The Space itself, read 2026-10-29** (`24yearsold/see-through-demo` at
+  `049a1ab0`, last modified 2026-10-05; Gradio 6.12.0; hardware `zero-a10g` per the Hub's
+  API, "Running on Zero" on the page). Its `app.py` budgets each run with
+  `@spaces.GPU(duration=120)`; its slider is `minimum=768, maximum=1280, value=768,
+  step=64`, with the note "768 recommended for ZeroGPU free tier. Higher resolutions may
+  timeout or use up your daily quota quickly."; the seed slider runs 0–9999, default 42;
+  the checkbox "Split arms, eyes and ears" is off by default; the output is
+  `seethrough_output.psd`, "Download layered PSD". No steps control. No login check in
+  the code: the quota is Hugging Face's.
+- **Hugging Face's ZeroGPU quota, read 2026-10-29** ([Spaces ZeroGPU][zerogpu], *Usage
+  Tiers*): "GPU usage is subject to **daily** quotas, per account tier" — Unauthenticated
+  2 minutes, Free account 5 minutes, PRO 40 minutes; "Included daily quota resets exactly
+  24 hours after your first GPU usage." The default duration per call is 60 s, which this
+  Space raises to 120 s. So a free account has room for two runs a day if each stays under
+  2.5 minutes of GPU; the README's "one or two" follows from that and from See-through's
+  own "1-2", not from a run.
+- **ModelScope, read 2026-10-29**: the studio page is a JavaScript shell whose only text
+  is its title; its README (the studio's `README.md` through ModelScope's API) is in Chinese,
+  names the two models `ljsabc/seethroughv0.0.2_layerdiff3d` and
+  `ljsabc/seethroughv0.0.1_marigold`, licence Apache 2.0, and states no limit and no login.
+  See-through's README: "completely free now, and supports slightly higher resolution than
+  the HuggingFace demo", offered for users in mainland China.
+- **Crop or pad**: the Space's README says "non-square images are center-cropped"; its
+  `app.py` labels the image box "Upload image (non-square images will be padded)"; the
+  wrapper's README says "image is center-padded to square". All three read 2026-10-29,
+  and which one the Space does was not measured (it would take an upload). The README says
+  to upload `work/st_input_full.png`, already square, so none of them applies.
+- **The split box**: the ComfyUI template `rig-parts` sends sets the wrapper's
+  `tblr_split` to `true` ("Split symmetric parts (eyes, ears, handwear) into left/right",
+  the node's own tooltip on the box), and the measured Route A run came back with
+  `handwear-r`, `handwear-l`, `eyebrow-l`, `eyebrow-r`, `ears-l`, `ears-r` and the eyes
+  split. That the Space's checkbox is the same switch is read from its label, not measured.
 - **What a PSD does not carry**: a per-layer depth figure, which the wrapper's
   `layers.json` has. The parts README says a PSD's stacking order is read as the draw
   order; one optional proposer feature (turning the head along with `propose
@@ -938,25 +1066,26 @@ Where a project states no minimum, this says so rather than filling one in.
 [wrapper]: https://github.com/jtydhr88/ComfyUI-See-through
 [core]: https://github.com/rig-c/core#install
 [authoring]: https://github.com/rig-c/parts/blob/main/docs/AUTHORING.md
+[zerogpu]: https://huggingface.co/docs/hub/spaces-zerogpu
 
 ## The model files, exactly
 
-Sizes as Hugging Face's and Civitai's APIs reported them on 2026-10-13, read without
-downloading.
+Sizes as Hugging Face's and Civitai's APIs reported them on 2026-10-13 and again on
+2026-10-29 (unchanged), read without downloading. The last column is what the project's
+GPU box holds, read on 2026-10-29 with `Get-FileHash -Algorithm SHA256`.
 
-| File | Source | Licence | Size |
-| --- | --- | --- | --- |
-| `novaAnimeXL_ilV80.safetensors` | [Nova Anime XL "IL v8.0"](https://civitai.com/models/376130) by Crody, Civitai model-version 1854228 | the model's own, on its page | 6,775,799 KB (6.94 GB) |
-| `controlnet-openpose-sdxl-1.0.safetensors` | [xinsir/controlnet-openpose-sdxl-1.0](https://huggingface.co/xinsir/controlnet-openpose-sdxl-1.0), `diffusion_pytorch_model.safetensors` | Apache-2.0 | 2,502,139,104 B (2.50 GB) |
-| the same name, another public upload | thibaud `OpenPoseXL2.safetensors` | its own | 5,004,167,829 B |
-| `4x-AnimeSharp.pth` | [Kim2091/AnimeSharp](https://huggingface.co/Kim2091/AnimeSharp) | CC BY-NC-SA 4.0 | 67,010,245 B (0.07 GB) |
-| `layerdifforg/seethroughv0.0.2_layerdiff3d` | [Hugging Face](https://huggingface.co/layerdifforg/seethroughv0.0.2_layerdiff3d) | See-through's | 10.16 GB (sum of repo files) |
-| `layerdifforg/seethroughv0.0.1_marigold` | Hugging Face | See-through's | 3.28 GB (sum of repo files) |
+| File | Source | Licence | Size | On the box |
+| --- | --- | --- | --- | --- |
+| `novaAnimeXL_ilV80.safetensors` | [Nova Anime XL "IL v8.0"](https://civitai.com/models/376130) by Crody, Civitai model-version 1854228 | the model's own, on its page | 6,775,799 KB = 6,938,418,620 B (6.94 GB) | 6,938,418,620 B, sha256 `4c497bb7…` = Civitai's |
+| `controlnet-openpose-sdxl-1.0.safetensors` | [xinsir/controlnet-openpose-sdxl-1.0](https://huggingface.co/xinsir/controlnet-openpose-sdxl-1.0), `diffusion_pytorch_model.safetensors` | Apache-2.0 | 2,502,139,104 B (2.50 GB) | 2,502,139,104 B, sha256 `b8524e55…` = xinsir's |
+| the same name, another public upload | thibaud `OpenPoseXL2.safetensors` | its own | 5,004,167,829 B | not this one |
+| `4x-AnimeSharp.pth` | [Kim2091/AnimeSharp](https://huggingface.co/Kim2091/AnimeSharp) | CC BY-NC-SA 4.0 | 67,010,245 B (0.07 GB) | 67,010,245 B, sha256 `e7a7de2d…` = Hugging Face's |
+| `layerdifforg/seethroughv0.0.2_layerdiff3d` | [Hugging Face](https://huggingface.co/layerdifforg/seethroughv0.0.2_layerdiff3d), repo at `4477e6ce` (2026-09-28) | See-through's | 10,159,649,987 B (10.16 GB, sum of repo files; the UNet alone 8.14 GB) | present, under `models/SeeThrough/`; not hashed |
+| `layerdifforg/seethroughv0.0.1_marigold` | Hugging Face, repo at `4f4ffc46` (2026-09-28) | See-through's | 3,276,274,643 B (3.28 GB, sum of repo files) | present; not hashed |
 
-Two different public ControlNets share the file name rig-parts expects. Which upload the
-project's own GPU box holds is not recorded, so the README's choice of the xinsir upload is
-not measured yet. The upscaler's licence is non-commercial; it is used only to enlarge the
-painting.
+Two different public ControlNets share the file name rig-parts expects. The box holds
+xinsir's, byte for byte, so the README's choice is the measured one. The upscaler's licence
+is non-commercial; it is used only to enlarge the painting.
 
 ## The inputs, field by field
 
@@ -1148,12 +1277,9 @@ changes is the packages' decision.
 
 | Claim | What it needs |
 | --- | --- |
-| Route A end to end: ComfyUI install time and disk, PyTorch size, model download times, `comfy paint` and `comfy seethrough` times and peak VRAM, on a named NVIDIA GPU | a run from a clean ComfyUI install on a named card |
-| Which ControlNet upload to recommend | reading which upload the project's box holds (sha256 against xinsir's and thibaud's) |
-| Whether the Civitai checkpoint download asks for a login | one download attempt, signed out |
-| Route B, all of it | an Apple Silicon Mac, ~23 GB of models, and the two code-read risks checked (`--offload` → `'cuda'`; `bitsandbytes` on macOS) |
-| Route C: the Space run, its real quota, the PSD it returns going through *Try it first*; ModelScope | a Hugging Face account and two runs (likely two days at the stated 1–2/day), then the steps with `--full x.psd --head y.psd` |
-| The joint model download time by itself | a separate download-only timer; the 2026-10-25 cold detector stage above includes both model downloads and inference |
+| Route A from nothing: ComfyUI install time and disk, PyTorch size, model download times; the See-through head run; `--offload` and `--nf4`; the run's own peak memory on an empty card | a run from a clean ComfyUI install on a named card (the two commands themselves, on a box with everything installed, were measured 2026-10-29 above) |
+| Route B, all of it | an Apple Silicon Mac, ~23 GB of models, and the two code-read risks checked (`--offload` → `'cuda'`; `bitsandbytes` on macOS); the download list and sizes were read 2026-10-29 |
+| Route C: the Space run, its real quota, whether it crops or pads, the PSD it returns going through *Try it first*; ModelScope | a Hugging Face account and two runs (likely two days at the stated quota), then the steps with `--full x.psd --head y.psd` |
 | *Try it first* on Windows; the page in Safari and Firefox | runs on those systems and browsers (Linux/Chromium was run on 2026-10-25 above) |
 | `git clone https://github.com/rig-c/getting-started` as written | the guide published (the smoke copied the checkout instead) |
 | ComfyUI Desktop on macOS (address, custom nodes folder) | reading its docs further and one install |
