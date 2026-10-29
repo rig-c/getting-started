@@ -90,7 +90,7 @@ test('an already-current weekly record makes ZERO git, PR or dispatch calls', as
 test('registry races, missing installs and incomplete publication refuse', async () => {
   expect(() => assertVersions(versions, versions, versions)).not.toThrow();
   expect(() => assertVersions({}, versions, versions)).toThrow('installed');
-  expect(() => assertVersions(versions, versions, { ...versions, 'rig-c': '2.0.0' })).toThrow('latest changed');
+  expect(() => assertVersions(versions, versions, { ...versions, '@rig-c/core': '2.0.0' })).toThrow('latest changed');
   await expect(publish(root, '', { status: 'FAIL' }, () => { throw Error('must not run'); })).rejects.toThrow('incomplete');
 });
 test('repository TMPDIR is refused, including a symlink resolving into it', () => {
