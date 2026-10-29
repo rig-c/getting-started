@@ -12,6 +12,15 @@ each joint, with x to the right and y down from the top-left corner. `r_` and `l
 **character's** right and left: on a figure facing you, `r_shoulder` is on the left of the
 picture.
 
+![The 18 joints on a standing figure: nose, eyes and ears on the head; neck between the shoulders; shoulder, elbow and wrist down each arm; hip, knee and ankle down each leg](keypoints-body18.svg)
+
+The picture is drawn from the stick figure in [PAINTING-RECIPE.md](PAINTING-RECIPE.md),
+the same 18 names on an 832 x 1216 canvas, not from any painting. Each dot goes where the
+joint turns: the shoulder at the top of the arm where it meets the body, the elbow and the
+knee at the bend, the wrist and the ankle at the end of the limb, the hips at the top of
+each thigh, the eyes at their centres, the ears where they meet the head. The same points,
+as text:
+
 ```
               r_eye  l_eye
        r_ear     nose      l_ear
