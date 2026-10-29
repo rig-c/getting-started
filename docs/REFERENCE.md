@@ -925,7 +925,7 @@ Where a project states no minimum, this says so rather than filling one in.
 - **Disk**: measured, 0.12 GB for *Try it first* (the packages, Bun's cache, the example
   inputs and every output). The joint script adds about 0.7 GB (Python packages, a Python,
   two models).
-- **Bun 1.2.0 or later**: the `engines` field of `rig-c`, `@rig-c/parts` and `@rig-c/pose`.
+- **Bun 1.4.0 or later**: the declared `engines` requirement of `@rig-c/core`, `@rig-c/parts` and `@rig-c/pose`.
   Node and npm are not needed when you install with Bun. `@rig-c/play` states no browser
   minimum; measured in Chromium 152.
 - **For the joint script**: Python 3.10 or later (rtmlib's package metadata) and
