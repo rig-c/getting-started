@@ -35,7 +35,7 @@ detail, look there first.
 This builds a published example character and plays it. Its painting and layers are
 already made, so you skip the GPU steps entirely.
 
-**You'll need:** [Bun](https://bun.sh) 1.2 or later (`bun --version` prints it), and
+**You'll need:** [Bun](https://bun.sh) 1.4.0 or later (`bun --version` prints it), and
 [uv](https://docs.astral.sh/uv/) for the one Python script in step 6 — or skip the script;
 step 6 says how. About 3 minutes of commands, plus the first-time downloads, under 1 GB in
 all. The commands are for a macOS or Linux terminal; Windows isn't tested yet.
@@ -196,14 +196,14 @@ cat > map.json <<'EOF'
   "translate": { "bone": "hip", "joint": "mid_hip", "scale": { "pose": ["mid_hip", "neck"], "rig": ["hip", "neck"] } }
 }
 EOF
-bunx rig-pose retarget --rig out/rig --map map.json --pose wave.pose.clean.json --out wave.motion.json --name wave --profile spine-html --build wave-build
+bunx rig-pose retarget --rig out/rig --map map.json --pose wave.pose.clean.json --out wave.motion.json --name wave --profile rig-play --build wave-build
 mkdir -p wave-rig
 cp -R out/rig/. wave-rig/
 cp wave.motion.json wave-rig/motion.json
 bunx rig-parts check --rig wave-rig --parts out --out wave-check
 ```
 
-You should see `73 frame(s), 3 s at 24 fps`, `GATE   rigc build --profile spine-html: green`, and
+You should see `73 frame(s), 3 s at 24 fps`, `GATE   rigc build --profile rig-play: green`, and
 `FOLD   rigc render --folds at 24 fps: no mesh folds`, and
 `wrote wave.motion.json — animations: idle, wave`. A `FOLD` line is a reading, not a
 failure: where a mesh does fold, it names the part and the frames to look at.
@@ -754,7 +754,7 @@ complete example are in [docs/KEYPOINTS.md](docs/KEYPOINTS.md).
   rebuilds the rig-c trailer, a seated character on a swing, with one script.
 - **The packages' own guides**: [`@rig-c/parts` AUTHORING.md](https://github.com/rig-c/parts/blob/main/docs/AUTHORING.md)
   (every config field, what each refusal means, expressions and physics),
-  [`rig-c`](https://github.com/rig-c/core#readme) (the compiler and its check),
+  [`@rig-c/core`](https://github.com/rig-c/core#readme) (the compiler and its check),
   [`@rig-c/pose`](https://github.com/rig-c/pose#readme) (map and pose formats, keypoints from
   video), [`@rig-c/play`](https://github.com/rig-c/play#readme) (the player's API and cost).
 - [docs/REFERENCE.md](docs/REFERENCE.md): tested-with versions, every measured time and

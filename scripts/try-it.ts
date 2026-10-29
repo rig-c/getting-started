@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, mkdtempSync, realpathSync } from 'node:fs';
 import { resolve, join, sep } from 'node:path';
 
-export const packages = ['@rig-c/parts', 'rig-c', '@rig-c/pose', '@rig-c/play'] as const;
+export const packages = ['@rig-c/parts', '@rig-c/core', '@rig-c/pose', '@rig-c/play'] as const;
 export type Versions = Record<string, string>;
 export type Step = { title: string; line: number; text: string; blocks: { command: string; line: number; mode: 'shell' | 'server' | 'not-run'; reason?: string }[] };
 const begin = '<!-- try-it-tested:start -->', end = '<!-- try-it-tested:end -->';
