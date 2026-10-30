@@ -497,12 +497,7 @@ for your engine (Unity, Unreal, Godot, Phaser, PixiJS and others). Use a **4.3**
 Spine data is locked to the generation that wrote it, and Esoteric says a runtime of another
 version will not be able to read it.
 
-Licence: the Spine Runtimes License, as rig-c's [NOTICE](https://github.com/rig-c/core/blob/main/NOTICE.md)
-restates it. Integrating a Spine Runtime into a product is permitted *under Section 2 of
-the Spine Editor License Agreement*, or otherwise *on the condition that each user of the
-product obtains their own Spine Editor license* and the product carries the Runtimes licence
-and copyright notice. The licence itself is at
-[esotericsoftware.com/spine-runtimes-license](https://esotericsoftware.com/spine-runtimes-license).
+For Spine runtime terms, see the core [NOTICE](https://github.com/rig-c/core/blob/main/NOTICE.md).
 
 ## Make your own character
 
@@ -517,11 +512,7 @@ The tools need four things from you:
 Pick a route for the painting and the layers. The joints are the same on every route and
 come [after](#the-joints).
 
-| | Route A: NVIDIA GPU | Route B: Apple Silicon Mac | Route C: no GPU |
-| --- | --- | --- | --- |
-| **You'll need** | a card with 12–16 GB of memory, ~23 GB of disk, Python | an M1–M4 Mac, ~23 GB of disk, Python | a browser and a free Hugging Face account |
-| **Per character** | 44 seconds for the painting and under 4 minutes per See-through run, on a 16 GB card | we don't know yet | two web runs of up to 2 minutes each, on a free tier of 5 GPU minutes a day |
-| **Tried by** | the project, 2026-10-29, on an RTX 5070 Ti | nobody yet | written from the demo's own pages, read 2026-10-29 |
+[Route requirements and measured comparison](docs/REFERENCE.md#route-comparison).
 
 ### Route A: your own NVIDIA GPU
 
@@ -532,14 +523,7 @@ git. Each requirement's exact wording and source is in
 [docs/REFERENCE.md](docs/REFERENCE.md#requirements-and-their-sources).
 
 You install ComfyUI, one set of custom nodes and four model files; then two `rig-parts`
-commands drive ComfyUI for you. (Any other way of running See-through works too.) We ran
-both commands on 2026-10-29 against the project's own box — Windows, an NVIDIA GeForce RTX
-5070 Ti with 16 GB, ComfyUI 0.29.2, the See-through nodes at 0.5.0 — with the models already
-on disk: **44 seconds** for the painting and **3 minutes 45 seconds** for one See-through run
-at the default settings. One run each, on one card; your card will differ. The versions,
-the exact lines and what the card's memory did are in
-[docs/REFERENCE.md](docs/REFERENCE.md#route-a-measured-2026-10-29). What we have not
-measured: installing ComfyUI from nothing, and the model downloads themselves.
+commands drive ComfyUI for you. (Any other way of running See-through works too.) [Route A measurements and unmeasured steps](docs/REFERENCE.md#route-a-measured-2026-10-29).
 
 **1. Install ComfyUI**, following its own [manual install](https://github.com/Comfy-Org/ComfyUI#manual-install-windows-linux):
 
@@ -580,11 +564,7 @@ in [docs/REFERENCE.md](docs/REFERENCE.md#the-model-files-exactly).
 | `4x-AnimeSharp.pth` | `models/upscale_models/` | [Kim2091/AnimeSharp](https://huggingface.co/Kim2091/AnimeSharp) (non-commercial licence; only enlarges the painting) |
 | See-through's two models | none | the wrapper downloads them from [Hugging Face](https://huggingface.co/layerdifforg/seethroughv0.0.2_layerdiff3d) on its first run |
 
-The first three are 6.94 GB, 2.50 GB and 0.07 GB; See-through's two are 10.16 GB and
-3.28 GB — about 23 GB in all. Those are the exact files on the project's box: on
-2026-10-29 each one's SHA-256 matched its download page, so the ControlNet row above is
-xinsir's upload and not another file of the same name. Civitai sent us the checkpoint
-without asking us to sign in.
+[Model sizes and provenance](docs/REFERENCE.md#the-model-files-exactly).
 
 **4. Make the painting.** Do [step 1 of Try it first](#1-install-the-packages) and work in
 that `my-rig` folder. Copy the example `config.json` and `pose_a.json` from
@@ -597,7 +577,7 @@ bunx rig-parts comfy paint --config config.json --out inputs --host http://127.0
 
 You should see `box: every node, input and model of the painting graph is on its
 /object_info`, then `seed 74101: GPU job started`, and after a wait a line ending
-`-> inputs/painting_74101.png (1664x2432)`. That wait was **44 seconds** on the box above.
+`-> inputs/painting_74101.png (1664x2432)`.
 You get `inputs/painting_74101.png` at 1664 x 2432 — with this recipe, a full-figure
 character on white with her arms held out from her sides — the full prompts in a
 `_meta.json` beside it, and the stick figure the ControlNet was given as
@@ -617,8 +597,7 @@ bunx rig-parts comfy seethrough --config config.json --image work/st_input_head.
 
 Each run prints `queue empty`, `GPU job started`, then `GPU job finished in … s` and a line
 like `29 layer(s) on a 1024x1024 canvas, read back green by the layer reader`, naming the
-layers. The full run took **225 seconds** on the box above (3 minutes 45 seconds; the
-head run was not timed). Each `--out` folder gets `layers.json`, `meta.json`, a `parts/`
+layers. Each `--out` folder gets `layers.json`, `meta.json`, a `parts/`
 folder of PNGs and `previews/`; `meta.json` records the run's own time and what the card's
 free memory did. Both commands read `seethrough.resolution`, `steps`, `seed` and
 `offload` from `config.json`: here 1024, 30, 42 and false. Explicit CLI flags override
@@ -664,24 +643,7 @@ assume an NVIDIA card. Keep `seethrough.offload` false in `config.json` too.
 (ComfyUI's [desktop app for macOS](https://docs.comfy.org/installation/desktop/macos)
 exists too; this guide doesn't walk through it.)
 
-**What this route downloads** — *not measured yet*: these are the names and the sizes
-their publishers state, read on 2026-10-29. Nobody has timed them or run the result on a
-Mac for this guide.
-
-| What | Where from | Size, as stated |
-| --- | --- | --- |
-| ComfyUI, the repository | `git clone` of [Comfy-Org/ComfyUI](https://github.com/Comfy-Org/ComfyUI) (its latest release was v0.43.0 on 2026-10-27) | not stated; not measured |
-| PyTorch for the Mac's GPU: `torch`, `torchvision`, `torchaudio` nightly wheels, `macosx_14_0_arm64` | the `nightly/cpu` index in step 2 (2.16.0.dev, 0.30.0.dev, 2.11.0.dev on 2026-10-29) | the nightly server does not answer size requests; the current stable `torch` wheel for the same Mac is 138,556,890 bytes on PyPI |
-| ComfyUI's other Python packages (`requirements.txt`, 33 entries) | PyPI | not stated; not measured |
-| The See-through nodes, [jtydhr88/ComfyUI-See-through](https://github.com/jtydhr88/ComfyUI-See-through) 0.5.0, and its 7 packages (`diffusers`, `peft`, `accelerate`, `opencv-python`, `scikit-learn`, `bitsandbytes`, `matplotlib`) | GitHub, PyPI | not stated; not measured. Whether `bitsandbytes` installs on macOS is not measured |
-| `novaAnimeXL_ilV80.safetensors` | [Civitai](https://civitai.com/models/376130) | 6,938,418,620 bytes (6.94 GB) |
-| `controlnet-openpose-sdxl-1.0.safetensors` | [xinsir](https://huggingface.co/xinsir/controlnet-openpose-sdxl-1.0), `diffusion_pytorch_model.safetensors` | 2,502,139,104 bytes (2.50 GB) |
-| `4x-AnimeSharp.pth` | [Kim2091/AnimeSharp](https://huggingface.co/Kim2091/AnimeSharp) | 67,010,245 bytes (0.07 GB) |
-| `layerdifforg/seethroughv0.0.2_layerdiff3d` | Hugging Face, fetched by the nodes on first use | 10,159,649,987 bytes (10.16 GB) |
-| `layerdifforg/seethroughv0.0.1_marigold` | Hugging Face, fetched by the nodes on first use | 3,276,274,643 bytes (3.28 GB) |
-
-The five model files come to 22.95 GB. The exact file sizes, hashes and licences are in
-[docs/REFERENCE.md](docs/REFERENCE.md#the-model-files-exactly).
+[Route B downloads, stated sizes and measurement limits](docs/REFERENCE.md#route-b-downloads).
 
 ### Route C: no GPU at all
 
@@ -738,12 +700,7 @@ checked against what `rig-parts` reads from Route A's `layers.json`.
 guesses the torso from the clothes and draws no legs.
 
 **On the CPU**: [`scripts/keypoints.py`](scripts/keypoints.py) finds the 18 joints with a
-pose model (RTMPose), as in [step 6](#6-find-the-joints). No GPU, no account. Measured on
-2026-10-29 on an Apple M4 Mac with empty caches: the Python packages the first time, 584 MB
-in 44 seconds; the two model files the first time, 330 MB in 19 seconds; after that **about
-2 seconds per painting**, of which the model's own work is 0.6–1.0 s. The same joints came
-out every run, byte for byte. On the example painting they were within 4–52 pixels of a
-first hand-placed set, and the rig built green on them unchanged.
+pose model (RTMPose), as in [step 6](#6-find-the-joints). No GPU, no account. [Joint-script measurements](docs/REFERENCE.md#the-joint-script-scriptskeypointspy).
 
 **By hand**: read the 18 positions off the painting in an image editor and write them into
 a small JSON file. The format, a picture of where each of the 18 joints goes, and a
@@ -842,14 +799,7 @@ them carries that licence. The exam's notice asks for this credit for the painti
 
 > *Painted with Nova Anime XL IL v8.0 by Crody (https://civitai.com/models/376130).*
 
-`rig-c` writes skeleton data in the Spine 4.3 format, and its own model document beside it.
-Which Spine terms apply turns on what plays that output, as rig-c's
-[NOTICE](https://github.com/rig-c/core/blob/main/NOTICE.md) puts it: *what the terms turn
-on is the integration*, and *"If a product integrates a Spine Runtime to play rigc's
-output, that integration is subject to the terms above — rigc neither creates those terms
-nor removes them."* So the web-page and engine-adapter routes under *Use what you made*
-integrate no Spine Runtime, and the Spine editor and official-runtime routes carry the
-terms their own sections name. See-through's code and
+For Spine terms, see the core [NOTICE](https://github.com/rig-c/core/blob/main/NOTICE.md). See-through's code and
 models are not part of any rig-c package; their terms are collected in the parts
 [NOTICE.md](https://github.com/rig-c/parts/blob/main/NOTICE.md). The model files in Route A
 each carry their own licence, linked from [docs/REFERENCE.md](docs/REFERENCE.md#the-model-files-exactly).
