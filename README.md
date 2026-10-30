@@ -3,7 +3,10 @@
 You start with one painting of a character. You end with that character rigged — split
 into movable pieces on a skeleton — breathing, blinking and waving in your browser.
 
-<!-- demo gif -->
+![The guide's painting, its See-through layers fanning apart, the rig's actual bones and mesh triangles, then the character breathing, blinking and waving in the browser.](docs/demo/walkthrough.webp)
+
+Under-eight-second looping WebP, from this walkthrough's outputs.
+[Rebuild it](docs/demo/README.md). Example artwork: CC BY-NC 4.0; credit below.
 
 ## The whole thing in one glance
 

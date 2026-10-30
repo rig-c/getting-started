@@ -11,7 +11,7 @@ for (const command of [['bun', 'add', '--exact', 'playwright@1.58.2'], ['bun', j
   assert.equal(await child.exited, 0, `Step 10 browser setup: ${command[0]} ${command[1]}`);
 }
 const { chromium } = await import(join(tools, 'node_modules/playwright/index.mjs'));
-const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const observations: unknown[] = [];
 try {
   for (const link of input.links) {
