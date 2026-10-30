@@ -48,12 +48,12 @@ cd rig-c-start
 git clone https://github.com/rig-c/getting-started
 mkdir my-rig
 cd my-rig
-bun add --exact @rig-c/parts@1.82.0 @rig-c/core @rig-c/pose @rig-c/play
+bun add @rig-c/parts @rig-c/core @rig-c/pose @rig-c/play
 ```
 
-This example pins `@rig-c/parts` to 1.82.0 for its explicit painting-ownership
-precedence. Bun writes the exact installed versions to `package.json` and `bun.lock`
-in `my-rig`; keep both files to reproduce the install.
+Step 7 uses `extend_painting`'s `order` and `min_held_alpha`, which need
+`@rig-c/parts` 1.82.0 or newer. Bun writes the exact installed versions to
+`package.json` and `bun.lock` in `my-rig`; keep both files to reproduce the install.
 
 Every command from here on runs in `my-rig`. `bun run rigc --version` prints the version and
 then `@esotericsoftware/spine-core absent`. That line is expected: the installed `rigc`
