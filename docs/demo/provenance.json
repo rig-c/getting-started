@@ -5,13 +5,14 @@
   "duration_ms": 7750,
   "fps": 12,
   "source_frames": 93,
-  "bytes": 466392,
+  "bytes": 466228,
   "walkthrough_input": "rig-c/exam@01436ee3f02c189fe1a1e9656fe62068889837f5/tasks/01-build/inputs",
-  "guide_sha256": "2eb26e5a5abcf3a6a336228920dea88cd53fa40de4dd0b190d43b35504d06cf1",
+  "guide_sha256": "5c9fd1ede594e4180a5fb550f29aba64df8808a17df2d93d62e735bb645c09e4",
+  "guide_commit": "9c422e08be005139928e4fb6514eb19d44e248df",
   "versions": {
-    "@rig-c/parts": "1.79.0",
-    "@rig-c/core": "2.81.1",
-    "@rig-c/pose": "1.5.4",
+    "@rig-c/parts": "1.82.0",
+    "@rig-c/core": "2.82.0",
+    "@rig-c/pose": "1.6.0",
     "@rig-c/play": "1.21.2"
   },
   "browser": "145.0.7632.6",
@@ -26,7 +27,7 @@
   ],
   "encoder": "Pillow 11.3.0 / libwebp (version printed by encode.py); lossy quality 72, method 6, loop 0",
   "input_sha256": {
-    "config.json": "7826e4c62ac84bbe0e9594003b1c8fd99c27132b0d78f07e0ae5860de6a9c336",
+    "config.json": "c6220d3cc531828c27b0e7174f4f52a859e93d2a2369036665abfa945c334c8f",
     "inputs/layers/full/layers.json": "22af0a8945889c657bfe153e7577e0740647402c0fa2ca87e5a29714d71d848c",
     "inputs/layers/full/parts/back hair.png": "7aeced05dc951e50a2805bb498158204dcc61605a97ab69f8af7a69ad16abd27",
     "inputs/layers/full/parts/bottomwear.png": "8c40aa16102602d08592721b0ab95fad6647acc966eb030d0118e79d235938f8",
@@ -36,12 +37,12 @@
     "inputs/painting.png": "1064fc12130381dcfea6d617d4812b5b7809586f5e165925d2f29815e1cb90e5",
     "inputs/seethrough.json": "b280325c6733b0c6670d7bd0003dfb45449fe106d9beeb785709c0e38730163a",
     "keypoints.json": "76e912e77e743b0b6c89639bad4aac38c830ddb27878cd00d8153a1d1470d589",
-    "out/check/build/skeleton.json": "568ed37cca804b3c97741739542d9aa293e14b3526bbd9b66ce7f957d55e771e",
-    "out/check/build/skeleton.model.json": "1523b0f167d2c911d772a36bd649f8c3463c4ffdd4e9f442caf1bd64e523809f",
-    "out/check/build/skeleton.png": "203fdf42a73df55d817a3233edbfe5d4eeb0da0e8a903e64ac748d94327db58a"
+    "out/check/build/skeleton.json": "569858e360cb9bb51e59a0e07589b039bea4c2b72a62bff11189c61e0f21b195",
+    "out/check/build/skeleton.model.json": "8a6be9194202c8bc2194d786f218a8180689013ced44cf21a4ec43241a4d28a8",
+    "out/check/build/skeleton.png": "e74553da76db90b6e9dbeffc941affe2027ee4703d94753478b88ccf12bb6367"
   },
   "player_sha256": "4ce8843428205e6a0c093cfa3d75112e7574be98510921aa7e30918d81dc427d",
-  "script_sha256": "779f50934a4e7db2a57be7c249ef3b4ef5cedfa0b864e10a3de0ed41902396a4",
+  "script_sha256": "a35071579de2cfb7c160500961f21e9515794e987c45dee7e5b93f6a85c5e1d2",
   "encoder_script_sha256": "11e2e88f5fc9dd96315d79e990e3e79b51dc21566035bb9304068365d9c4f30b",
   "encoder_runtime": {
     "Pillow": "11.3.0",
@@ -49,14 +50,14 @@
     "quality": 72,
     "method": 6,
     "loop": 0,
-    "bytes": 466392,
+    "bytes": 466228,
     "duration_ms": 7750
   },
   "raw_screenshots_identical": true,
   "passes": [
     {
-      "frames_sha256": "426394276d1bdfcb3b0038ddbc2832f542fe9e3c87e1d464b1f568be2188151a",
-      "webp_sha256": "30c62161469f383feea97ded20640679aa5411199f356b10a90de864f1c41031",
+      "frames_sha256": "247593fd03b988dfe6345664eea19ef68ac03dc5e070df4f4dc6f3ffaa4168b7",
+      "webp_sha256": "1de8a7dd45cc3461c408f0e4d0d03df64c4d877b1ed2e2180281e31a0be1168f",
       "geometry": {
         "meshes": 6,
         "triangles": 434,
@@ -83,8 +84,8 @@
       }
     },
     {
-      "frames_sha256": "426394276d1bdfcb3b0038ddbc2832f542fe9e3c87e1d464b1f568be2188151a",
-      "webp_sha256": "30c62161469f383feea97ded20640679aa5411199f356b10a90de864f1c41031",
+      "frames_sha256": "247593fd03b988dfe6345664eea19ef68ac03dc5e070df4f4dc6f3ffaa4168b7",
+      "webp_sha256": "1de8a7dd45cc3461c408f0e4d0d03df64c4d877b1ed2e2180281e31a0be1168f",
       "geometry": {
         "meshes": 6,
         "triangles": 434,

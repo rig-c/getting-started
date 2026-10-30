@@ -6,6 +6,8 @@ import { dirname, join, resolve, sep } from 'node:path';
 
 function arg(key: string) { const i = process.argv.indexOf(key); return i < 0 ? undefined : process.argv[i + 1]; }
 const root = resolve(import.meta.dir, '../..');
+const guideCommit = arg('--guide-commit');
+assert(!process.argv.includes('--guide-commit') || (guideCommit && /^[0-9a-f]{40}$/.test(guideCommit)), '--guide-commit requires a full lowercase 40-character commit SHA');
 const consumer = resolve(arg('--consumer') ?? '.');
 const scratchArg = arg('--scratch');
 assert(scratchArg, 'Set --scratch to a dedicated directory outside the checkout');
@@ -210,7 +212,7 @@ try {
   const versions = Object.fromEntries(['@rig-c/parts', '@rig-c/core', '@rig-c/pose', '@rig-c/play'].map(n => [n, JSON.parse(readFileSync(join(consumer,'node_modules',n,'package.json'),'utf8')).version]));
   const receipt = { spec: 'walkthrough-demo/1', width: W, height: H, duration_ms: duration, fps, source_frames: count, bytes: bytes.length,
     walkthrough_input: 'rig-c/exam@01436ee3f02c189fe1a1e9656fe62068889837f5/tasks/01-build/inputs',
-    guide_sha256: sha(readFileSync(join(root,'README.md'))), versions, browser: browser.version(), graphics, encoder: 'Pillow 11.3.0 / libwebp (version printed by encode.py); lossy quality 72, method 6, loop 0',
+    guide_sha256: sha(readFileSync(join(root,'README.md'))), ...(guideCommit ? { guide_commit: guideCommit } : {}), versions, browser: browser.version(), graphics, encoder: 'Pillow 11.3.0 / libwebp (version printed by encode.py); lossy quality 72, method 6, loop 0',
     input_sha256: Object.fromEntries([...files].sort().map(p => [p, sha(readFileSync(join(consumer,p)))])),
     player_sha256: sha(playerHtml), script_sha256: sha(readFileSync(import.meta.filename)), encoder_script_sha256: sha(readFileSync(join(import.meta.dir,'encode.py'))),
     encoder_runtime: JSON.parse(readFileSync(join(scratch,'pass-0.webp.json'),'utf8')), raw_screenshots_identical: passes[0].frames_sha256 === passes[1].frames_sha256, passes,

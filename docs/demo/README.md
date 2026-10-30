@@ -66,6 +66,9 @@ and byte limit. The receipt identifies the browser, encoder, package versions,
 README digest, source assets and compiled-model hashes. Identical bytes are checked
 within that environment; different browser, font or libwebp versions may change
 pixels or encoding. Keep the recorded environment when comparing rebuilds.
+Optionally pass `--guide-commit <full 40-character SHA>` to record the source guide
+commit beside its digest. Verify that commit against the checkout before exporting;
+the exporter validates the SHA's format and records the supplied identity.
 
 Raw PNGs and the two trial WebPs are scratch files. Remove that dedicated scratch
 directory after reviewing the output and preserving its digests. Commit only the
