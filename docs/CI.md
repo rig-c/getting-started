@@ -11,8 +11,12 @@ The final server fence has `<!-- try-it-ci: server -->` immediately above it. Th
 runner supervises that command and opens the two addresses from its step in Chromium.
 It checks the actual WebGL backend, non-empty visible canvas pixels, changing stage
 screenshots, animation movement, tracks, pause/resume and breeze,
+selects **turn** in the menu and checks its track, pose and changing pixels,
 then stops its server. Human visual and seam assessment is not run by this job.
 Other persistent commands hit the named walkthrough timeout rather than silently pass.
+The step 9d native extremes plate, its JSON reading and the consumed turn config/keys
+are retained as `turn-extremes.png`, `turn-extremes.json` and `turn-input.json`
+before the consumer is removed, and uploaded with the walkthrough receipt.
 
 A fence requiring human interaction must have an adjacent marker such as
 `<!-- try-it-ci: not-run reason="requires a person at a licensed desktop" -->`.

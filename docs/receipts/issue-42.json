@@ -1,0 +1,148 @@
+{
+  "spec": "getting-started-head-turn/1",
+  "date": "2026-10-30",
+  "status": "render and rig gates passed; known shirt ghosts disclosed; browser RED also occurs on retained origin baseline",
+  "guide_sha256": "f8efbb3764810c8083686c2456082d606562db773fcb6d90b83a7ae22bca22e1",
+  "versions": {
+    "@rig-c/parts": "1.83.0",
+    "@rig-c/core": "2.82.0",
+    "@rig-c/pose": "1.6.0",
+    "@rig-c/play": "1.21.2"
+  },
+  "source": "rig-c/exam@01436ee3f02c189fe1a1e9656fe62068889837f5/tasks/01-build/inputs",
+  "joints": "docs/KEYPOINTS.md hand-placed alternative; detector not run",
+  "depth_consumed": "Per-part See-through depth_median; no depth images or sampled-depth roles",
+  "turn": {
+    "pivot": 0.730087,
+    "depths": {
+      "hair_back": 0.9375,
+      "upperarm_l": 0.90234375,
+      "forearm_l": 0.90234375,
+      "upperarm_r": 0.83984375,
+      "forearm_r": 0.83984375,
+      "thigh_r": 0.80078125,
+      "shin_r": 0.80078125,
+      "thigh_l": 0.80078125,
+      "shin_l": 0.80078125,
+      "foot_r": 0.796875,
+      "foot_l": 0.796875,
+      "neck": 0.7578125,
+      "bottomwear": 0.7265625,
+      "topwear": 0.6796875,
+      "hairpin": 0.8515625,
+      "ear_l": 0.59375,
+      "ear_r": 0.5859375,
+      "face": 0.466796875,
+      "mouth": 0.465796875,
+      "eyewhite_r": 0.465796875,
+      "eyewhite_l": 0.465796875,
+      "iris_l": 0.465796875,
+      "iris_r": 0.465796875,
+      "lash_l": 0.465796875,
+      "lash_r": 0.465796875,
+      "brow_r": 0.465796875,
+      "brow_l": 0.465796875,
+      "hair_front": 0.064453125
+    }
+  },
+  "head_pivot_read_by_published_function": 0.561246,
+  "head_fraction_examples": {
+    "hair_back": {
+      "depth": 0.9375,
+      "fraction": -0.757366
+    },
+    "hair_front": {
+      "depth": 0.064453125,
+      "fraction": 1
+    },
+    "hairpin": {
+      "depth": 0.8515625,
+      "fraction": -0.584381
+    },
+    "face": {
+      "depth": 0.466796875,
+      "fraction": 0.190118
+    }
+  },
+  "animation": {
+    "name": "turn",
+    "duration": 4,
+    "yaw_degrees": [
+      0,
+      -12,
+      0,
+      12,
+      0
+    ],
+    "key_times": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "verification": {
+    "fresh_npm_install_exit": 0,
+    "build_exit": 0,
+    "standalone_check_exit": 0,
+    "native_render_exit": 0,
+    "check_bars": {
+      "measured": 13,
+      "total": 14,
+      "skip": [
+        "STRESS_OFF_CHAIN"
+      ]
+    },
+    "warnings_before": 5,
+    "warnings_after": 5,
+    "warning_names": [
+      "SEAM_OVER_MOTION: existing hello upperarm_r|forearm_r elbow",
+      "CLOTH_SETTLES: four existing skirt chains"
+    ],
+    "browser_candidate_exit": 1,
+    "browser_origin_control_exit": 1,
+    "browser_observation": "Both actual canvas2d vs expected webgl; shared environment under HQ control rule; no browser PASS",
+    "turn_menu": "not reached at WebGL gate"
+  },
+  "picture": {
+    "file": "docs/demo/head-turn.png",
+    "sha256": "3e8a8b1a7f893792cff4bb5d3a788572559ae96238f0a02d769eb17e6122bb5d",
+    "source_extremes_sha256": "bc8e241673ccfef52d3fee0e8e81dc06e840f8b5e2f85ab3f09cfac6a3fbe226",
+    "viewport": [
+      -448,
+      -32,
+      896,
+      1280
+    ],
+    "scale_px_per_rig_unit": 1,
+    "head_crop": [
+      250,
+      0,
+      670,
+      400
+    ],
+    "panels": [
+      "setup",
+      "f12 t=1 -12 degrees",
+      "f36 t=3 +12 degrees",
+      "abs(max-min)"
+    ],
+    "presentation": "Native pixels cropped without scaling; labels and grey presentation background only. No art repair.",
+    "geometry_pair_max_vertex_distance": 30.43282477837644
+  },
+  "visual_residual": "GHOST: short old hair-tip pixels in static assembled topwear, exposed beside moving locks at MIN. Exact samples already exist before turn; raw full topwear is light and head neck transparent there. Disclosed only; no repair.",
+  "body": "Across 49 samples, measured torso/limb bone matrices and topwear/limb vertices do not change; skirt physics may settle. Body does not turn.",
+  "origin_browser_control": {
+    "commit": "24ffaf55045869face99390dbed8c78843a5932e",
+    "readme_sha256": "87815b3ef8833c777ef36a20befef82d1e128771bde670e40474c9baf3c0bcfc",
+    "browser_helper_sha256": "7bff43a9fe931ef2a645d07dca92a8b1a11c5a7747ba37552ee164e4b709bc1a",
+    "retained_baseline_limits": "Guide hand-placed joints; equivalent hello file named hello.before-turn.json; no fresh full-origin walkthrough claim."
+  },
+  "jobs": {
+    "build_check": "20261030T114410Z-3b0b1e53c9344636880c83c1b84d2954",
+    "native_render_and_candidate_browser_red": "20261030T115319Z-c7a9e801b58741be97b1067366a78995",
+    "origin_browser_red": "20261030T120527Z-52e88a1b013d4b9081e48a978170a8b0"
+  },
+  "licence": "Character imagery: CC BY-NC 4.0, rig-c/exam. Painted with Nova Anime XL IL v8.0 by Crody (https://civitai.com/models/376130)."
+}

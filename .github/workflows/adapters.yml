@@ -13,6 +13,8 @@ on:
   schedule:
     - cron: '17 3 * * 1-6'
     - cron: '17 3 * * 0'
+env:
+  PLAYWRIGHT_SKIP_BROWSER_GC: "1"
 permissions:
   contents: read
 jobs:
@@ -60,6 +62,9 @@ jobs:
             .try-it/walkthrough.log
             .try-it/browser.json
             .try-it/browser-*.png
+            .try-it/turn-extremes.json
+            .try-it/turn-extremes.png
+            .try-it/turn-input.json
           if-no-files-found: error
           retention-days: 14
   publish-tested-record:
