@@ -512,7 +512,7 @@ The tools need four things from you:
 Pick a route for the painting and the layers. The joints are the same on every route and
 come [after](#the-joints).
 
-[Route requirements and measured comparison](https://github.com/rig-c/getting-started/blob/main/docs/REFERENCE.md#route-comparison).
+[Route requirements and measured comparison](docs/REFERENCE.md#route-comparison).
 
 ### Route A: your own NVIDIA GPU
 
@@ -523,7 +523,7 @@ git. Each requirement's exact wording and source is in
 [docs/REFERENCE.md](docs/REFERENCE.md#requirements-and-their-sources).
 
 You install ComfyUI, one set of custom nodes and four model files; then two `rig-parts`
-commands drive ComfyUI for you. (Any other way of running See-through works too.) [Route A measurements and unmeasured steps](https://github.com/rig-c/getting-started/blob/main/docs/REFERENCE.md#route-a-measured-2026-10-29).
+commands drive ComfyUI for you. (Any other way of running See-through works too.) [Route A measurements and unmeasured steps](docs/REFERENCE.md#route-a-measured-2026-10-29).
 
 **1. Install ComfyUI**, following its own [manual install](https://github.com/Comfy-Org/ComfyUI#manual-install-windows-linux):
 
@@ -564,7 +564,7 @@ in [docs/REFERENCE.md](docs/REFERENCE.md#the-model-files-exactly).
 | `4x-AnimeSharp.pth` | `models/upscale_models/` | [Kim2091/AnimeSharp](https://huggingface.co/Kim2091/AnimeSharp) (non-commercial licence; only enlarges the painting) |
 | See-through's two models | none | the wrapper downloads them from [Hugging Face](https://huggingface.co/layerdifforg/seethroughv0.0.2_layerdiff3d) on its first run |
 
-[Model sizes and provenance](https://github.com/rig-c/getting-started/blob/main/docs/REFERENCE.md#the-model-files-exactly).
+[Model sizes and provenance](docs/REFERENCE.md#the-model-files-exactly).
 
 **4. Make the painting.** Do [step 1 of Try it first](#1-install-the-packages) and work in
 that `my-rig` folder. Copy the example `config.json` and `pose_a.json` from
@@ -643,7 +643,7 @@ assume an NVIDIA card. Keep `seethrough.offload` false in `config.json` too.
 (ComfyUI's [desktop app for macOS](https://docs.comfy.org/installation/desktop/macos)
 exists too; this guide doesn't walk through it.)
 
-[Route B downloads, stated sizes and measurement limits](https://github.com/rig-c/getting-started/blob/main/docs/REFERENCE.md#route-b-downloads).
+[Route B downloads, stated sizes and measurement limits](docs/REFERENCE.md#route-b-downloads).
 
 ### Route C: no GPU at all
 
@@ -700,7 +700,7 @@ checked against what `rig-parts` reads from Route A's `layers.json`.
 guesses the torso from the clothes and draws no legs.
 
 **On the CPU**: [`scripts/keypoints.py`](scripts/keypoints.py) finds the 18 joints with a
-pose model (RTMPose), as in [step 6](#6-find-the-joints). No GPU, no account. [Joint-script measurements](https://github.com/rig-c/getting-started/blob/main/docs/REFERENCE.md#the-joint-script-scriptskeypointspy).
+pose model (RTMPose), as in [step 6](#6-find-the-joints). No GPU, no account. [Joint-script measurements](docs/REFERENCE.md#the-joint-script-scriptskeypointspy).
 
 **By hand**: read the 18 positions off the painting in an image editor and write them into
 a small JSON file. The format, a picture of where each of the 18 joints goes, and a
