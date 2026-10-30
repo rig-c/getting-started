@@ -796,6 +796,13 @@ animation at a time); the page's breeze is read there only through the player.
 
 ### The joint script, `scripts/keypoints.py`
 
+Measured on
+2026-10-29 on an Apple M4 Mac with empty caches: the Python packages the first time, 584 MB
+in 44 seconds; the two model files the first time, 330 MB in 19 seconds; after that **about
+2 seconds per painting**, of which the model's own work is 0.6–1.0 s. The same joints came
+out every run, byte for byte. On the example painting they were within 4–52 pixels of a
+first hand-placed set, and the rig built green on them unchanged.
+
 **Measured 2026-10-29**, on the Apple M4 Mac of *Tested with* (macOS 26.6.1, 32 GB; uv
 0.12.17, which chose Python 3.12.14; rtmlib 0.0.16, onnxruntime 1.31.1, opencv 5.0.0,
 numpy 2.5.4), with the README's step-6 command as written, pointed at the example painting
@@ -858,6 +865,29 @@ own part, the parts guide's `assemble.cuts` cuts the layer in two.
 
 ### Route A, measured 2026-10-29
 
+The following excerpts come from [README Route A](../README.md#route-a-your-own-nvidia-gpu);
+its numbered steps and model-file table supply their context.
+
+We ran
+both commands on 2026-10-29 against the project's own box — Windows, an NVIDIA GeForce RTX
+5070 Ti with 16 GB, ComfyUI 0.29.2, the See-through nodes at 0.5.0 — with the models already
+on disk: **44 seconds** for the painting and **3 minutes 45 seconds** for one See-through run
+at the default settings. One run each, on one card; your card will differ. The versions,
+the exact lines and what the card's memory did are in
+[docs/REFERENCE.md](REFERENCE.md#route-a-measured-2026-10-29). What we have not
+measured: installing ComfyUI from nothing, and the model downloads themselves.
+
+That wait was **44 seconds** on the box above.
+
+The full run took **225 seconds** on the box above (3 minutes 45 seconds; the
+head run was not timed).
+
+The first three are 6.94 GB, 2.50 GB and 0.07 GB; See-through's two are 10.16 GB and
+3.28 GB — about 23 GB in all. Those are the exact files on the project's box: on
+2026-10-29 each one's SHA-256 matched its download page, so the ControlNet row above is
+xinsir's upload and not another file of the same name. Civitai sent us the checkpoint
+without asking us to sign in.
+
 One painting and one See-through run, through the README's own two commands, against the
 project's GPU box. The box was not installed for this guide: ComfyUI, the nodes and the
 models were already on it, so the install and the downloads are still not measured, and
@@ -910,6 +940,35 @@ the box has 0.33.1), `--nf4`, and the run's own peak memory on an otherwise empt
 The wrapper's README describes its group offload (`--offload`) as cutting peak VRAM a great
 deal at "2–3x slower". The parts guide says the painting comes back at twice the
 generation size (1664 x 2432 from an 832 x 1216 latent).
+
+### Route comparison
+
+| | Route A: NVIDIA GPU | Route B: Apple Silicon Mac | Route C: no GPU |
+| --- | --- | --- | --- |
+| **You'll need** | a card with 12–16 GB of memory, ~23 GB of disk, Python | an M1–M4 Mac, ~23 GB of disk, Python | a browser and a free Hugging Face account |
+| **Per character** | 44 seconds for the painting and under 4 minutes per See-through run, on a 16 GB card | we don't know yet | two web runs of up to 2 minutes each, on a free tier of 5 GPU minutes a day |
+| **Tried by** | the project, 2026-10-29, on an RTX 5070 Ti | nobody yet | written from the demo's own pages, read 2026-10-29 |
+
+### Route B downloads
+
+**What this route downloads** — *not measured yet*: these are the names and the sizes
+their publishers state, read on 2026-10-29. Nobody has timed them or run the result on a
+Mac for this guide.
+
+| What | Where from | Size, as stated |
+| --- | --- | --- |
+| ComfyUI, the repository | `git clone` of [Comfy-Org/ComfyUI](https://github.com/Comfy-Org/ComfyUI) (its latest release was v0.43.0 on 2026-10-27) | not stated; not measured |
+| PyTorch for the Mac's GPU: `torch`, `torchvision`, `torchaudio` nightly wheels, `macosx_14_0_arm64` | the `nightly/cpu` index in step 2 (2.16.0.dev, 0.30.0.dev, 2.11.0.dev on 2026-10-29) | the nightly server does not answer size requests; the current stable `torch` wheel for the same Mac is 138,556,890 bytes on PyPI |
+| ComfyUI's other Python packages (`requirements.txt`, 33 entries) | PyPI | not stated; not measured |
+| The See-through nodes, [jtydhr88/ComfyUI-See-through](https://github.com/jtydhr88/ComfyUI-See-through) 0.5.0, and its 7 packages (`diffusers`, `peft`, `accelerate`, `opencv-python`, `scikit-learn`, `bitsandbytes`, `matplotlib`) | GitHub, PyPI | not stated; not measured. Whether `bitsandbytes` installs on macOS is not measured |
+| `novaAnimeXL_ilV80.safetensors` | [Civitai](https://civitai.com/models/376130) | 6,938,418,620 bytes (6.94 GB) |
+| `controlnet-openpose-sdxl-1.0.safetensors` | [xinsir](https://huggingface.co/xinsir/controlnet-openpose-sdxl-1.0), `diffusion_pytorch_model.safetensors` | 2,502,139,104 bytes (2.50 GB) |
+| `4x-AnimeSharp.pth` | [Kim2091/AnimeSharp](https://huggingface.co/Kim2091/AnimeSharp) | 67,010,245 bytes (0.07 GB) |
+| `layerdifforg/seethroughv0.0.2_layerdiff3d` | Hugging Face, fetched by the nodes on first use | 10,159,649,987 bytes (10.16 GB) |
+| `layerdifforg/seethroughv0.0.1_marigold` | Hugging Face, fetched by the nodes on first use | 3,276,274,643 bytes (3.28 GB) |
+
+The five model files come to 22.95 GB. The exact file sizes, hashes and licences are in
+[docs/REFERENCE.md](REFERENCE.md#the-model-files-exactly).
 
 ## Requirements and their sources
 
@@ -998,7 +1057,7 @@ Where a project states no minimum, this says so rather than filling one in.
   needs, while its `pyproject.toml` does not list it among its dependencies. Whether
   `bitsandbytes` installs on macOS is not measured yet.
 - **Accounts**: as Route A.
-- **What it downloads**: the README's table under Route B, read on 2026-10-29. Sizes for
+- **What it downloads**: the [Route B downloads table](#route-b-downloads), read on 2026-10-29. Sizes for
   the model files are the Hugging Face and Civitai APIs' (*The model files, exactly*). The
   PyTorch nightly index (`download.pytorch.org/whl/nightly/cpu`) listed
   `torch-2.16.0.dev20261028-cp313-cp313-macosx_14_0_arm64.whl`,
@@ -1110,6 +1169,24 @@ The example inputs are task 01 of [rig-c/exam](https://github.com/rig-c/exam) at
 `01436ee3f02c189fe1a1e9656fe62068889837f5`.
 
 ## Use what you made
+
+### Spine runtime terms
+
+`rig-c` writes skeleton data in the Spine 4.3 format, and its own model document beside it.
+Which Spine terms apply turns on what plays that output, as rig-c's
+[NOTICE](https://github.com/rig-c/core/blob/main/NOTICE.md) puts it: *what the terms turn
+on is the integration*, and *"If a product integrates a Spine Runtime to play rigc's
+output, that integration is subject to the terms above — rigc neither creates those terms
+nor removes them."* So the web-page and engine-adapter routes under *Use what you made*
+integrate no Spine Runtime, and the Spine editor and official-runtime routes carry the
+terms their own sections name.
+
+Licence: the Spine Runtimes License, as rig-c's [NOTICE](https://github.com/rig-c/core/blob/main/NOTICE.md)
+restates it. Integrating a Spine Runtime into a product is permitted *under Section 2 of
+the Spine Editor License Agreement*, or otherwise *on the condition that each user of the
+product obtains their own Spine Editor license* and the product carries the Runtimes licence
+and copyright notice. The licence itself is at
+[esotericsoftware.com/spine-runtimes-license](https://esotericsoftware.com/spine-runtimes-license).
 
 The README's three exits, line by line: where each claim comes from, and the one run.
 Esoteric Software's pages were read on 2026-10-13; the rig-c files at the versions in
@@ -1260,7 +1337,7 @@ changes is the packages' decision.
   other direction — older data on the 4.3 runtime opens without an error and loses its
   constraints or poses as NaN — and its rule is "play on that generation's official
   runtime".
-- **Licence**: the two routes are quoted in the README exactly as rig-c's
+- **Licence**: the two routes are quoted [above](#spine-runtime-terms) exactly as rig-c's
   [NOTICE.md](https://github.com/rig-c/core/blob/main/NOTICE.md) fact 3 restates them. The
   licence's own sentences, read on Esoteric's
   [page](https://esotericsoftware.com/spine-runtimes-license): "Integration of the Spine

@@ -18,6 +18,15 @@ env:
 permissions:
   contents: read
 jobs:
+  readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: README budget, headings and dated measurements
+        run: bun scripts/check-readme.ts
+      - name: Named planted failures and normal/edge controls
+        run: bun test scripts/check-readme.test.ts
   example:
     if: github.event_name != 'schedule' && (github.event_name != 'workflow_dispatch' || inputs.try_it == 'adapters')
     runs-on: ubuntu-latest
