@@ -62,9 +62,20 @@ try {
     assert.deepEqual((await sample()).wind, [1, 0], 'Step 10 breeze off');
     await page.locator('#breeze').check(); await page.waitForTimeout(100);
     const wind = (await sample()).wind; assert(wind[0] >= 0.5 && wind[0] <= 1 && wind[1] === 0, 'Step 10 breeze on');
+    let turn = null;
+    if (url.searchParams.get('under') === 'idle') {
+      await page.locator('#anim').selectOption('turn');
+      const a = await sample(); const sa = await page.locator('#stage').screenshot();
+      await page.waitForTimeout(700);
+      const b = await sample(); const sb = await page.locator('#stage').screenshot();
+      assert.deepEqual(b.tracks, ['idle', 'turn'], 'Step 9d turn menu selection');
+      assert.notEqual(a.pose, b.pose, 'Step 9d frozen turn pose');
+      assert.notEqual(sha(sa), sha(sb), 'Step 9d frozen turn pixels');
+      turn = { tracks: b.tracks, advanced: true, screenshots_sha256: [sha(sa), sha(sb)] };
+    }
     assert.deepEqual(errors, [], 'Step 10 browser errors');
     writeFileSync(join(dirname(input.output), `browser-${observations.length}.png`), secondScreenshot);
-    observations.push({ url: link, backend: second.backend, painted: second.painted, screenshots_sha256: [sha(firstScreenshot), sha(secondScreenshot)], changed_pixels: true, advanced: true, pause_resume: true, breeze: true, tracks: second.tracks });
+    observations.push({ url: link, backend: second.backend, painted: second.painted, screenshots_sha256: [sha(firstScreenshot), sha(secondScreenshot)], changed_pixels: true, advanced: true, pause_resume: true, breeze: true, tracks: second.tracks, turn });
     await page.close();
   }
   writeFileSync(input.output, JSON.stringify({ browser: browser.version(), backend: 'WebGL rasterization / visible canvas blits (SwiftShader)', observations }, null, 2) + '\n');

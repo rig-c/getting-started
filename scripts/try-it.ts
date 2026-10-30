@@ -1,6 +1,6 @@
 // Commands come from README.md, never from a second copy of the tutorial.
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, mkdtempSync, realpathSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, mkdtempSync, realpathSync, existsSync } from 'node:fs';
 import { resolve, join, sep } from 'node:path';
 
 export const packages = ['@rig-c/parts', '@rig-c/core', '@rig-c/pose', '@rig-c/play'] as const;
@@ -207,9 +207,18 @@ export async function main() {
     const result = await execute(steps, consumer, [process.execPath, join(root, 'scripts/try-it-browser.ts'), join(out, 'browser-input.json')], { ...process.env, ...isolated, OMP_NUM_THREADS: '4', OPENBLAS_NUM_THREADS: '4', MKL_NUM_THREADS: '4' });
     if (await Bun.file(join(consumer, 'walkthrough.log')).exists()) copyFileSync(join(consumer, 'walkthrough.log'), join(out, 'walkthrough.log'));
     receipt.rows = result.rows;
+    const consumerRoot = join(consumer, 'rig-c-start/my-rig');
+    for (const name of ['extremes.json', 'extremes.png']) {
+      const file = join(consumerRoot, 'out/turn-render/turn', name);
+      if (existsSync(file)) copyFileSync(file, join(out, `turn-${name}`));
+    }
+    if (existsSync(join(consumerRoot, 'config.json')) && existsSync(join(consumerRoot, 'hello.anim.json'))) {
+      const config = JSON.parse(readFileSync(join(consumerRoot, 'config.json'), 'utf8'));
+      const motion = JSON.parse(readFileSync(join(consumerRoot, 'hello.anim.json'), 'utf8'));
+      if (config.turn && motion.animations?.turn) writeFileSync(join(out, 'turn-input.json'), JSON.stringify({ turn: config.turn, animation: motion.animations.turn }, null, 2) + '\n');
+    }
     if (result.exit || result.rows.some(r => r.status !== 'PASS')) throw Error(`Step ${result.rows.find(r => r.status !== 'PASS')?.step}: incomplete walkthrough (exit ${result.exit})`);
     phase = 'VERSIONS';
-    const consumerRoot = join(consumer, 'rig-c-start/my-rig');
     const installed = Object.fromEntries(packages.map(p => [p, JSON.parse(readFileSync(join(consumerRoot, 'node_modules', p, 'package.json'), 'utf8')).version]));
     const after = await latest(); assertVersions(installed, before, after);
     const clone = join(consumer, 'rig-c-start/getting-started');

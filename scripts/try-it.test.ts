@@ -15,10 +15,10 @@ async function inDirectory(fn: (directory: string) => Promise<void>) {
   try { await fn(directory); } finally { rmSync(directory, { recursive: true, force: true }); }
 }
 
-test('extracts the real guide, including 9b/9c and the server; no hand-copied commands', () => {
+test('extracts the real guide, including 9b/9c/9d and the server; no hand-copied commands', () => {
   const source = readFileSync(join(root, 'README.md'), 'utf8');
   const steps = extract(source);
-  expect(steps.map(s => s.title.split('.')[0])).toEqual(['1','2','3','4','5','6','7','8','9','9b','9c','10']);
+  expect(steps.map(s => s.title.split('.')[0])).toEqual(['1','2','3','4','5','6','7','8','9','9b','9c','9d','10']);
   expect(steps[0].blocks[0].command).toContain('git clone https://github.com/rig-c/getting-started\n');
   expect(steps[5].blocks[0].command).toContain('uv run --with rtmlib --with onnxruntime');
   expect(steps.at(-1)!.blocks[0].mode).toBe('server');
