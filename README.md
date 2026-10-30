@@ -54,8 +54,9 @@ cd my-rig
 bun add @rig-c/parts @rig-c/core @rig-c/pose @rig-c/play
 ```
 
-Step 7 uses `extend_painting`'s `order` and `min_held_alpha`, which need
-`@rig-c/parts` 1.82.0 or newer. Bun writes the exact installed versions to
+The See-through commands below read `config.seethrough`, which needs
+`@rig-c/parts` 1.82.1 or newer; this also covers step 7's `extend_painting` fields
+`order` and `min_held_alpha`. Bun writes the exact installed versions to
 `package.json` and `bun.lock` in `my-rig`; keep both files to reproduce the install.
 
 Every command from here on runs in `my-rig`. `bun run rigc --version` prints the version and
@@ -81,7 +82,7 @@ You should now have `inputs/` with `painting.png`, `layers/full/`, `layers/head/
 cat > config.json <<'EOF'
 {
   "key": "exam-01",
-  "seethrough": { "resolution": 1024, "steps": 30, "seed": 42, "offload": true },
+  "seethrough": { "resolution": 1024, "steps": 30, "seed": 42, "offload": false },
   "assemble": { "rig_scale": 0.5 }
 }
 EOF
@@ -568,8 +569,8 @@ from step 3 with your painting, skipping step 2. In step 3, *add* the `seethroug
 say the layers are already made, run these instead:
 
 ```sh
-bunx rig-parts comfy seethrough --image work/st_input_full.png --out inputs/layers/full --host http://127.0.0.1:8188
-bunx rig-parts comfy seethrough --image work/st_input_head.png --out inputs/layers/head --host http://127.0.0.1:8188
+bunx rig-parts comfy seethrough --config config.json --image work/st_input_full.png --out inputs/layers/full --host http://127.0.0.1:8188
+bunx rig-parts comfy seethrough --config config.json --image work/st_input_head.png --out inputs/layers/head --host http://127.0.0.1:8188
 ```
 
 Each run prints `queue empty`, `GPU job started`, then `GPU job finished in … s` and a line
@@ -577,7 +578,10 @@ like `29 layer(s) on a 1024x1024 canvas, read back green by the layer reader`, n
 layers. The full run took **225 seconds** on the box above (3 minutes 45 seconds; the
 head run was not timed). Each `--out` folder gets `layers.json`, `meta.json`, a `parts/`
 folder of PNGs and `previews/`; `meta.json` records the run's own time and what the card's
-free memory did. The defaults are resolution 1024, 30 steps, seed 42.
+free memory did. Both commands read `seethrough.resolution`, `steps`, `seed` and
+`offload` from `config.json`: here 1024, 30, 42 and false. Explicit CLI flags override
+those values. Keep `offload` false in the shared config; on NVIDIA only, add
+`--offload` to a command if needed (see Troubleshooting).
 
 ### Route B: an Apple Silicon Mac
 
@@ -614,7 +618,8 @@ should name its address, `http://127.0.0.1:8188` by default.
 
 **3. Then Route A's steps 2 to 5**: the nodes, the same models in the same folders,
 `comfy paint`, `comfy seethrough` twice — **without** `--offload` or `--nf4`, which both
-assume an NVIDIA card. (ComfyUI's [desktop app for macOS](https://docs.comfy.org/installation/desktop/macos)
+assume an NVIDIA card. Keep `seethrough.offload` false in `config.json` too.
+(ComfyUI's [desktop app for macOS](https://docs.comfy.org/installation/desktop/macos)
 exists too; this guide doesn't walk through it.)
 
 **What this route downloads** — *not measured yet*: these are the names and the sizes
@@ -731,7 +736,8 @@ complete example are in [docs/KEYPOINTS.md](docs/KEYPOINTS.md).
   didn't load, or a model file is missing or misnamed. Restart ComfyUI, read its
   `[ComfyUI-See-through]` lines, and check the file names against the table in Route A.
 - *Out of GPU memory during See-through* — the wrapper's README says, in order: a lower
-  `resolution`, then group offload (`--offload` here, about 2–3x slower; See-through's own
+  `seethrough.resolution` in `config.json`, then group offload (NVIDIA only: `--offload`
+  on that command, about 2–3x slower; See-through's own
   README puts it at about 1.5x, read 2026-10-29). `--offload` needs `diffusers` 0.37 or
   later, which the project's box does not have, so it was not measured. `--nf4` turns on
   its 4-bit mode, which needs the `bitsandbytes` package.
@@ -739,7 +745,11 @@ complete example are in [docs/KEYPOINTS.md](docs/KEYPOINTS.md).
   empty before it sends a job, so it never cuts in front of someone else's. `--wait`
   (seconds, default 1800) bounds how long.
 - *On a Mac, an error that names `cuda` with `--offload`* — the wrapper's offload is written
-  for NVIDIA. Leave `--offload` off.
+  for NVIDIA. Leave `--offload` off and keep `seethrough.offload` false in `config.json`.
+- *`SEETHROUGH_HEAD_RUN_HOLLOW`* — change `seethrough.seed` in `config.json` and
+  re-run the head See-through command with `--config config.json` and a fresh `--out`
+  directory, then use that directory for `--head` in the later steps. A `--seed` flag
+  overrides the config's seed; remove it when you want the config to control the run.
 - *On a Mac, `--nf4` fails, or `pip install -r requirements.txt` fails on `bitsandbytes`* —
   the 4-bit mode needs that package, and we don't know whether it installs on macOS. If it's
   the only package that fails, leave `--nf4` off and carry on.
