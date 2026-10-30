@@ -61,7 +61,7 @@ test('moved figures remain pinned in REFERENCE and README pointers resolve', () 
     expect(reference.includes(pin)).toBe(true);
     expect(readme.includes(pin)).toBe(false);
   }
-  const prefix = 'https://github.com/rig-c/getting-started/blob/main/docs/REFERENCE.md#';
+  const prefix = 'docs/REFERENCE.md#';
   for (const anchor of ['route-comparison', 'route-a-measured-2026-10-29', 'the-model-files-exactly', 'route-b-downloads', 'the-joint-script-scriptskeypointspy']) {
     expect(urls(readme)).toContain(prefix + anchor);
     expect(anchorExists(reference, anchor)).toBe(true);
