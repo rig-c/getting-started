@@ -48,8 +48,12 @@ cd rig-c-start
 git clone https://github.com/rig-c/getting-started
 mkdir my-rig
 cd my-rig
-bun add @rig-c/parts @rig-c/core @rig-c/pose @rig-c/play
+bun add --exact @rig-c/parts@1.82.0 @rig-c/core @rig-c/pose @rig-c/play
 ```
+
+This example pins `@rig-c/parts` to 1.82.0 for its explicit painting-ownership
+precedence. Bun writes the exact installed versions to `package.json` and `bun.lock`
+in `my-rig`; keep both files to reproduce the install.
 
 Every command from here on runs in `my-rig`. `bun run rigc --version` prints the version and
 then `@esotericsoftware/spine-core absent`. That line is expected: the installed `rigc`
@@ -144,6 +148,7 @@ this hand-placed set; the expected lines below now use the cold detector run.
 bun -e 'const f = "keypoints.json", k = await Bun.file(f).json(); k.people[0].joints.l_ankle.at = [848, 2140]; await Bun.write(f, JSON.stringify(k, null, 1) + "\n")'
 bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json
 bun ../getting-started/scripts/take.ts work/proposal.json config.json bones meshes regions motion limbs
+bun -e 'const f = "config.json", c = await Bun.file(f).json(); c.assemble.extend_painting = [{ part: "shin_l", band: [405, 1073, 444, 1098], max_distance: 15, min_held_alpha: 250, order: 0 }, { part: "foot_l", band: [440, 1092, 444, 1098], max_distance: 4, min_held_alpha: 250, order: 1 }]; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
 ```
 
 `propose` drafts the bones, the meshes and an idle motion; `take.ts` copies them into the
@@ -162,6 +167,17 @@ bone foot_r at the r_ankle joint under leg_r1` and the same for `foot_l`, then
 `0 LINT line(s) over 6 mesh(es) and the hip` and a coverage line ending `44 bone(s) — 29
 checked and clean, 0 checked with a LINT line, 15 not checked`. Open
 `work/render/landmarks.png` to see the bones over the painting.
+
+The last line assigns the example's missing ankle painting to the final `shin_l`
+and `foot_l` parts. The half-open `band` rectangles use rig pixels, x right/y down;
+`max_distance` bounds four-neighbour steps from each original silhouette. A
+`min_held_alpha` of 250 admits original combined alpha-over coverage strictly below
+250, including faint layer edges. Lower `order` values claim first: the shin
+claims first, and its gains block the foot's later candidates and paths. Every
+entry has a unique explicit order; array position supplies no priority. Only these
+two declared parts gain the painting's RGBA inside their bounds; their own samples
+at or above the floor and all other parts stay exact. These measured rectangles
+are for this example, not coordinates to copy onto another painting.
 
 ### 8. Build the rig
 
