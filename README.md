@@ -794,6 +794,8 @@ This guide and its scripts are MIT ([LICENSE](LICENSE)).
 
 The example inputs in *Try it first* belong to [rig-c/exam](https://github.com/rig-c/exam)
 and are licensed CC BY-NC 4.0, not MIT: free to use with credit, not for commercial use.
+`forearm-r.png` and `upperarm-r.png` in this repository are derived from the exam painting and
+carry the same CC BY-NC 4.0 licence.
 Step 2 copies the exam's `LICENSE` and `NOTICE.md` beside them, and what you build from
 them carries that licence. The exam's notice asks for this credit for the painting:
 
