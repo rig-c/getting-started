@@ -23,6 +23,7 @@ const temp = mkdtempSync(join(tmpdir(), 'rig-c-onboarding-'));
 const consumer = join(temp, 'my-rig');
 mkdirSync(consumer);
 cpSync(join(root, 'scripts'), join(temp, 'getting-started/scripts'), { recursive: true });
+for (const file of ['forearm-r.png', 'upperarm-r.png']) cpSync(join(root, file), join(temp, 'getting-started', file));
 const reports: Record<string, unknown> = {};
 let tutorialOrigin: string | undefined;
 let stopTutorial = () => {};

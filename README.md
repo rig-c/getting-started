@@ -70,6 +70,7 @@ curl -L -o exam.tar.gz https://codeload.github.com/rig-c/exam/tar.gz/01436ee3f02
 tar -xzf exam.tar.gz --strip-components=3 exam-01436ee3f02c189fe1a1e9656fe62068889837f5/tasks/01-build/inputs
 tar -xzf exam.tar.gz --strip-components=1 exam-01436ee3f02c189fe1a1e9656fe62068889837f5/LICENSE exam-01436ee3f02c189fe1a1e9656fe62068889837f5/NOTICE.md
 rm exam.tar.gz
+bun ../getting-started/scripts/split-right-arm.ts inputs/layers/full
 ```
 
 You should now have `inputs/` with `painting.png`, `layers/full/`, `layers/head/`,
@@ -152,7 +153,7 @@ this hand-placed set; the expected lines below now use the cold detector run.
 bun -e 'const f = "keypoints.json", k = await Bun.file(f).json(); k.people[0].joints.l_ankle.at = [848, 2140]; await Bun.write(f, JSON.stringify(k, null, 1) + "\n")'
 bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json
 bun ../getting-started/scripts/take.ts work/proposal.json config.json bones meshes regions motion limbs
-bun -e 'const f = "config.json", c = await Bun.file(f).json(); c.assemble.extend_painting = [{ part: "shin_l", band: [405, 1073, 444, 1098], max_distance: 15, min_held_alpha: 250, order: 0 }, { part: "foot_l", band: [440, 1092, 444, 1098], max_distance: 4, min_held_alpha: 250, order: 1 }]; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
+bun -e 'const f = "config.json", c = await Bun.file(f).json(); delete c.regions["upperarm-r"]; c.limbs.arm_r.segments[0].from = "upperarm-r"; c.assemble.extend_painting = [{ part: "shin_l", band: [405, 1073, 444, 1098], max_distance: 15, min_held_alpha: 250, order: 0 }, { part: "foot_l", band: [440, 1092, 444, 1098], max_distance: 4, min_held_alpha: 250, order: 1 }]; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
 ```
 
 `propose` drafts the bones, the meshes and an idle motion; `take.ts` copies them into the
@@ -347,11 +348,13 @@ It does not sample depth images. **The body does not turn.** Skip this step on t
 [PSD route](#route-c-no-gpu-at-all), which carries no measured depth.
 
 Step 7 did not request depth, so its proposal has no `turn` block. Ask for one now
-and copy only that block; the bones, cloth and hello stay as you made them.
+and copy only that block; the bones, cloth and hello stay as you made them. The
+next line drops `upperarm-r` from it: step 7 made that layer the arm's `upperarm_r`.
 
 ```sh
 bunx rig-parts propose --parts work/rig --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out work/turn --keypoints keypoints.json
 bun ../getting-started/scripts/take.ts work/turn/proposal.json config.json turn
+bun -e 'const f = "config.json", c = await Bun.file(f).json(); delete c.turn.depths["upperarm-r"]; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
 bun -e 'const f = "hello.anim.json", m = await Bun.file(f).json(), c = await Bun.file("config.json").json(), d = c.turn.depths; const depth = { eye_r: d.eyewhite_r, eye_l: d.eyewhite_l, brow_r: d.brow_r, brow_l: d.brow_l, mouth: d.mouth }; m.animations.turn = { duration: 4, tracks: [{ group: "features", property: "translatex", keys: [0, -12, 0, 12, 0].map((degrees, t) => ({ t, derive: { kind: "yaw", degrees, depth } })) }] }; await Bun.write(f, JSON.stringify(m, null, 2) + "\n")'
 bunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop --lead-in 1
 bunx rigc render --candidate out/check/build --animation turn --viewport -448,-32,896,1280 --max 1280 --extremes --out out/turn-render
