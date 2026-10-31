@@ -70,6 +70,7 @@ curl -L -o exam.tar.gz https://codeload.github.com/rig-c/exam/tar.gz/01436ee3f02
 tar -xzf exam.tar.gz --strip-components=3 exam-01436ee3f02c189fe1a1e9656fe62068889837f5/tasks/01-build/inputs
 tar -xzf exam.tar.gz --strip-components=1 exam-01436ee3f02c189fe1a1e9656fe62068889837f5/LICENSE exam-01436ee3f02c189fe1a1e9656fe62068889837f5/NOTICE.md
 rm exam.tar.gz
+bun ../getting-started/scripts/split-right-arm.ts inputs/layers/full
 ```
 
 You should now have `inputs/` with `painting.png`, `layers/full/`, `layers/head/`,
@@ -152,7 +153,7 @@ this hand-placed set; the expected lines below now use the cold detector run.
 bun -e 'const f = "keypoints.json", k = await Bun.file(f).json(); k.people[0].joints.l_ankle.at = [848, 2140]; await Bun.write(f, JSON.stringify(k, null, 1) + "\n")'
 bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json
 bun ../getting-started/scripts/take.ts work/proposal.json config.json bones meshes regions motion limbs
-bun -e 'const f = "config.json", c = await Bun.file(f).json(); c.assemble.extend_painting = [{ part: "shin_l", band: [405, 1073, 444, 1098], max_distance: 15, min_held_alpha: 250, order: 0 }, { part: "foot_l", band: [440, 1092, 444, 1098], max_distance: 4, min_held_alpha: 250, order: 1 }]; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
+bun -e 'const f = "config.json", c = await Bun.file(f).json(); delete c.regions["upperarm-r"]; c.limbs.arm_r.segments[0].from = "upperarm-r"; c.assemble.extend_painting = [{ part: "shin_l", band: [405, 1073, 444, 1098], max_distance: 15, min_held_alpha: 250, order: 0 }, { part: "foot_l", band: [440, 1092, 444, 1098], max_distance: 4, min_held_alpha: 250, order: 1 }]; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
 ```
 
 `propose` drafts the bones, the meshes and an idle motion; `take.ts` copies them into the
