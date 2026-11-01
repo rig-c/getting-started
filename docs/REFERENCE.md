@@ -865,7 +865,7 @@ own part, the parts guide's `assemble.cuts` cuts the layer in two.
 
 ### Route A, measured 2026-10-29
 
-The following excerpts come from [README Route A](../README.md#route-a-your-own-nvidia-gpu);
+The following excerpts come from [Route A](guide/make-your-own-character.md#route-a-your-own-nvidia-gpu);
 its numbered steps and model-file table supply their context.
 
 We ran

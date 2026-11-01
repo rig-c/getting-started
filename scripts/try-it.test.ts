@@ -1,11 +1,12 @@
-import { test, expect } from 'bun:test';
+import { test, expect, afterAll } from 'bun:test';
 import { readFileSync, mkdirSync, writeFileSync, rmSync, mkdtempSync, symlinkSync, unlinkSync } from 'node:fs';
-import { resolve, join } from 'node:path';
-import { extract, execute, digest, packages, readRecord, updateRecord, sameInputs, assertVersions, externalTemp } from './try-it.ts';
+import { resolve, join, dirname } from 'node:path';
+import { extract, execute, digest, guideDigest, TOPIC_PAGES, packages, readRecord, updateRecord, sameInputs, assertVersions, externalTemp } from './try-it.ts';
 import { publish } from './try-it-publish.ts';
 
 const root = resolve(import.meta.dir, '..');
 const scratch = join(root, '.try-it/tests'); mkdirSync(scratch, { recursive: true });
+afterAll(() => { rmSync(join(root, '.try-it'), { recursive: true, force: true }); });
 const versions = Object.fromEntries(packages.map(p => [p, '1.0.0']));
 const record = { status: 'PASS', complete: true, date: '2026-10-25', versions, guide_sha256: 'guide', run: 'https://example.invalid/run/1' };
 const reference = '# Reference\n\n## Tested with\n\nMac timing: 42 s, measured 2026-10-13.\n';
@@ -15,15 +16,82 @@ async function inDirectory(fn: (directory: string) => Promise<void>) {
   try { await fn(directory); } finally { rmSync(directory, { recursive: true, force: true }); }
 }
 
-test('extracts the real guide, including 9b/9c/9d and the server; no hand-copied commands', () => {
+test('extracts the real guide across README and topic pages, including 9b/9c/9d and the server; no hand-copied commands', () => {
   const source = readFileSync(join(root, 'README.md'), 'utf8');
   const steps = extract(source);
   expect(steps.map(s => s.title.split('.')[0])).toEqual(['1','2','3','4','5','6','7','8','9','9b','9c','9d','10']);
+  expect(steps.map(s => s.page)).toEqual([
+    'README.md', 'README.md', 'README.md', 'README.md', 'README.md',
+    'README.md', 'README.md', 'README.md', 'README.md',
+    'docs/guide/motion.md', 'docs/guide/motion.md', 'docs/guide/depth-turn.md',
+    'README.md',
+  ]);
+  expect(steps.map(s => digest(s.blocks[0].command))).toEqual([
+    '6ad0518d53e1c441272ae977212a45105e06e817220fc1411e661f80f587243d',
+    '4c4f1c7bbf2707036d4f52810ffc7b4a3baa827fa3e40e1ef2049001212ce4c4',
+    '283fcfcbba4c1750b1462d74861b656895d9a599d3962b0fa50da6c1e625b8ee',
+    'dc06a6b83b35479e0ea945119d6d08160bcf162a388b713971969a17b0e284c2',
+    '9c6d46d56363011ddd3c8519cfdb5ab18c01076c20cc88a382f737540bd2e53d',
+    'd9dda4cdb5bc9dee770dcd6e399664811567201c71aa88f05eacbe29008765fc',
+    '5b5ecefca0997326286acf5fa6f5709cb293c04c48e9ac2fdee11c843d1a3d44',
+    'e7dcc14694f90a3532f8ec2a5e72134b52dc0da6fd407ce29e1a88b484470575',
+    '804d077e121a6e6ded75f0a393bbe7adf86de21678fce58183c36351c6c27646',
+    '7d2d9d80295ad6f601ad94e8f6a68474fb0930ac3572376309dc7198fe596a3d',
+    'aacaf9a0de336b5149b497eb8ea1faf288b347c8a4766b76eaa3805748d03d73',
+    'b619bf6c3b2e07babbfd8225c0cd30f2e03959006d3e7954e9d70c5264e47f3b',
+    'fbc7f1c02ff448f52b928a5fe804edfd2e4609edea7b6cd7cfda1ba27e481df8',
+  ]);
   expect(steps[0].blocks[0].command).toContain('git clone https://github.com/rig-c/getting-started\n');
   expect(steps[5].blocks[0].command).toContain('uv run --with rtmlib --with onnxruntime');
   expect(steps.at(-1)!.blocks[0].mode).toBe('server');
   const added = source.replace('### 2. Get', '### 1b. Added step\n\n```sh\nprintf added\n```\n\n### 2. Get');
   expect(extract(added).some(s => s.title === '1b. Added step')).toBe(true);
+});
+test('removing a step stub or breaking a topic link in README refuses naming the page and step', () => {
+  const source = readFileSync(join(root, 'README.md'), 'utf8');
+  const without9b = source.replace(/### 9b\. Say hello\n\n[^\n]+\n\n/, '');
+  expect(() => extract(without9b)).toThrow('GUIDE docs/guide/motion.md, Step 9b. Say hello, line 3: walkthrough step not linked from README.md Try it first');
+  const without9d = source.replace(/### 9d\. Turn the head with depth\n\n[^\n]+\n\n/, '');
+  expect(() => extract(without9d)).toThrow('GUIDE docs/guide/depth-turn.md, Step 9d. Turn the head with depth, line 3: walkthrough step not linked from README.md Try it first');
+  const brokenAnchor = source.replace('docs/guide/motion.md#9b-say-hello', 'docs/guide/motion.md#missing-anchor');
+  expect(() => extract(brokenAnchor)).toThrow('GUIDE docs/guide/motion.md, Step 9b. Say hello');
+  const brokenFile = source.replace('docs/guide/motion.md#9b-say-hello', 'docs/guide/missing.md#9b-say-hello');
+  expect(() => extract(brokenFile)).toThrow('GUIDE README.md, Step 9b. Say hello');
+});
+test('planted broken topic-page command names its topic page, step and line and prevents later PASS', async () => {
+  await inDirectory(async directory => {
+    for (const rel of TOPIC_PAGES) {
+      const target = join(directory, rel);
+      mkdirSync(dirname(target), { recursive: true });
+      writeFileSync(target, readFileSync(join(root, rel), 'utf8'));
+    }
+    const motionPath = join(directory, 'docs/guide/motion.md');
+    const motion = readFileSync(motionPath, 'utf8').replace('bun ../getting-started/scripts/hello.ts', 'command_that_does_not_exist_on_topic_page');
+    writeFileSync(motionPath, motion);
+    const readmeStubOnly = [
+      '## Try it first',
+      '### 1. Quick pass',
+      '```sh',
+      'true',
+      '```',
+      '### 9b. Say hello',
+      'Run [9b](docs/guide/motion.md#9b-say-hello).',
+      '### 9c. Let the hair and the skirt answer',
+      'Run [9c](docs/guide/motion.md#9c-let-the-hair-and-the-skirt-answer).',
+      '### 9d. Turn the head with depth',
+      'Run [9d](docs/guide/depth-turn.md#9d-turn-the-head-with-depth).',
+    ].join('\n');
+    const steps = extract(readmeStubOnly, { root: directory });
+    const result = await execute(steps, directory, []);
+    expect(result.exit).not.toBe(0);
+    expect(result.rows[0].status).toBe('PASS');
+    expect(result.rows[1].status).toBe('FAIL');
+    expect(result.rows[1].page).toBe('docs/guide/motion.md');
+    expect(result.rows[1].step).toBe('9b. Say hello');
+    expect(result.rows[1].line).toBe(motion.split('\n').findIndex(line => line.includes('command_that_does_not_exist_on_topic_page')) + 1);
+    expect(result.rows[2].status).toBe('NOT RUN');
+    expect(result.rows[3].status).toBe('NOT RUN');
+  });
 });
 test('real shell preserves cwd and variables between extracted steps', async () => {
   await inDirectory(async directory => {
@@ -100,11 +168,13 @@ test('repository TMPDIR is refused, including a symlink resolving into it', () =
   const link = join(scratch, 'repo-link'); symlinkSync(root, link);
   try { expect(() => externalTemp(root, link)).toThrow('outside the repository'); } finally { unlinkSync(link); }
 });
-test('a changed complete record opens one bot PR and explicitly dispatches its branch', async () => {
+test('a changed complete record opens one bot PR and explicitly dispatches its branch, and refuses if a topic page changes', async () => {
   await inDirectory(async directory => {
-    mkdirSync(join(directory, 'docs')); writeFileSync(join(directory, 'docs/REFERENCE.md'), reference);
+    mkdirSync(join(directory, 'docs/guide'), { recursive: true });
+    writeFileSync(join(directory, 'docs/REFERENCE.md'), reference);
     writeFileSync(join(directory, 'README.md'), 'tested guide');
-    const next = { ...record, guide_sha256: digest('tested guide') };
+    for (const rel of TOPIC_PAGES) writeFileSync(join(directory, rel), `topic ${rel}`);
+    const next = { ...record, guide_sha256: guideDigest(directory) };
     const commands: string[][] = [];
     const previous = process.env.GITHUB_REPOSITORY; process.env.GITHUB_REPOSITORY = 'rig-c/getting-started';
     try {
@@ -118,6 +188,9 @@ test('a changed complete record opens one bot PR and explicitly dispatches its b
       expect(commands.at(-1)).toEqual(['gh', 'workflow', 'run', 'adapters.yml', '--repo', 'rig-c/getting-started', '--ref', 'automation/try-it-tested', '-f', 'try_it=force']);
       expect(commands.find(c => c[0] === 'git' && c[1] === 'add')).toEqual(['git', 'add', '--', 'docs/REFERENCE.md']);
       expect(commands.some(c => c[0] === 'git' && c[1] === 'push' && c.includes('HEAD:refs/heads/main'))).toBe(false);
+      writeFileSync(join(directory, 'docs/REFERENCE.md'), reference);
+      writeFileSync(join(directory, 'docs/guide/motion.md'), 'edited after verification');
+      await expect(publish(directory, updateRecord(reference, next), { ...next }, () => '')).rejects.toThrow('guide or versions changed since verification');
     } finally {
       if (previous === undefined) delete process.env.GITHUB_REPOSITORY; else process.env.GITHUB_REPOSITORY = previous;
     }

@@ -7,9 +7,11 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { createLinkReader, urls } from './link-reader.ts';
+import { extract, TOPIC_PAGES } from './try-it.ts';
 
 const root = resolve(import.meta.dir, '..');
 const readme = readFileSync(join(root, 'README.md'), 'utf8');
+const extractedSteps = extract(readme, { root });
 const arg = (key: string) => { const at = process.argv.indexOf(key); return at < 0 ? undefined : process.argv[at + 1]; };
 const profileRef = arg('--profile-ref') ?? 'main';
 const profilePath = arg('--profile-file');
@@ -55,9 +57,9 @@ function blocks(source: string, language: string): string[] {
   return [...source.matchAll(new RegExp('```' + language + '\\n([\\s\\S]*?)```', 'g'))].map(m => m[1].trim());
 }
 function step(number: number | string) {
-  const match = readme.match(new RegExp('### ' + number + '\\. [^\\n]+\\n([\\s\\S]*?)(?=\\n### |\\n## )'));
-  assert(match, `GUIDE_STEP: missing step ${number}`);
-  return match[1];
+  const found = extractedSteps.find(s => s.title.startsWith(number + '. '));
+  assert(found, `GUIDE_STEP: missing step ${number}`);
+  return found.text;
 }
 // Step 10's two addresses: the hello from step 9b (on step 9c's physics build) over the idle, and step 9's wave.
 const tutorialModels: Record<string, { anim: string; under: string | null }> = {
@@ -80,7 +82,13 @@ async function links() {
   const baselineProfile = await get('https://raw.githubusercontent.com/rig-c/.github/93be3f5e11a07e17fb70382a9a074a93bcb06238/profile/README.md');
   const baseline = new Map([['rig-c/getting-started', new Set(urls(baselineGuide))], ['rig-c/.github', new Set(urls(baselineProfile))]]);
   let count = 0;
-  for (const doc of [{ text: readme, repo: 'rig-c/getting-started', directory: '', local: true }, { text: profile, repo: 'rig-c/.github', directory: 'profile', local: false }]) {
+  const guideDocs = ['README.md', ...TOPIC_PAGES].map(path => ({
+    text: readFileSync(join(root, path), 'utf8'),
+    repo: 'rig-c/getting-started',
+    directory: path.includes('/') ? 'docs/guide' : '',
+    local: true,
+  }));
+  for (const doc of [...guideDocs, { text: profile, repo: 'rig-c/.github', directory: 'profile', local: false }]) {
     const items = urls(doc.text);
     // Network checks are bounded to four concurrent requests.
     for (let at = 0; at < items.length; at += 4) await Promise.all(items.slice(at, at + 4).map(async link => {
@@ -93,15 +101,19 @@ async function links() {
   return failures;
 }
 try {
-  const engine = readme.split('### Inside a game engine or renderer you already use\n')[1]?.split('\n### ')[0];
+  const useStub = readme.split('## Use what you made\n')[1]?.split('\n## ')[0];
+  assert(useStub?.includes('(docs/guide/use-what-you-made.md)'), 'SNIPPET: missing Use what you made topic link in README.md');
+  const useWhatYouMade = readFileSync(join(root, 'docs/guide/use-what-you-made.md'), 'utf8');
+  const engine = useWhatYouMade.split('### Inside a game engine or renderer you already use\n')[1]?.split('\n### ')[0];
   assert(engine, 'SNIPPET: missing adapter destination');
   const snippet = blocks(engine, 'js')[0]; assert(snippet, 'SNIPPET: missing JavaScript');
   reports.snippetSha256 = createHash('sha256').update(snippet).digest('hex');
-  const row = profile.split('\n').find(line => line.startsWith('| 5 |') && line.includes('adapters'));
+  const row = profile.split('\n').find(line => line.startsWith('| [**adapters**]'));
   assert(row, 'PROFILE: adapters row missing (use --profile-file or --profile-ref for the pending profile change)');
-  const installs = [...row.matchAll(/`(npm install [^`]+)`/g)].map(m => m[1]);
-  assert.equal(installs.length, 3, 'PROFILE: expected three install commands');
-  assert(installs.includes(blocks(engine, 'sh')[0]), 'INSTALL: guide install differs from profile');
+  for (const name of ['@rig-c/pixi', '@rig-c/phaser', '@rig-c/three']) assert(row.includes(`\`${name}\``), `PROFILE: adapters row does not name ${name}`);
+  // The profile names the packages; these are the published install lines this check runs.
+  const installs = ['npm install @rig-c/pixi pixi.js @rig-c/play', 'npm install @rig-c/phaser phaser @rig-c/play', 'npm install @rig-c/three three @rig-c/play'];
+  assert(installs.includes(blocks(engine, 'sh')[0]), 'INSTALL: guide install is not a tested install line');
   for (let i = 0; i < installs.length; i++) {
     const dir = i === 0 ? consumer : join(temp, `host-${i}`); mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'package.json'), '{"private":true,"type":"module"}\n');
