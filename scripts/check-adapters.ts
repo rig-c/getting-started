@@ -108,11 +108,12 @@ try {
   assert(engine, 'SNIPPET: missing adapter destination');
   const snippet = blocks(engine, 'js')[0]; assert(snippet, 'SNIPPET: missing JavaScript');
   reports.snippetSha256 = createHash('sha256').update(snippet).digest('hex');
-  const row = profile.split('\n').find(line => line.startsWith('| 5 |') && line.includes('adapters'));
+  const row = profile.split('\n').find(line => line.startsWith('| [**adapters**]'));
   assert(row, 'PROFILE: adapters row missing (use --profile-file or --profile-ref for the pending profile change)');
-  const installs = [...row.matchAll(/`(npm install [^`]+)`/g)].map(m => m[1]);
-  assert.equal(installs.length, 3, 'PROFILE: expected three install commands');
-  assert(installs.includes(blocks(engine, 'sh')[0]), 'INSTALL: guide install differs from profile');
+  for (const name of ['@rig-c/pixi', '@rig-c/phaser', '@rig-c/three']) assert(row.includes(`\`${name}\``), `PROFILE: adapters row does not name ${name}`);
+  // The profile names the packages; these are the published install lines this check runs.
+  const installs = ['npm install @rig-c/pixi pixi.js @rig-c/play', 'npm install @rig-c/phaser phaser @rig-c/play', 'npm install @rig-c/three three @rig-c/play'];
+  assert(installs.includes(blocks(engine, 'sh')[0]), 'INSTALL: guide install is not a tested install line');
   for (let i = 0; i < installs.length; i++) {
     const dir = i === 0 ? consumer : join(temp, `host-${i}`); mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'package.json'), '{"private":true,"type":"module"}\n');
