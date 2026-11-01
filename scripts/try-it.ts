@@ -1,14 +1,37 @@
-// Commands come from README.md, never from a second copy of the tutorial.
+// Commands come from README.md and linked docs/guide/*.md topic pages, never from a second copy of the tutorial.
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, mkdtempSync, realpathSync, existsSync } from 'node:fs';
 import { resolve, join, sep } from 'node:path';
+import { anchorExists } from './link-reader.ts';
 
 export const packages = ['@rig-c/parts', '@rig-c/core', '@rig-c/pose', '@rig-c/play'] as const;
+export const TOPIC_PAGES = [
+  'docs/guide/motion.md',
+  'docs/guide/depth-turn.md',
+  'docs/guide/use-what-you-made.md',
+  'docs/guide/make-your-own-character.md',
+  'docs/guide/troubleshooting.md',
+] as const;
 export type Versions = Record<string, string>;
-export type Step = { title: string; line: number; text: string; blocks: { command: string; line: number; mode: 'shell' | 'server' | 'not-run'; reason?: string }[] };
+export type Block = { page: string; command: string; line: number; mode: 'shell' | 'server' | 'not-run'; reason?: string };
+export type Step = { page: string; title: string; line: number; text: string; blocks: Block[] };
+export type ExtractOptions = { root?: string; read?: (page: string) => string; topicPages?: readonly string[] };
 const begin = '<!-- try-it-tested:start -->', end = '<!-- try-it-tested:end -->';
 export const digest = (text: string) => createHash('sha256').update(text).digest('hex');
 export const quote = (text: string) => "'" + text.replaceAll("'", "'\\''") + "'";
+export function guideDigest(root: string, requireTopics = true) {
+  const pages = ['README.md', ...TOPIC_PAGES];
+  const parts: string[] = [];
+  for (const page of pages) {
+    const full = join(root, page);
+    if (!existsSync(full)) {
+      if (requireTopics && page !== 'README.md') throw Error(`GUIDE: missing topic page ${page}`);
+      continue;
+    }
+    parts.push(`${page}\n${readFileSync(full, 'utf8')}`);
+  }
+  return digest(parts.join('\n'));
+}
 export function externalTemp(root: string, base?: string) {
   if (!base) throw Error('TMPDIR: set TRY_IT_TEMP_ROOT to a session scratchpad or Nova job directory outside the repository (CI uses RUNNER_TEMP)');
   mkdirSync(base, { recursive: true });
@@ -17,34 +40,96 @@ export function externalTemp(root: string, base?: string) {
   return mkdtempSync(join(actualBase, 'try-it-'));
 }
 
-export function extract(source: string): Step[] {
+function extractSteps(lines: string[], page: string, first: number, last: number): Step[] {
+  const steps: Step[] = [];
+  let step: Step | undefined;
+  for (let i = first; i < last; i++) {
+    const line = lines[i];
+    if (line.includes('<!-- try-it-ci:') && lines[i + 1] !== '```sh') throw Error(`GUIDE ${page} line ${i + 1}: CI marker must immediately precede a sh fence`);
+    if (/^### /.test(line)) {
+      step = { page, title: line.slice(4), line: i + 1, text: '', blocks: [] }; steps.push(step);
+    }
+    if (step) step.text += line + '\n';
+    if (/^\s*(?:```|~~~)/.test(line)) {
+      if (!step) throw Error(`GUIDE ${page} line ${i + 1}: executable block outside a step`);
+      if (line !== '```sh') throw Error(`Page ${page}, Step ${step.title}, line ${i + 1}: unsupported fence ${line}`);
+      const start = i + 1;
+      const marker = lines[i - 1]?.match(/^<!-- try-it-ci: (server|not-run)(?: reason="([^"]+)")? -->$/);
+      if (lines[i - 1]?.includes('try-it-ci:') && !marker) throw Error(`Page ${page}, Step ${step.title}, line ${i}: malformed CI marker`);
+      const mode = marker?.[1] as 'server' | 'not-run' | undefined;
+      if (mode === 'not-run' && !marker?.[2]) throw Error(`Page ${page}, Step ${step.title}: NOT RUN needs a reason`);
+      const command: string[] = [];
+      while (++i < last && lines[i] !== '```') command.push(lines[i]);
+      if (i === last || command.join('\n').trim() === '') throw Error(`Page ${page}, Step ${step.title}, line ${start}: missing or empty closing fence`);
+      step.blocks.push({ page, command: command.join('\n') + '\n', line: start + 1, mode: mode ?? 'shell', reason: marker?.[2] });
+      step.text += command.join('\n') + '\n```\n';
+    }
+  }
+  return steps;
+}
+
+export function extract(source: string, options: ExtractOptions = {}): Step[] {
+  const root = options.root ?? resolve(import.meta.dir, '..');
+  const read = options.read ?? ((page: string) => readFileSync(join(root, page), 'utf8'));
+  const topicPages = options.topicPages ?? TOPIC_PAGES;
   const lines = source.split('\n');
   const first = lines.findIndex(line => /^## Try it first(?:\s|$)/.test(line));
   if (first < 0) throw Error('GUIDE: missing Try it first heading');
   let last = lines.findIndex((line, i) => i > first && /^## /.test(line));
   if (last < 0) last = lines.length;
-  const steps: Step[] = [];
-  let step: Step | undefined;
-  for (let i = first + 1; i < last; i++) {
-    const line = lines[i];
-    if (line.includes('<!-- try-it-ci:') && lines[i + 1] !== '```sh') throw Error(`GUIDE line ${i + 1}: CI marker must immediately precede a sh fence`);
-    if (/^### /.test(line)) {
-      step = { title: line.slice(4), line: i + 1, text: '', blocks: [] }; steps.push(step);
+  const rawSteps = extractSteps(lines, 'README.md', first + 1, last);
+  const parsedTopics = new Map<string, { text: string; steps: Step[] }>();
+  const getTopic = (page: string, fromStep: Step) => {
+    let cached = parsedTopics.get(page);
+    if (!cached) {
+      let text: string;
+      try { text = read(page); } catch { throw Error(`GUIDE README.md, Step ${fromStep.title}, line ${fromStep.line}: missing topic page ${page}`); }
+      const topicLines = text.split('\n');
+      cached = { text, steps: extractSteps(topicLines, page, 0, topicLines.length) };
+      parsedTopics.set(page, cached);
     }
-    if (step) step.text += line + '\n';
-    if (/^\s*(?:```|~~~)/.test(line)) {
-      if (!step) throw Error(`GUIDE line ${i + 1}: executable block outside a step`);
-      if (line !== '```sh') throw Error(`Step ${step.title}, line ${i + 1}: unsupported fence ${line}`);
-      const start = i + 1;
-      const marker = lines[i - 1]?.match(/^<!-- try-it-ci: (server|not-run)(?: reason="([^"]+)")? -->$/);
-      if (lines[i - 1]?.includes('try-it-ci:') && !marker) throw Error(`Step ${step.title}, line ${i}: malformed CI marker`);
-      const mode = marker?.[1] as 'server' | 'not-run' | undefined;
-      if (mode === 'not-run' && !marker?.[2]) throw Error(`Step ${step.title}: NOT RUN needs a reason`);
-      const command: string[] = [];
-      while (++i < last && lines[i] !== '```') command.push(lines[i]);
-      if (i === last || command.join('\n').trim() === '') throw Error(`Step ${step.title}, line ${start}: missing or empty closing fence`);
-      step.blocks.push({ command: command.join('\n') + '\n', line: start + 1, mode: mode ?? 'shell', reason: marker?.[2] });
-      step.text += command.join('\n') + '\n```\n';
+    return cached;
+  };
+  const steps: Step[] = rawSteps.map(step => {
+    if (step.blocks.length) return step;
+    const linkMatch = step.text.match(/\[[^\]]+\]\(([^)\s]+)\)/);
+    if (!linkMatch) throw Error(`GUIDE README.md, Step ${step.title}, line ${step.line}: every step must have an executable fence`);
+    const [targetPage, anchor] = linkMatch[1].split('#');
+    if (!targetPage?.startsWith('docs/guide/') || !targetPage.endsWith('.md') || !anchor) {
+      throw Error(`GUIDE README.md, Step ${step.title}, line ${step.line}: invalid topic link ${linkMatch[1]}`);
+    }
+    const topic = getTopic(targetPage, step);
+    if (!anchorExists(topic.text, anchor)) {
+      throw Error(`GUIDE ${targetPage}, Step ${step.title}, line ${step.line}: missing linked step #${anchor}`);
+    }
+    const linked = topic.steps.find(s => s.title === step.title && anchorExists(`### ${s.title}\n`, anchor));
+    if (!linked) throw Error(`GUIDE ${targetPage}, Step ${step.title}, line ${step.line}: missing linked step #${anchor}`);
+    if (!linked.blocks.length) throw Error(`GUIDE ${targetPage}, Step ${linked.title}, line ${linked.line}: every step must have an executable fence`);
+    return linked;
+  });
+  const checkTopics = Boolean(options.topicPages || options.read || source.includes('docs/guide/') || source.includes('# Getting started with rig-c'));
+  if (checkTopics) {
+    for (const page of topicPages) {
+      let text: string;
+      try { text = read(page); } catch { throw Error(`GUIDE ${page}: missing topic page`); }
+      const topicLines = text.split('\n');
+      let fence = '';
+      for (let i = 0; i < topicLines.length; i++) {
+        const line = topicLines[i];
+        const tick = line.match(/^\s*(`{3,}|~{3,})/)?.[1];
+        if (tick) {
+          if (!fence) fence = tick;
+          else if (tick[0] === fence[0] && tick.length >= fence.length && /^\s*[`~]+\s*$/.test(line)) fence = '';
+          continue;
+        }
+        if (fence) continue;
+        const stepMatch = line.match(/^### (\d+[a-z]?\. .+)$/);
+        if (!stepMatch) continue;
+        const title = stepMatch[1];
+        if (!steps.some(s => s.page === page && s.title === title)) {
+          throw Error(`GUIDE ${page}, Step ${title}, line ${i + 1}: walkthrough step not linked from README.md Try it first`);
+        }
+      }
     }
   }
   if (!steps.length || steps.some(s => !s.blocks.length)) throw Error('GUIDE: every step must have an executable fence');
@@ -89,14 +174,14 @@ export function assertVersions(installed: Versions, before: Versions, after: Ver
   }
 }
 
-export type Row = { step: string; line: number; status: string; seconds?: number; reason?: string };
+export type Row = { page: string; step: string; line: number; status: string; seconds?: number; reason?: string };
 // A single bash process preserves cd, variables and shell state between every fence.
 export async function execute(steps: Step[], directory: string, browserCommand: string[], env: Record<string, string | undefined> = process.env, timeoutMs = 55 * 60 * 1000) {
-  const rows: Row[] = steps.map(s => ({ step: s.title, line: s.line, status: 'NOT RUN', reason: 'not reached' }));
+  const rows: Row[] = steps.map(s => ({ page: s.page, step: s.title, line: s.line, status: 'NOT RUN', reason: 'not reached' }));
   const skipped = steps.flatMap((s, index) => s.blocks.filter(b => b.mode === 'not-run').map(b => ({ index, block: b })));
   if (skipped.length) {
-    for (const { index, block } of skipped) rows[index] = { step: steps[index].title, line: block.line, status: 'NOT RUN', reason: block.reason };
-    for (const row of rows) console.log(`NOT RUN Step ${row.step}, README line ${row.line}: ${row.reason}`);
+    for (const { index, block } of skipped) rows[index] = { page: block.page, step: steps[index].title, line: block.line, status: 'NOT RUN', reason: block.reason };
+    for (const row of rows) console.log(`NOT RUN Page ${row.page}, Step ${row.step}, line ${row.line}: ${row.reason}`);
     return { rows, exit: 2 };
   }
   mkdirSync(directory, { recursive: true });
@@ -104,12 +189,16 @@ export async function execute(steps: Step[], directory: string, browserCommand: 
   let script = "set -Eeuo pipefail\nserver_pid=''\ntrap 'if [ -n \"$server_pid\" ]; then kill \"$server_pid\" 2>/dev/null || true; wait \"$server_pid\" 2>/dev/null || true; fi' EXIT\n";
   script += `trap 'rc=$?; printf "\\n${nonce} ERROR %s\\n" "$LINENO"; exit "$rc"' ERR\n`;
   const lineMap: Record<number, number> = {};
+  const pageMap: Record<number, string> = {};
   for (let index = 0; index < steps.length; index++) {
     script += `printf '\\n${nonce} START ${index}\\n'\n`;
     for (const block of steps[index].blocks) {
       if (block.mode === 'server') script += '{\n';
       const offset = script.split('\n').length;
-      block.command.split('\n').forEach((_, j) => { lineMap[offset + j] = block.line + j; });
+      block.command.split('\n').forEach((_, j) => {
+        lineMap[offset + j] = block.line + j;
+        pageMap[offset + j] = block.page;
+      });
       script += block.command;
       if (block.mode === 'server') {
         script += `} &\nserver_pid=$!\n${browserCommand.map(quote).join(' ')}\nkill -0 "$server_pid"\nkill "$server_pid"\nwait "$server_pid" 2>/dev/null || true\nserver_pid=''\n`;
@@ -137,7 +226,11 @@ export async function execute(steps: Step[], directory: string, browserCommand: 
         const line = pending.slice(0, at); pending = pending.slice(at + 1);
         const match = line.match(new RegExp(`^${nonce} (START|PASS) (\\d+)$`));
         const failureLine = line.match(new RegExp(`^${nonce} ERROR (\\d+)$`));
-        if (failureLine && current >= 0) rows[current].line = lineMap[Number(failureLine[1])] ?? rows[current].line;
+        if (failureLine && current >= 0) {
+          const mapped = Number(failureLine[1]);
+          rows[current].line = lineMap[mapped] ?? rows[current].line;
+          rows[current].page = pageMap[mapped] ?? rows[current].page;
+        }
         if (match) {
           const i = Number(match[2]);
           if (match[1] === 'START') { current = i; started = performance.now(); rows[i].status = 'RUNNING'; delete rows[i].reason; }
@@ -145,7 +238,11 @@ export async function execute(steps: Step[], directory: string, browserCommand: 
         }
         if (stderr && current >= 0) {
           const failure = line.match(/commands\.sh: line (\d+):/);
-          if (failure) rows[current].line = lineMap[Number(failure[1])] ?? rows[current].line;
+          if (failure) {
+            const mapped = Number(failure[1]);
+            rows[current].line = lineMap[mapped] ?? rows[current].line;
+            rows[current].page = pageMap[mapped] ?? rows[current].page;
+          }
         }
       }
     }
@@ -162,7 +259,7 @@ export async function execute(steps: Step[], directory: string, browserCommand: 
     if (exit !== 0 && current >= 0) {
       rows[current].status = 'FAIL'; rows[current].seconds = +((performance.now() - started) / 1000).toFixed(3);
       rows[current].reason = timedOut ? 'walkthrough timeout (including unclassified persistent commands)' : `shell exit ${exit}`;
-      console.error(`::error::Step ${rows[current].step}, README line ${rows[current].line}: ${rows[current].reason}`);
+      console.error(`::error::Page ${rows[current].page}, Step ${rows[current].step}, line ${rows[current].line}: ${rows[current].reason}`);
     }
     return { rows, exit };
   } finally { clearTimeout(timer); clearTimeout(hardStop); stop(); await log.end(); }
@@ -176,10 +273,11 @@ export async function main() {
   const reference = readFileSync(join(root, 'docs/REFERENCE.md'), 'utf8');
   let phase = 'GUIDE';
   const started = performance.now();
-  const receipt: any = { status: 'FAIL', complete: false, guide_sha256: digest(readme), rows: [] };
+  const currentGuideSha = guideDigest(root);
+  const receipt: any = { status: 'FAIL', complete: false, guide_sha256: currentGuideSha, rows: [] };
   let temporary: string | undefined;
   try {
-    const steps = extract(readme);
+    const steps = extract(readme, { root });
     // Report explicit exceptions even when the final server itself is NOT RUN.
     if (steps.some(s => s.blocks.some(b => b.mode === 'not-run'))) {
       const result = await execute(steps, join(out, 'consumer'), []);
@@ -189,7 +287,7 @@ export async function main() {
     phase = 'REGISTRY'; const before = await latest();
     const mode = arg('--mode', 'force');
     if (!['poll', 'force'].includes(mode!)) throw Error(`unknown mode ${mode}`);
-    if (mode === 'poll' && sameInputs(readRecord(reference), before, digest(readme))) {
+    if (mode === 'poll' && sameInputs(readRecord(reference), before, currentGuideSha)) {
       receipt.status = 'UNCHANGED'; console.log('Current versions and guide: no walkthrough or publication needed'); return;
     }
     const server = steps.at(-1)!;
@@ -224,15 +322,14 @@ export async function main() {
     const clone = join(consumer, 'rig-c-start/getting-started');
     const git = Bun.spawnSync(['git', 'rev-parse', 'HEAD'], { cwd: clone });
     if (git.exitCode) throw Error('PROVENANCE: cannot identify literal clone');
-    const cloneReadme = readFileSync(join(clone, 'README.md'), 'utf8');
-    receipt.clone_commit = git.stdout.toString().trim(); receipt.clone_guide_sha256 = digest(cloneReadme);
+    receipt.clone_commit = git.stdout.toString().trim(); receipt.clone_guide_sha256 = guideDigest(clone, false);
     const helpers = [...new Set([...steps.map(s => s.text).join('\n').matchAll(/scripts\/([\w.-]+)/g)].map(m => m[1]))];
     receipt.helpers = Object.fromEntries(helpers.map(name => [name, { checkout_sha256: digest(readFileSync(join(root, 'scripts', name), 'utf8')), clone_sha256: digest(readFileSync(join(clone, 'scripts', name), 'utf8')) }]));
     const differentHelpers = helpers.filter(name => receipt.helpers[name].checkout_sha256 !== receipt.helpers[name].clone_sha256);
-    receipt.provenance = receipt.guide_sha256 === receipt.clone_guide_sha256 && !differentHelpers.length ? 'same README and referenced helpers' : `checkout differs from literal clone: README=${receipt.guide_sha256 !== receipt.clone_guide_sha256}, helpers=${differentHelpers.join(', ') || 'none'}; executed helpers are from clone_commit`;
+    receipt.provenance = receipt.guide_sha256 === receipt.clone_guide_sha256 && !differentHelpers.length ? 'same guide and referenced helpers' : `checkout differs from literal clone: guide=${receipt.guide_sha256 !== receipt.clone_guide_sha256}, helpers=${differentHelpers.join(', ') || 'none'}; executed helpers are from clone_commit`;
     console.log(`PROVENANCE: ${receipt.provenance}`);
     Object.assign(receipt, { status: 'PASS', complete: true, versions: installed, latest_before: before, latest_after: after, bun: Bun.version, browser: JSON.parse(readFileSync(join(out, 'browser.json'), 'utf8')) });
-    const record = { status: 'PASS', complete: true, date: new Date().toISOString().slice(0, 10), versions: installed, bun: Bun.version, guide_sha256: digest(readme), clone_commit: receipt.clone_commit, run: process.env.GITHUB_RUN_ID ? `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}` : 'local verification; not a CI publication' };
+    const record = { status: 'PASS', complete: true, date: new Date().toISOString().slice(0, 10), versions: installed, bun: Bun.version, guide_sha256: currentGuideSha, clone_commit: receipt.clone_commit, run: process.env.GITHUB_RUN_ID ? `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}` : 'local verification; not a CI publication' };
     phase = 'RECORD';
     const proposed = updateRecord(reference, record);
     writeFileSync(join(out, 'REFERENCE.md'), proposed);
@@ -243,7 +340,7 @@ export async function main() {
   } finally {
     receipt.seconds = +((performance.now() - started) / 1000).toFixed(3);
     writeFileSync(join(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n');
-    const summary = [`## Try it first: ${receipt.status}`, '', `Wall time: ${receipt.seconds} s. ${receipt.error ?? ''}`, '', '| Step | README line | Result | Seconds | Reason |', '| --- | --- | --- | --- | --- |', ...receipt.rows.map((r: Row) => `| ${r.step.replaceAll('|', '\\|')} | ${r.line} | ${r.status} | ${r.seconds ?? ''} | ${r.reason ?? ''} |`), '', 'Human visual/seam acceptance: NOT RUN. Historical timings are unchanged.', ''].join('\n');
+    const summary = [`## Try it first: ${receipt.status}`, '', `Wall time: ${receipt.seconds} s. ${receipt.error ?? ''}`, '', '| Page | Step | Line | Result | Seconds | Reason |', '| --- | --- | --- | --- | --- | --- |', ...receipt.rows.map((r: Row) => `| ${r.page} | ${r.step.replaceAll('|', '\\|')} | ${r.line} | ${r.status} | ${r.seconds ?? ''} | ${r.reason ?? ''} |`), '', 'Human visual/seam acceptance: NOT RUN. Historical timings are unchanged.', ''].join('\n');
     writeFileSync(join(out, 'summary.md'), summary);
     if (process.env.GITHUB_STEP_SUMMARY) writeFileSync(process.env.GITHUB_STEP_SUMMARY, summary, { flag: 'a' });
     if (process.env.GITHUB_OUTPUT) writeFileSync(process.env.GITHUB_OUTPUT, `changed=${receipt.status === 'PASS' && receipt.record_changed === true}\n`, { flag: 'a' });

@@ -1,9 +1,12 @@
 # Keeping Try it first runnable
 
 The `Try it first` jobs in the adapter example workflow read the `sh` fences directly
-from README.md, under `## Try it first` up to the next level-two heading. Every
-level-three step must have a non-empty shell block. A new step or block is included
-automatically; unsupported fences fail with their step and source line. Commands run
+from README.md under `## Try it first` up to the next level-two heading, following
+any step link stub into `docs/guide/*.md` (`docs/guide/motion.md` for steps 9b and 9c,
+`docs/guide/depth-turn.md` for step 9d) in dependency order (`1..9 -> 9b -> 9c -> 9d -> 10`). Every
+level-three step must have a non-empty shell block or a valid link to its topic-page step,
+and every numbered step in `docs/guide/*.md` must be linked from `## Try it first`. A new step or block is included
+automatically; unsupported fences, broken or unlinked topic stubs, and failing commands fail with their page, step and source line. Commands run
 in one Bash shell with `-eu -o pipefail`, from an empty consumer and isolated download
 caches. The literal clone, unversioned install and CPU joint detector run too.
 
@@ -24,7 +27,7 @@ It appears as **NOT RUN**, with its reason and source line, in logs, the receipt
 the Actions summary. The walkthrough is incomplete and cannot publish a record.
 No such exception is currently needed in the guide.
 
-Daily polling compares all four npm `latest` versions and the README digest with
+Daily polling compares all four npm `latest` versions and the guide digest (`README.md` plus `docs/guide/*.md`) with
 the automated Tested with record. A difference runs the walkthrough. Weekly and
 manual `try_it=force` runs execute regardless. Polling detects the latest release
 eventually; several releases between polls can be coalesced. PRs and main pushes
