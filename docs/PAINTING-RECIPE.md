@@ -4,7 +4,7 @@
 in `config.json` and a stick figure the ControlNet is given. This is the shape of one the
 project used: a checkpoint, a sampler, the prompt in parts, and a skeleton that holds the
 arms away from the body. Copy both files into `my-rig`, change the prompt to your
-character, and run the command in [Route A, step 4](../README.md#route-a-your-own-nvidia-gpu).
+character, and run the command in [Route A, step 4](guide/make-your-own-character.md#route-a-your-own-nvidia-gpu).
 
 `config.json`:
 

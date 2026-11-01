@@ -1,7 +1,7 @@
 // Trusted default-branch job only. Verification jobs never receive write scopes.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { updateRecord, readRecord, digest, packages } from './try-it.ts';
+import { updateRecord, readRecord, guideDigest, packages } from './try-it.ts';
 
 export async function publish(root: string, proposal: string, receipt: any, run: (args: string[]) => string) {
   if (receipt.status !== 'PASS' || receipt.complete !== true) throw Error('PUBLISH: incomplete walkthrough');
@@ -11,7 +11,7 @@ export async function publish(root: string, proposal: string, receipt: any, run:
   const updated = updateRecord(current, record);
   // This return precedes every git, PR and dispatch call, including branch creation.
   if (updated === current) return { changed: false };
-  if (digest(readFileSync(resolve(root, 'README.md'), 'utf8')) !== receipt.guide_sha256 || record.guide_sha256 !== receipt.guide_sha256 || !packages.every(p => receipt.versions?.[p] === record.versions[p])) throw Error('PUBLISH: guide or versions changed since verification');
+  if (guideDigest(root) !== receipt.guide_sha256 || record.guide_sha256 !== receipt.guide_sha256 || !packages.every(p => receipt.versions?.[p] === record.versions[p])) throw Error('PUBLISH: guide or versions changed since verification');
   if (!process.env.GITHUB_REPOSITORY) throw Error('PUBLISH: repository missing');
   const repo = process.env.GITHUB_REPOSITORY;
   const branch = 'automation/try-it-tested';

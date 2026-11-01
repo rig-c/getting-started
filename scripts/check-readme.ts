@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-// #43: post-cut 6,821 whitespace-delimited words * 1.10 = 7,503.1;
-// rounded UP to the next 50 = 7,550. No earlier lower cap was found.
-export const README_WORD_CAP = 7550;
+// #48: post-cut 2,451 whitespace-delimited words * 1.10 = 2,696.1;
+// rounded UP to the next 50 = 2,700.
+export const README_WORD_CAP = 2700;
 export const README_HEADINGS = [
   'The whole thing in one glance',
   'Try it first — no GPU, about 3 minutes',
