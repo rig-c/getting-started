@@ -1,4 +1,8 @@
-# Getting started with rig-c
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rig-c/getting-started/main/assets/banner.svg" alt="rig-c/getting-started — Step-by-step walkthrough from one character painting to a browser rig" width="100%" />
+</p>
+
+# rig-c/getting-started
 
 You start with one painting of a character. You end with that character rigged — split
 into movable pieces on a skeleton — breathing, blinking and waving in your browser.
