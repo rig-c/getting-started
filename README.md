@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rig-c/getting-started/main/assets/banner.svg" alt="rig-c/getting-started — Step-by-step walkthrough from one character painting to a browser rig" width="100%" />
+  <img src="assets/banner.svg" alt="rig-c/getting-started — Step-by-step walkthrough from one character painting to a browser rig" width="100%" />
 </p>
 
 # rig-c/getting-started
