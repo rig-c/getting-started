@@ -73,7 +73,7 @@ This is a hand-placed set for the example painting (1664 x 2432). Save it as
 }
 ```
 
-With this set, the example rig comes out with 44 bones: a chain per leg, and the shoes cut
+With this set and step 7's bust landmarks, the example rig comes out with 46 bones: a chain per leg, and the shoes cut
 into one part per foot under each shin, the same as the script's joints give once the
 README's step 7 has moved their left ankle. The feet are cut only when each ankle lies on
 its leg's art and on the shoes; `l_ankle` sits at `[848, 2140]` for that, and the README's

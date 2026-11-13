@@ -47,7 +47,7 @@ const cards = selected.map(name => {
 const pageNames = model.pages.map((p: any) => p.name);
 for (const name of pageNames) input(join(dirname(modelPath), name));
 console.log('DEMO_READER_PREFLIGHT', JSON.stringify({ layers: cards.map(c => c.name), pages: pageNames, animations: Object.keys(skeleton.animations) }));
-assert(existsSync(join(tools, 'node_modules/playwright/index.mjs')), 'Install playwright@1.58.2 in --tools first');
+assert(existsSync(join(tools, 'node_modules/playwright/index.mjs')), 'Install playwright@1.65.0 in --tools first');
 const { chromium } = await import(join(tools, 'node_modules/playwright/index.mjs'));
 
 const W = 720, H = 600, fps = 12, count = 93, duration = 7750;

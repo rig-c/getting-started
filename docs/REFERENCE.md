@@ -8,6 +8,37 @@ quoted from. Three words recur:
 - **stated by \<project\>**: copied from that project's own documentation, with a link;
 - **not measured yet**: nobody has run it for this guide. It is not guessed.
 
+## Step 7: bust landmarks
+
+The example comes from [exam commit 01436ee3f02c189fe1a1e9656fe62068889837f5](https://github.com/rig-c/exam/tree/01436ee3f02c189fe1a1e9656fe62068889837f5/tasks/01-build/inputs).
+The 1664 × 2432 painting shows two rounded shirt volumes, shading converging toward
+the central button placket, and no rigid chest plate. The full-run `topwear` layer
+contains both volumes in one shirt; a separate bust layer is not required.
+Declaring no bust would contradict that art. These are hand-placed visual landmarks,
+not anatomical measurements inferred by the joint detector.
+
+| Landmark | Painting pixels | Rig pixels at scale 0.5 | Full-run layer pixels, nearest sample | Alpha |
+| --- | --- | --- | --- | --- |
+| Character right apex | [786, 642] | [393, 321] | [493, 270] | 255 |
+| Character left apex | [960, 638] | [480, 319] | [566, 269] | 255 |
+
+Coordinates have their origin at the image's top left, x right/y down; character
+right is image left. The 1024-square full-run input pads the painting by 384 pixels
+on the left, then scales by 1024/2432: `(x + 384, y) × 1024/2432`. Its `topwear`
+opaque-alpha (at least 250) box is [459, 180, 599, 357], right/bottom exclusive;
+both declared samples are inside it. Painting SHA-256:
+`1064fc12130381dcfea6d617d4812b5b7809586f5e165925d2f29815e1cb90e5`;
+full-run `parts/topwear.png` SHA-256:
+`4e87cfa4b06b4592f0871eb4c44f22db9dbd55c8ce4c2f1cfb8e7f5b52bd67a7`.
+
+The parts [chest-carrier guide](https://github.com/rig-c/parts/blob/main/docs/AUTHORING.md#drafting-the-chest-carrier)
+requires rig-pixel `apex_r` and `apex_l`. Step 7 supplies them and leaves `cleavage`
+to the documented intersection with the neck-to-hip midline; this point is a rig
+construction, not an additional visible anatomical mark. Steps 9c and 9d read the
+same file when drafting again. The two new bones, `boob_r` and `boob_l`, belong to
+`chest`; they do not require new animation tracks. Choose landmarks for your own
+painting rather than copying this example's coordinates.
+
 ## Tested with
 
 <!-- try-it-tested:start -->
