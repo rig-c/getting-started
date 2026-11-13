@@ -17,6 +17,14 @@ screenshots, animation movement, tracks, pause/resume and breeze,
 selects **turn** in the menu and checks its track, pose and changing pixels,
 then stops its server. Human visual and seam assessment is not run by this job.
 Other persistent commands hit the named walkthrough timeout rather than silently pass.
+
+Browser helpers and demo export tools pin Playwright 1.65.0, whose Chromium and
+system-dependency installer support Ubuntu 26.04; support began in the
+[1.61 release](https://playwright.dev/docs/release-notes#version-161). The helpers
+install it in separate temporary tool directories; there is no repository package
+manifest or lockfile to update. Historical browser versions in REFERENCE.md remain
+records of their original runs.
+
 The step 9d native extremes plate, its JSON reading and the consumed turn config/keys
 are retained as `turn-extremes.png`, `turn-extremes.json` and `turn-input.json`
 before the consumer is removed, and uploaded with the walkthrough receipt.

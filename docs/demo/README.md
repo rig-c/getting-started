@@ -31,7 +31,7 @@ export PLAYWRIGHT_BROWSERS_PATH="$DEMO_SCRATCH/browsers"
 export PLAYWRIGHT_SKIP_BROWSER_GC=1
 mkdir -p "$TMPDIR" "$XDG_CACHE_HOME" "$BUN_INSTALL_CACHE_DIR" "$UV_CACHE_DIR" "$UV_PYTHON_INSTALL_DIR" "$PLAYWRIGHT_BROWSERS_PATH" "$DEMO_SCRATCH/browser-tools"
 cd "$DEMO_SCRATCH/browser-tools"
-bun add --exact playwright@1.58.2
+bun add --exact playwright@1.65.0
 bun node_modules/playwright/cli.js install chromium
 cd /path/to/getting-started
 bun docs/demo/regenerate.ts --consumer /path/to/my-rig --scratch "$DEMO_SCRATCH" --check

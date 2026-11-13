@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 const input = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const tools = join(dirname(input.output), 'browser-tools'); mkdirSync(tools, { recursive: true });
 writeFileSync(join(tools, 'package.json'), '{"private":true,"type":"module"}\n');
-for (const command of [['bun', 'add', '--exact', 'playwright@1.58.2'], ['bun', join(tools, 'node_modules/playwright/cli.js'), 'install', ...(process.env.CI ? ['--with-deps'] : []), 'chromium']]) {
+for (const command of [['bun', 'add', '--exact', 'playwright@1.65.0'], ['bun', join(tools, 'node_modules/playwright/cli.js'), 'install', ...(process.env.CI ? ['--with-deps'] : []), 'chromium']]) {
   const child = Bun.spawn(command, { cwd: tools, stdout: 'inherit', stderr: 'inherit' });
   assert.equal(await child.exited, 0, `Step 10 browser setup: ${command[0]} ${command[1]}`);
 }

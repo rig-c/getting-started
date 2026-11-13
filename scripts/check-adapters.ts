@@ -211,7 +211,7 @@ try {
   console.log('[bar:guide-cloth] step 9c build exit 0; 27 physics and 3 transform constraints, idle and hello PASS');
   // Verification tools are separate from each empty consumer installation.
   const tools = join(temp, 'tools'); mkdirSync(tools); writeFileSync(join(tools, 'package.json'), '{"private":true,"type":"module"}');
-  run(['npm', 'install', '--no-audit', '--no-fund', 'playwright@1.58.2'], tools);
+  run(['npm', 'install', '--no-audit', '--no-fund', 'playwright@1.65.0'], tools);
   run(['bun', join(tools, 'node_modules/playwright/cli.js'), 'install', ...(process.argv.includes('--install-system-deps') ? ['--with-deps'] : []), 'chromium'], tools);
   const { chromium } = await import(join(tools, 'node_modules/playwright/index.mjs'));
   // Run the documented step-10 server ourselves. Remap its advertised port only;
