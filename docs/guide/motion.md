@@ -57,7 +57,7 @@ cat > work/cloth.json <<'EOF'
 }
 EOF
 bun ../getting-started/scripts/take.ts work/cloth.json config.json cloth
-bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json --cloth config.json --write-config config.cloth.json
+bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json --bust-landmarks bust-landmarks.json --cloth config.json --write-config config.cloth.json
 mv config.cloth.json config.json
 bun -e 'const f = "config.json", c = await Bun.file(f).json(); c.motion.tracks.find((t) => t.bone === "bun").amp = 1; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
 bunx rig-parts build --config config.json --source inputs/painting.png --full inputs/layers/full --head inputs/layers/head --out out --loop --lead-in 1
