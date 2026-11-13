@@ -302,6 +302,7 @@ Fixes for walkthrough, ComfyUI, web-demo and joint-script errors: [docs/guide/tr
 
 ## Where to go next
 
+- **Start a project.** `bunx rig-create init p1` sets up the interview and a signed plan before rigging ([rig-c/create](https://github.com/rig-c/create)).
 - **Look at the skeleton.** `bunx rigc inspect --candidate out/check/build --show art,bones --hide-bone '*_ctl' --max 1200 --out out/inspect.png`
   draws the bones over the setup pose;
   `bunx rigc render --candidate out/check/build --animation idle --out out/render` writes
