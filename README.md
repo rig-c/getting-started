@@ -147,7 +147,7 @@ minute in all on a fast connection; after that it takes about 2 seconds. You sho
 
 No Python? [docs/KEYPOINTS.md](docs/KEYPOINTS.md) has a hand-placed set for this very
 painting; save it as `keypoints.json`. Its left ankle is already where step 7's first line
-puts it, and you get the same 44 bones. It was tuned to the script's joints, so the steps
+puts it, and you get the same 46 bones. It was tuned to the script's joints, so the steps
 print slightly different joint-dependent readings. The earlier body-root measurements used
 this hand-placed set; the expected lines below now use the cold detector run.
 
@@ -155,10 +155,15 @@ this hand-placed set; the expected lines below now use the cold detector run.
 
 ```sh
 bun -e 'const f = "keypoints.json", k = await Bun.file(f).json(); k.people[0].joints.l_ankle.at = [848, 2140]; await Bun.write(f, JSON.stringify(k, null, 1) + "\n")'
-bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json
+cat > bust-landmarks.json <<'EOF'
+{ "apex_r": [393, 321], "apex_l": [480, 319] }
+EOF
+bunx rig-parts propose --parts work/rig --source inputs/painting.png --out work --keypoints keypoints.json --bust-landmarks bust-landmarks.json
 bun ../getting-started/scripts/take.ts work/proposal.json config.json bones meshes regions motion limbs
 bun -e 'const f = "config.json", c = await Bun.file(f).json(); delete c.regions["upperarm-r"]; c.limbs.arm_r.segments[0].from = "upperarm-r"; c.assemble.extend_painting = [{ part: "shin_l", band: [405, 1073, 444, 1098], max_distance: 15, min_held_alpha: 250, order: 0 }, { part: "foot_l", band: [440, 1092, 444, 1098], max_distance: 4, min_held_alpha: 250, order: 1 }]; await Bun.write(f, JSON.stringify(c, null, 2) + "\n")'
 ```
+
+The sample's shirt holds a visible bust; the measured [landmarks](docs/REFERENCE.md#step-7-bust-landmarks) declare it in rig pixels.
 
 `propose` drafts the bones, the meshes and an idle motion; `take.ts` copies them into the
 config. This is where a person corrects the draft, and the first line is the example's one
@@ -173,8 +178,8 @@ step 9b's hello moves a foot.
 
 You should see a note per joint, among them `and foot_r, shoes's share below the ankle, on
 bone foot_r at the r_ankle joint under leg_r1` and the same for `foot_l`, then
-`0 LINT line(s) over 6 mesh(es) and the hip` and a coverage line ending `44 bone(s) — 29
-checked and clean, 0 checked with a LINT line, 15 not checked`. Open
+`0 LINT line(s) over 6 mesh(es) and the hip` and a coverage line ending `46 bone(s) — 29
+checked and clean, 0 checked with a LINT line, 17 not checked`. Open
 `work/render/landmarks.png` to see the bones over the painting.
 
 The last line assigns the example's missing ankle painting to the final `shin_l`

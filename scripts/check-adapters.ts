@@ -141,10 +141,15 @@ try {
   const slotNames = feetBuild.slots.map(slot => slot.name);
   for (const name of ['foot_r', 'foot_l']) assert(slotNames.includes(name), `GUIDE_FEET: step 8's build has no ${name} slot (step 7's l_ankle correction)`);
   assert(!slotNames.includes('shoes'), 'GUIDE_FEET: step 8\'s build still draws the shoes as one part');
-  assert.equal(feetBuild.bones.length, 72, `GUIDE_FEET: expected 72 bones in step 8's build, found ${feetBuild.bones.length}`);
+  assert.equal(feetBuild.bones.length, 74, `GUIDE_FEET: expected 74 bones in step 8's build, found ${feetBuild.bones.length}`);
+  const bust = JSON.parse(readFileSync(join(consumer, 'config.json'), 'utf8')).meshes.topwear.contour.bust;
+  assert.deepEqual(bust.apex_r, [393, 321], 'GUIDE_BUST: character-right apex must retain the measured rig coordinates');
+  assert.deepEqual(bust.apex_l, [480, 319], 'GUIDE_BUST: character-left apex must retain the measured rig coordinates');
+  for (const name of ['boob_r', 'boob_l']) assert(feetBuild.bones.some(b => b.name === name), `GUIDE_BUST: missing ${name}`);
+  reports.bust = bust;
   reports.feet = { slots: ['foot_r', 'foot_l'], bones: feetBuild.bones.length };
   rootGate('out/check/check.json', 'idle');
-  console.log('[bar:guide-feet] step 8 build: foot_r and foot_l slots, no shoes slot, 72 bones PASS');
+  console.log('[bar:guide-feet] step 8 build: foot_r and foot_l slots, no shoes slot, 74 bones PASS');
   // Revert the real field-copy repair in a private README copy. Its command,
   // over the same proposal and installed packages, must reproduce the refusal.
   const take = blocks(step(7), 'sh')[0].split('\n').find(line => line.includes('/scripts/take.ts '));
