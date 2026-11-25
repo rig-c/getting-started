@@ -31,12 +31,12 @@ painting nor the layers, and ships no model weights.
 
 | Package | Takes | Gives |
 | --- | --- | --- |
-| [`@rig-c/create`](https://github.com/rig-c/create) | a painting, your direction | a project an agent runs in four steps you approve |
+| [`@rig-c/create`](https://github.com/rig-c/create) | a painting, your direction | a project an agent builds step by step, with you looking in |
 | [`@rig-c/parts`](https://github.com/rig-c/parts) | a painting, its See-through layers | parts, meshes, bones, an idle: a checked rig |
 | [`@rig-c/core`](https://github.com/rig-c/core) | a rig spec, a motion spec | skeleton data and a compiled model, written only after its checks pass |
 | [`@rig-c/pose`](https://github.com/rig-c/pose) | joint positions over time, a rig | that motion on the rig |
 | [`@rig-c/play`](https://github.com/rig-c/play) | the compiled model | the character playing on a web page |
-| [`@rig-c/review`](https://github.com/rig-c/review) | an agent's results and questions | a local page to look, answer and send feedback |
+| [`@rig-c/review`](https://github.com/rig-c/review) | the agent's current work | a local page to look at the work together and comment |
 
 If an output of yours differs in a detail, [docs/REFERENCE.md](docs/REFERENCE.md) has
 the versions, machines and timings of the tested runs.
@@ -301,13 +301,12 @@ In a project of your own an agent runs these tools, with two more packages.
 
 **[`@rig-c/create`](https://github.com/rig-c/create#readme) runs the cycle.**
 `bunx rig-create init p1` with your painting sets
-up a project for your agent. It asks before it works and you judge each result: parts
-and meshes, an interview ending in a plan you sign, rig and motions, then
-direction. Nothing moves on until you approve it.
+up a project for your agent. It works in steps (parts and meshes, rig and motions,
+direction), proposing a plan for each and showing you the result.
 
 **[`@rig-c/review`](https://github.com/rig-c/review#readme) is where you look.** A local
-page: create puts each result and question there, you answer and pin comments,
-and the agent reads them back. The page never edits what it shows.
+page where you and the agent look at the work together. You pin comments on what you
+see, and the agent reads them. The page never edits what it shows.
 
 ## Make your own character
 
