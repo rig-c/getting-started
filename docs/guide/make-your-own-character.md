@@ -24,7 +24,7 @@ git. Each requirement's exact wording and source is in
 You install ComfyUI, one set of custom nodes and four model files; then two `rig-parts`
 commands drive ComfyUI for you. (Any other way of running See-through works too.) [Route A measurements and unmeasured steps](../REFERENCE.md#route-a-measured-2026-10-29).
 
-**1. Install ComfyUI**, following its own [manual install](https://github.com/Comfy-Org/ComfyUI#manual-install-windows-linux):
+**1. Install ComfyUI**, following its own [manual install](https://github.com/Comfy-Org/ComfyUI#manual-install):
 
 ```sh
 git clone https://github.com/Comfy-Org/ComfyUI
