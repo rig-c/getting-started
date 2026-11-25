@@ -95,7 +95,7 @@ swing at least as far as the one above. The draft gives the bun 0.8 degrees unde
 
 From the build you should see `loop physics: 27 physics constraint(s) left out of the loop's
 frames, reported, not judged`, `WARN chain` lines from `CLOTH_SETTLES` for the skirt,
-`check: PASS`, warnings from the internal seams and `CLOTH_SETTLES`, a `lead-in:` line ending `max |d| 1, 0 px over
+`check: PASS`, warnings from the internal seams and `CLOTH_SETTLES`, a `lead-in:` line ending `0 px over
 40 — the jump at the wrap`, and `build: PASS`. Physics starts at rest when an animation
 starts, and the skirt hangs into place within 2 seconds. Then it rests, because the idle
 never moves her hip; `CLOTH_SETTLES` says so, and it is a warning, not a failure. The hello's
