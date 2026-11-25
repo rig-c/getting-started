@@ -20,19 +20,30 @@ Under-eight-second looping WebP, from this walkthrough's outputs.
    is a model that cuts a painting into layers (hair, face, eyes, clothes…) the way a PSD is
    layered. It wants a GPU too, or you use its free web demo. The joints — shoulders,
    elbows, knees and so on — come from a small script on the CPU, or your own hand.
-3. **Run the four rig-c packages.** They turn the layers into a rig, give it a motion, and
+3. **Run the rig-c packages.** They turn the layers into a rig, give it a motion, and
    play it in a browser. **No GPU, ever.**
 
-Only steps 1 and 2 want a GPU, and both have a no-GPU way. The four packages make neither
-the painting nor the layers, and ship no model weights.
+Only steps 1 and 2 want a GPU, and both have a no-GPU way. rig-c makes neither the
+painting nor the layers, and ships no model weights.
 
-*Try it first* has been run on an Apple Silicon Mac and, for the latest published-package
-refresh, on Linux with empty caches and the joint detector. The versions, setup, date and
-timings are in [docs/REFERENCE.md](docs/REFERENCE.md) — if an output of yours differs in a
-detail, look there first.
+**New here?** [Try it first](#try-it-first--no-gpu-about-3-minutes) builds a published example.
+**Your own project?** [Start a real project](#start-a-real-project) begins with `@rig-c/create`.
+
+| Package | Takes | Gives |
+| --- | --- | --- |
+| [`@rig-c/create`](https://github.com/rig-c/create) | a painting, your direction | a project an agent builds step by step, with you looking in |
+| [`@rig-c/parts`](https://github.com/rig-c/parts) | a painting, its See-through layers | parts, meshes, bones, an idle: a checked rig |
+| [`@rig-c/core`](https://github.com/rig-c/core) | a rig spec, a motion spec | skeleton data and a compiled model, written only after its checks pass |
+| [`@rig-c/pose`](https://github.com/rig-c/pose) | joint positions over time, a rig | that motion on the rig |
+| [`@rig-c/play`](https://github.com/rig-c/play) | the compiled model | the character playing on a web page |
+| [`@rig-c/review`](https://github.com/rig-c/review) | the agent's current work | a local page to look at the work together and comment |
+
+If an output of yours differs in a detail, [docs/REFERENCE.md](docs/REFERENCE.md) has
+the versions, machines and timings of the tested runs.
 
 **Contents:** [Try it first](#try-it-first--no-gpu-about-3-minutes) ·
 [Use what you made](#use-what-you-made) ·
+[Start a real project](#start-a-real-project) ·
 [Make your own character](#make-your-own-character) ·
 [Troubleshooting](#troubleshooting) · [Where to go next](#where-to-go-next) ·
 [Credits and licences](#credits-and-licences)
@@ -116,7 +127,7 @@ bunx rig-parts inputs --source inputs/painting.png --config config.json --out wo
 `--canvas` is the painting's width x height. [`scripts/take.ts`](scripts/take.ts) copies
 fields the tools wrote into `config.json`, so you never move JSON by hand.
 
-You should see `29 layer(s): 29 with opaque pixels` and `0 WARN line(s)`,
+You should see `30 layer(s): 30 with opaque pixels` and `0 WARN line(s)`,
 `work/head_box.json` reading `{"head_box":[616,32,1132,548]}`, then `st_input_head.png 516x516`
 — the image for the head run, which here is already in `inputs/layers/head`.
 
@@ -131,7 +142,7 @@ bunx rig-parts assemble --source inputs/painting.png --full inputs/layers/full -
 The plan says which layer becomes which part, and its `notes` say why any were left out.
 About a minute.
 
-You should see 22 parts, then `recomposite vs source: mean |d|=1.13, within 8: 97.8%`.
+You should see 23 parts, then `recomposite vs source: mean |d|=1.13, within 8: 97.8%`.
 Open `work/render/recomposite_error_rig.png`: red is painting that no part holds. A few
 small specks are normal; a large red area means a part is missing.
 
@@ -200,8 +211,8 @@ bunx rig-parts build --config config.json --source inputs/painting.png --full in
 ```
 
 About a minute. You should see `limb cut: "shoes" opaque 13735 = "foot_r" 8071 + "foot_l"
-5664`, the shoes cut in two, then `[check] check: PASS; 12 of 14 bar(s) measured, 2 skipped
-(FEET_STAY_LEVEL, STRESS_OFF_CHAIN)`, then `build: PASS`. `FEET_STAY_LEVEL` is skipped
+5664`, the shoes cut in two, then `[check] check: PASS; 11 of 14 bar(s) measured, 3 skipped
+(TIP_OVER_ROOT, FEET_STAY_LEVEL, STRESS_OFF_CHAIN)`, then `build: PASS`. `FEET_STAY_LEVEL` is skipped
 because the idle turns no leg; step 9b's hello does. Open `out/idle.gif`: the character breathes and blinks in a 3.3-second loop.
 If any line says `FAIL`, nothing was written, and that line says what to change.
 
@@ -243,7 +254,6 @@ checker also reads the body-root seams. It should end `check: PASS`.
 
 The upper arm stays under the armhole so the shoulder never opens as the forearm waves
 (`--peak-degrees 180` by default; [the measurements](docs/REFERENCE.md#step-9-the-forearm-wave)).
-The separate elbow opening is tracked in [#18](https://github.com/rig-c/getting-started/issues/18).
 
 ### 9b. Say hello
 
@@ -285,6 +295,19 @@ animations. Ctrl+C stops the server. That's the whole chain. The page is
 
 Play the rig on the web, in an engine adapter, the Spine editor, or a Spine runtime: [docs/guide/use-what-you-made.md](docs/guide/use-what-you-made.md).
 
+## Start a real project
+
+In a project of your own an agent runs these tools, with two more packages.
+
+**[`@rig-c/create`](https://github.com/rig-c/create#readme) runs the cycle.**
+`bunx rig-create init p1` with your painting sets
+up a project for your agent. It works in steps (parts and meshes, rig and motions,
+direction), proposing a plan for each and showing you the result.
+
+**[`@rig-c/review`](https://github.com/rig-c/review#readme) is where you look.** A local
+page where you and the agent look at the work together. You pin comments on what you
+see, and the agent reads them. The page never edits what it shows.
+
 ## Make your own character
 
 Make your own painting, layers and joints: [docs/guide/make-your-own-character.md](docs/guide/make-your-own-character.md).
@@ -307,18 +330,17 @@ Fixes for walkthrough, ComfyUI, web-demo and joint-script errors: [docs/guide/tr
 
 ## Where to go next
 
-- **Start a project.** `bunx rig-create init p1` sets up the interview and a signed plan before rigging ([rig-c/create](https://github.com/rig-c/create)).
 - **Look at the skeleton.** `bunx rigc inspect --candidate out/check/build --show art,bones --hide-bone '*_ctl' --max 1200 --out out/inspect.png`
   draws the bones over the setup pose;
   `bunx rigc render --candidate out/check/build --animation idle --out out/render` writes
   the idle's 41 frames and a contact sheet.
-- **One command for all of it.** The [trailer](https://github.com/rig-c/trailer) repository
-  rebuilds the rig-c trailer, a seated character on a swing, with one script.
-- **The packages' own guides**: [`@rig-c/parts` AUTHORING.md](https://github.com/rig-c/parts/blob/main/docs/AUTHORING.md)
-  (every config field, what each refusal means, expressions and physics),
-  [`@rig-c/core`](https://github.com/rig-c/core#readme) (the compiler and its check),
-  [`@rig-c/pose`](https://github.com/rig-c/pose#readme) (map and pose formats, keypoints from
-  video), [`@rig-c/play`](https://github.com/rig-c/play#readme) (the player's API and cost).
+- **The packages' own guides** are linked from the [table at the top](#the-whole-thing-in-one-glance).
+  Parts' [AUTHORING.md](https://github.com/rig-c/parts/blob/main/docs/AUTHORING.md)
+  has every config field, each refusal, expressions and physics.
+- **More.** One script rebuilds the [trailer](https://github.com/rig-c/trailer);
+  [adapters](https://github.com/rig-c/adapters) play the model in PixiJS, Phaser or
+  Three.js; [examples](https://github.com/rig-c/examples) and the
+  [exam](https://github.com/rig-c/exam) for AI agents are public.
 - [docs/REFERENCE.md](docs/REFERENCE.md): tested-with versions, every measured time and
   size, each requirement's source, and what hasn't been measured yet.
 

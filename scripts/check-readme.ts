@@ -8,6 +8,7 @@ export const README_HEADINGS = [
   'The whole thing in one glance',
   'Try it first — no GPU, about 3 minutes',
   'Use what you made',
+  'Start a real project',
   'Make your own character',
   'Troubleshooting',
   'Where to go next',
