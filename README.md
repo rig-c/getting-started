@@ -297,16 +297,20 @@ Play the rig on the web, in an engine adapter, the Spine editor, or a Spine runt
 
 ## Start a real project
 
-In a project of your own an agent runs these tools, with two more packages.
+[Create](https://github.com/rig-c/create#readme) sets up the project for your
+agent. From the folder with your painting, run:
 
-**[`@rig-c/create`](https://github.com/rig-c/create#readme) runs the cycle.**
-`bunx rig-create init p1` with your painting sets
-up a project for your agent. It works in steps (parts and meshes, rig and motions,
-direction), proposing a plan for each and showing you the result.
+```sh
+bunx --package @rig-c/create rig-create init p1 --painting ./painting.png --origin "My original painting" --owner-language en
+```
 
-**[`@rig-c/review`](https://github.com/rig-c/review#readme) is where you look.** A local
-page where you and the agent look at the work together. You pin comments on what you
-see, and the agent reads them. The page never edits what it shows.
+It prints `Created project p1 at …`. Have your agent read `p1/AGENTS.md`.
+
+Your agent shares one plan per step in chat and proceeds through parts
+and meshes, the rigging interview, rig and animation, and direction. You
+choose camera, timing and composition in chat. Look at the work and leave
+comments in [Review](https://github.com/rig-c/review#readme). See [Create's start guide](https://github.com/rig-c/create#install-and-start)
+for the first commands and output.
 
 ## Make your own character
 
