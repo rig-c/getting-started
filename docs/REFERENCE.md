@@ -50,17 +50,17 @@ Latest complete CI run; timings below retain their original dates and machines.
 {
   "status": "PASS",
   "complete": true,
-  "date": "2026-11-01",
+  "date": "2026-11-28",
   "versions": {
-    "@rig-c/parts": "2.0.2",
-    "@rig-c/core": "3.0.0",
+    "@rig-c/parts": "2.63.1",
+    "@rig-c/core": "3.11.0",
     "@rig-c/pose": "1.7.0",
-    "@rig-c/play": "1.22.1"
+    "@rig-c/play": "1.28.0"
   },
-  "bun": "1.4.4",
-  "guide_sha256": "0cb6db3daa1c5ff2e9a5da8209d327cec5dbed76c6298a55e7599ed1bc63a930",
-  "clone_commit": "835ff82c38bc75093bf8942ad97fb517c27db402",
-  "run": "https://github.com/rig-c/getting-started/actions/runs/41298287337"
+  "bun": "1.4.5",
+  "guide_sha256": "893bd22ab5b268c7052047b89c06cb7afe9be4c3f323e1663b7e0d460e6c2297",
+  "clone_commit": "5212878ae88114bb60f30eda2e7d9df804c97970",
+  "run": "https://github.com/rig-c/getting-started/actions/runs/46141751082"
 }
 ```
 <!-- try-it-tested:end -->
